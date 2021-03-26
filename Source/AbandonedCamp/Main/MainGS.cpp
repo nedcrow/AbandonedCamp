@@ -2,7 +2,36 @@
 
 
 #include "MainGS.h"
+#include "MainPC.h"
+#include "Net/UnrealNetwork.h"
+#include "Kismet/GameplayStatics.h"
 
 AMainGS::AMainGS() {
+	bReplicates = true;
+}
+
+void AMainGS::BeginPlay() {
+	Super::BeginPlay();
+}
+
+void AMainGS::GetLifetimeReplicatedProps(TArray < FLifetimeProperty >& OutLifetimeProps) const {
+	Super::GetLifetimeReplicatedProps(OutLifetimeProps);
+	DOREPLIFETIME(AMainGS, HoveredTileIndex);
+}
+
+void AMainGS::OnRep_ChangedTileIndex()
+{
+	AMainPC* PC = Cast<AMainPC>(UGameplayStatics::GetPlayerController(GetWorld(), 0));
+	
+	if (PC->IsLocalController()) {
+		if (F_TileHoveredEvent.IsBound() == true) {
+			if (HoveredTileIndex == -1) {
+				F_TileHoveredEvent.Broadcast(false);
+			}
+			else {
+				F_TileHoveredEvent.Broadcast(true);
+			}
+		}
+	}
 
 }

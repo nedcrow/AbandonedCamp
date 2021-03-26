@@ -19,8 +19,11 @@ public:
 	//UPROPERTY(EditAnywhere, BlueprintReadOnly)
 	//	class USphereComponent* SphereCollision;
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly)
-		class USphereComponent* Body;
+		class USphereComponent* Sphere;
 	
+	UPROPERTY(VisibleAnywhere, BlueprintReadOnly)
+		class USphereComponent* Body;
+
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly)
 		class USpringArmComponent* SpringArm;
 	
@@ -43,7 +46,7 @@ public:
 
 	// Translate
 	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category="Pawn")
-	float bTurnSpeed = 0.1f;
+	float TurnSpeed = 0.1f;
 	void MoveForward(float Value);
 	void MoveRight(float Value);
 	void TurnRight(float Value);
@@ -51,5 +54,6 @@ public:
 	// Interaction
 	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Interaction")
 	uint8 bCanSelectTile = true;
-	void SelectTile();
+	void TraceCursor();
+	void CheckCurrentTile(TArray<FHitResult> OutHits);
 };

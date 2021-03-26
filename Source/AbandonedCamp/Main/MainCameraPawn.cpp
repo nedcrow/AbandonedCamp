@@ -18,8 +18,11 @@ AMainCameraPawn::AMainCameraPawn()
  	// Set this pawn to call Tick() every frame.  You can turn this off to improve performance if you don't need it.
 	PrimaryActorTick.bCanEverTick = true;
 
+	/*Sphere = CreateDefaultSubobject<USphereComponent>(TEXT("Sphere"));
+	RootComponent = Sphere;*/
+
 	Body = CreateDefaultSubobject<USphereComponent>(TEXT("Body"));
-	Body->SetupAttachment(RootComponent);
+	RootComponent = Body;
 
 	SpringArm = CreateDefaultSubobject<USpringArmComponent>(TEXT("SpringArm"));
 	SpringArm->SetupAttachment(Body);
@@ -28,6 +31,7 @@ AMainCameraPawn::AMainCameraPawn()
 
 	Camera = CreateDefaultSubobject<UCameraComponent>(TEXT("Camera"));
 	Camera->SetupAttachment(SpringArm);
+	//Camera->SetAspectRatio(1.0f);
 
 	PawnMovementComponent = CreateDefaultSubobject<UFloatingPawnMovement>(TEXT("PawnMovement"));
 	PawnMovementComponent->UpdatedComponent = RootComponent;
@@ -47,7 +51,7 @@ void AMainCameraPawn::BeginPlay()
 void AMainCameraPawn::Tick(float DeltaTime)
 {
 	Super::Tick(DeltaTime);
-	SelectTile();
+	TraceCursor();
 }
 
 // Called to bind functionality to input
@@ -58,7 +62,7 @@ void AMainCameraPawn::SetupPlayerInputComponent(UInputComponent* PlayerInputComp
 	PlayerInputComponent->BindAxis(TEXT("MoveForward"), this, &AMainCameraPawn::MoveForward);
 	PlayerInputComponent->BindAxis(TEXT("MoveRight"), this, &AMainCameraPawn::MoveRight);
 	PlayerInputComponent->BindAxis(TEXT("TurnRight"), this, &AMainCameraPawn::TurnRight);
-	PlayerInputComponent->BindAction(TEXT("ClickLeft"), IE_Pressed, this, &AMainCameraPawn::SelectTile);
+	PlayerInputComponent->BindAction(TEXT("ClickLeft"), IE_Pressed, this, &AMainCameraPawn::TraceCursor);
 }
 
 void AMainCameraPawn::MoveForward(float Value)
@@ -68,8 +72,6 @@ void AMainCameraPawn::MoveForward(float Value)
 		return;
 	}
 
-	//AddMovementInput(GetActorForwardVector(), Value);
-	//AddMovementInput(FVector::ForwardVector, Value);
 	FVector ControlForwardVector2D = GetControlRotation().Vector().GetSafeNormal2D();
 	AddMovementInput(ControlForwardVector2D, Value);
 }
@@ -81,8 +83,6 @@ void AMainCameraPawn::MoveRight(float Value)
 		return;
 	}
 
-	//AddMovementInput(GetActorRightVector(), Value);
-	//AddMovementInput(FVector::RightVector, Value);
 	FVector ControlRightVector2D = GetControlRotation().RotateVector(FVector::RightVector).GetSafeNormal2D();
 	AddMovementInput(ControlRightVector2D, Value);
 }
@@ -94,17 +94,19 @@ void AMainCameraPawn::TurnRight(float Value)
 		return;
 	}
 
-	AddControllerYawInput(Value * bTurnSpeed);
+	AddControllerYawInput(Value * TurnSpeed);
 }
 
-void AMainCameraPawn::SelectTile()
+void AMainCameraPawn::TraceCursor()
 {
 	if (!bCanSelectTile) {
 		return;
 	}
 
 	APlayerController* PC = Cast<APlayerController>(GetController());
-	if (PC) {
+	if (PC && PC->IsLocalController()) {
+
+		// tracing
 		float MouseX;
 		float MouseY;
 		FVector CursorWorldPosition;
@@ -121,19 +123,17 @@ void AMainCameraPawn::SelectTile()
 		FVector TraceStart = CameraLocation;
 		FVector TraceEnd = TraceStart + (CursorWorldDirection * 99999.f);
 
-		// -- 
-
 		TArray<TEnumAsByte<EObjectTypeQuery>> Objects;
-
 		Objects.Add(UEngineTypes::ConvertToObjectType(ECollisionChannel::ECC_WorldDynamic));
 		Objects.Add(UEngineTypes::ConvertToObjectType(ECollisionChannel::ECC_WorldStatic));
 		Objects.Add(UEngineTypes::ConvertToObjectType(ECollisionChannel::ECC_PhysicsBody));
 
 		TArray<AActor*> ActorToIgnore;
 
-		FHitResult OutHit;
+		TArray<FHitResult> OutHits;
 
-		bool Result = UKismetSystemLibrary::LineTraceSingleForObjects(
+		/* 장애물을 대비한 multi tracing */
+		bool Result = UKismetSystemLibrary::LineTraceMultiForObjects(
 			GetWorld(),
 			TraceStart,
 			TraceEnd,
@@ -141,40 +141,55 @@ void AMainCameraPawn::SelectTile()
 			true,
 			ActorToIgnore,
 			EDrawDebugTrace::None,
-			OutHit,
+			OutHits,
 			true,
 			FLinearColor::Red,
 			FLinearColor::Green,
 			5.0f
 		);
 
-		if(OutHit.GetActor() && OutHit.GetActor()->GetComponentsByTag(UInstancedStaticMeshComponent::StaticClass(), FName("ISM")).Num() > 0) {
-			UInstancedStaticMeshComponent* TileISM = Cast<UInstancedStaticMeshComponent>(OutHit.GetActor()->GetComponentsByTag(UInstancedStaticMeshComponent::StaticClass(), FName("ISM"))[0]);
+		CheckCurrentTile(OutHits);
 			
+	}
+}
+
+void AMainCameraPawn::CheckCurrentTile(TArray<FHitResult> OutHits)
+{
+	/* 맞은 타일 확인 및 인덱스 번호 갱신 */
+	AMainGS* gs = Cast<AMainGS>(UGameplayStatics::GetGameState(GetWorld()));
+	bool isFound = false;
+	for (auto hit : OutHits) {
+		if (hit.GetActor() && hit.GetActor()->GetComponentsByTag(UInstancedStaticMeshComponent::StaticClass(), FName("Tile")).Num() > 0) {
+			UInstancedStaticMeshComponent* TileISM = Cast<UInstancedStaticMeshComponent>(hit.GetActor()->GetComponentsByTag(UInstancedStaticMeshComponent::StaticClass(), FName("Tile"))[0]);
+
 			float closestValue = -1;
 			int targetIndex = 0;
-			FVector hitLocation = FVector(OutHit.ImpactPoint.X, OutHit.ImpactPoint.Y, 0);
+			FVector hitLocation = FVector(hit.ImpactPoint.X, hit.ImpactPoint.Y, 0);
 
-			for(auto body : TileISM->InstanceBodies)
+			for (auto body : TileISM->InstanceBodies)
 			{
 				float dist = FVector::Dist(hitLocation, FVector(body->GetUnrealWorldTransform().GetLocation().X, body->GetUnrealWorldTransform().GetLocation().Y, 0));
 
-				if(dist < closestValue || closestValue < 0) { 
-					closestValue = dist; 
+				if (dist < closestValue || closestValue < 0) {
+					closestValue = dist;
 					targetIndex = body->InstanceBodyIndex;
 				}
 			}
-			/*UE_LOG(LogTemp, Warning, TEXT("Hit - (%f, %f)"), OutHit.ImpactPoint.X, OutHit.ImpactPoint.Y);
-			UE_LOG(LogTemp, Warning, TEXT("Tile Location: (%f, %f)"), TileISM->InstanceBodies[0]->GetUnrealWorldTransform().GetLocation().X, TileISM->InstanceBodies[0]->GetUnrealWorldTransform().GetLocation().Y);
-			UE_LOG(LogTemp, Warning, TEXT("Tile Index : %d"), targetIndex);*/
-			AMainGS* gs = Cast<AMainGS>(UGameplayStatics::GetGameState(GetWorld()));
-			gs->hoveredTileIndex = targetIndex;
+
+			if (gs->HoveredTileIndex != targetIndex) {
+				UE_LOG(LogTemp, Warning, TEXT("CameraPawn _ Hit (%d -> %d)"), gs->HoveredTileIndex, targetIndex);
+				gs->HoveredTileIndex = targetIndex;
+				gs->OnRep_ChangedTileIndex();
+			}
+			isFound = true;
+			break;
 		}
-		else {
-			 AMainGS* gs = Cast<AMainGS>(UGameplayStatics::GetGameState(GetWorld()));
-			 gs->hoveredTileIndex = -1;
-		}
-		//if (OutHit.GetActor()->ActorHasTag("Tile"))	UE_LOG(LogTemp, Warning, TEXT("(hit)"));
+	}
+
+	if (isFound == false && gs->HoveredTileIndex != -1) {
+		UE_LOG(LogTemp, Warning, TEXT("CameraPawn _ UnHit (%d -> %d)"), gs->HoveredTileIndex, -1);
+		gs->HoveredTileIndex = -1;
+		gs->OnRep_ChangedTileIndex();
 	}
 }
 
