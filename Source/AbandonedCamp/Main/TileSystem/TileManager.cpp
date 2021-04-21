@@ -20,12 +20,6 @@ ATileManager::ATileManager()
 	Box = CreateAbstractDefaultSubobject<UBoxComponent>(TEXT("Box"));
 	RootComponent = Box;
 
-	//Scene = CreateAbstractDefaultSubobject<USceneComponent>(TEXT("Scene"));
-	//Scene->SetupAttachment(RootComponent);
-
-	//CollisionPlane = CreateAbstractDefaultSubobject<UStaticMeshComponent>(TEXT("CollisionPlane"));
-	//CollisionPlane->SetupAttachment(Box);
-
 	DefaultTileISM = CreateAbstractDefaultSubobject<UInstancedStaticMeshComponent>(TEXT("DefaultTileISM"));
 	DefaultTileISM->SetupAttachment(Box);
 	DefaultTileISM->ComponentTags.Add("Tile");
@@ -48,10 +42,9 @@ void ATileManager::BeginPlay()
 	SetupDefaultTiles(SizeX, SizeY);
 }
 
-// Called every frame
-void ATileManager::Tick(float DeltaTime)
+FVector ATileManager::GetCurrentTileLocation()
 {
-	Super::Tick(DeltaTime);
+	return CurrentTileLocation;
 }
 
 // Tile transform setting & Instantiate tiles
@@ -80,8 +73,8 @@ void ATileManager::SetupDefaultTiles(int CountX, int CountY)
 
 void ATileManager::CallDelFunc_TileHoverdEvent(bool isHovered)
 {
-	AMainGS* gs2 = Cast<AMainGS>(UGameplayStatics::GetGameState(GetWorld()));
-	if (gs2) {
+	AMainGS* gs = Cast<AMainGS>(UGameplayStatics::GetGameState(GetWorld()));
+	if (gs) {
 		// 필수 Material 확인
 		if (Border_MI == nullptr) {
 			UE_LOG(LogTemp, Warning, TEXT("!!!- Null : border_MI -!!!"));
@@ -89,7 +82,7 @@ void ATileManager::CallDelFunc_TileHoverdEvent(bool isHovered)
 		}
 
 		// Decal 위치 준비
-		int tileIndex = gs2->HoveredTileIndex;
+		int tileIndex = gs->HoveredTileIndex;
 		FTransform tileTransform;
 		DefaultTileISM->GetInstanceTransform(tileIndex, tileTransform, true);
 		FVector tileLocation = FVector(tileTransform.GetLocation().X, tileTransform.GetLocation().Y, tileTransform.GetLocation().Z + 0);

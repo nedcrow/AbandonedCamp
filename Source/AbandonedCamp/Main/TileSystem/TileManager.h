@@ -18,23 +18,19 @@ public:
 	UPROPERTY(BlueprintReadWrite, EditAnywhere)
 	class UBoxComponent* Box;
 
-	//UPROPERTY(BlueprintReadWrite, EditAnywhere)
-	//class USceneComponent* Scene;
-
-	//UPROPERTY(BlueprintReadWrite, EditAnywhere)
-	//class UStaticMeshComponent* CollisionPlane;
-
 	UPROPERTY(BlueprintReadWrite, EditAnywhere)
 	class UInstancedStaticMeshComponent* DefaultTileISM;
 
 protected:
-	// Called when the game starts or when spawned
 	virtual void PostRegisterAllComponents() override;
 	virtual void BeginPlay() override;
 
+	UPROPERTY(BlueprintReadOnly, VisibleAnywhere, Category = "Tile")
+	FVector CurrentTileLocation;
+
 public:	
-	// Called every frame
-	virtual void Tick(float DeltaTime) override;
+	UFUNCTION()
+	FVector GetCurrentTileLocation();
 
 #pragma region About TileMap
 	/* X축 타일 갯수 */

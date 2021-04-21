@@ -3,6 +3,7 @@
 
 #include "MainGS.h"
 #include "MainPC.h"
+#include "TileSystem/TileManager.h"
 #include "Net/UnrealNetwork.h"
 #include "Kismet/GameplayStatics.h"
 
@@ -34,4 +35,9 @@ void AMainGS::OnRep_ChangedTileIndex()
 		}
 	}
 
+}
+
+ATileManager* AMainGS::GetTileManager()
+{
+	return Cast<ATileManager>(UGameplayStatics::GetActorOfClass(GetWorld(), ATileManager::StaticClass()));
 }
