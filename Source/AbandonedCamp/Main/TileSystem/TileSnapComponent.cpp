@@ -18,33 +18,38 @@ UTileSnapComponent::UTileSnapComponent()
 
 }
 
-void UTileSnapComponent::PostInitProperties()
+void UTileSnapComponent::PostEditComponentMove(bool bFinished)
 {
-	Super::PostInitProperties();
+	Super::PostEditComponentMove(bFinished);
+	SnapTileManager(bFinished);
 }
 
-void UTileSnapComponent::PostLoad()
+/*
+* 스냅 대상 : 이 컴포넌트를 가진 Actor
+* 스냅 위치 : TileManager 매트릭스 중 가장 가까운 Actor
+* 스냅 시점 : Edit 상태를 포함하여 액터가 움직였을 때 (때문에 반드시 PostEditComponentMove 통해 실행)
+*/
+void UTileSnapComponent::SnapTileManager(bool bFinished)
 {
-	Super::PostLoad();
-}
+	ATileManager* tileManager = Cast<ATileManager>(UGameplayStatics::GetActorOfClass(GetWorld(), ATileManager::StaticClass()));
+	if (tileManager && bFinished) {
+		TArray<FSnapableTransform> snapableTransforms = TArray<FSnapableTransform>();
+		FVector myLocation = GetOwner()->GetActorLocation();
 
-void UTileSnapComponent::PreEditUndo()
-{
-	Super::PreEditUndo();
-	UE_LOG(LogClass, Warning, TEXT("PostEditUndo - gs"));
-	/*AMainGS* gs = Cast<AMainGS>(UGameplayStatics::GetGameState(GetWorld()));
-	if (gs) UE_LOG(LogTemp, Warning, TEXT("PostEditUndo - gs"));
+		// snapableTransforms 담음
+		for (int i = 0; i < tileManager->DefaultTileISM->GetInstanceCount(); i++) {
+			FSnapableTransform tempSnapableTransform;
+			FTransform tempTransform;
+			tileManager->DefaultTileISM->GetInstanceTransform(i, tempTransform, true);
+			tempSnapableTransform.Transform = tempTransform;
+			tempSnapableTransform.Distance = FVector().Dist(tempTransform.GetLocation(), myLocation);
+			snapableTransforms.Add(tempSnapableTransform);
+		}
+		snapableTransforms.Sort([](FSnapableTransform a, FSnapableTransform b) {return a.Distance < b.Distance; });
 
-	ATileManager* tileManager = gs ? gs->GetTileManager() : nullptr;
-	if (tileManager) {
-		GetOwner()->SetActorLocation(tileManager->GetCurrentTileLocation());
-		UE_LOG(LogTemp, Warning, TEXT("PostEditUndo - tileManager"));
-	}*/
-}
-
-void UTileSnapComponent::PostEditUndo()
-{
-	UE_LOG(LogClass, Warning, TEXT("PostEditUndo"));
+		// 가장 가까운 위치에 상위 액터 배치
+		if (snapableTransforms.Num() > 0)GetOwner()->SetActorRelativeLocation(snapableTransforms[0].Transform.GetLocation());
+	}
 }
 
 void UTileSnapComponent::TickComponent(float DeltaTime, ELevelTick TickType, FActorComponentTickFunction* ThisTickFunction)

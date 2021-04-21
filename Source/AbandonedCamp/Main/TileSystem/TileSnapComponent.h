@@ -3,12 +3,22 @@
 #pragma once
 
 #include "CoreMinimal.h"
-#include "Components/ActorComponent.h"
+#include "Components/SceneComponent.h"
 #include "TileSnapComponent.generated.h"
 
+USTRUCT(Atomic, BlueprintType)
+struct FSnapableTransform
+{
+	GENERATED_BODY()
+	public:
+	UPROPERTY(EditAnywhere, BlueprintReadWrite)
+	FTransform Transform;
+	UPROPERTY(EditAnywhere, BlueprintReadWrite)
+	float Distance;
+};
 
 UCLASS( ClassGroup=(Custom), meta=(BlueprintSpawnableComponent) )
-class ABANDONEDCAMP_API UTileSnapComponent : public UActorComponent
+class ABANDONEDCAMP_API UTileSnapComponent : public USceneComponent
 {
 	GENERATED_BODY()
 
@@ -17,13 +27,13 @@ public:
 	UTileSnapComponent();
 
 protected:
-	virtual void PostInitProperties() override;
-	virtual void PostLoad() override;
-	virtual void PreEditUndo() override;
-	virtual void PostEditUndo() override;
+	
+	virtual void PostEditComponentMove(bool bFinished) override;
+
+	void SnapTileManager(bool bFinished);
+
+
 public:	
 	// Called every frame
 	virtual void TickComponent(float DeltaTime, ELevelTick TickType, FActorComponentTickFunction* ThisTickFunction) override;
-
-		
 };

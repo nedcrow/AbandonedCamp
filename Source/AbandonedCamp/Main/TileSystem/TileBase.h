@@ -15,11 +15,12 @@ public:
 	// Sets default values for this actor's properties
 	ATileBase();
 
+	UPROPERTY(BlueprintReadWrite, EditAnywhere)
+	class UTileSnapComponent* TileSnapComponent;
+
 protected:
 	virtual void PostEditMove(bool bFinished) override;
 	virtual void BeginPlay() override;
-
-	void SnapTileManager(bool bFinished);
 
 public:	
 	
