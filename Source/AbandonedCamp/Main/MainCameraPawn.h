@@ -54,6 +54,12 @@ public:
 	// Interaction
 	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Interaction")
 	uint8 bCanSelectTile = true;
-	void TraceCursor();
-	void CheckCurrentTile(TArray<FHitResult> OutHits);
+	
+	void CheckCurrentTile();
+	void HoverActorWithTag(TArray<FHitResult> OutHits, FName Tag);
+	void TouchActor();
+	TArray<FHitResult> TraceCursor();
+
+private:
+	AController* HitController;
 };

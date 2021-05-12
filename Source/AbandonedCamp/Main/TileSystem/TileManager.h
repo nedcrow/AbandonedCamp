@@ -44,7 +44,7 @@ public:
 	UPROPERTY(BlueprintReadWrite, EditAnywhere, Category = "TileMap")
 	int TileScale = 1;
 
-	void SetupDefaultTiles(int CountX, int CountY);
+	void SetupDefaultTilemap(int CountX, int CountY);
 
 #pragma endregion
 

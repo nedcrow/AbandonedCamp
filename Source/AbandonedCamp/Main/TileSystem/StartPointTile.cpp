@@ -17,16 +17,16 @@ AStartPointTile::AStartPointTile()
 
 	Box = CreateDefaultSubobject<UBoxComponent>(TEXT("Box"));
 	RootComponent = Box;
+	Box->SetBoxExtent(FVector(50.0f));
 
 	BodyMesh = CreateDefaultSubobject<UStaticMeshComponent>(TEXT("BodyMesh"));
 	BodyMesh->SetupAttachment(RootComponent);
 }
 
-// Called when the game starts or when spawned
 void AStartPointTile::BeginPlay()
 {
 	Super::BeginPlay();
-	
+	BodyMesh->SetVisibility(false);
 }
 
 // Called every frame

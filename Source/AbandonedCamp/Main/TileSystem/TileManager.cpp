@@ -11,7 +11,6 @@
 #include "Components/InstancedStaticMeshComponent.h"
 #include "Kismet/GameplayStatics.h"
 
-// Sets default values
 ATileManager::ATileManager()
 {
  	// Set this actor to call Tick() every frame.  You can turn this off to improve performance if you don't need it.
@@ -30,16 +29,17 @@ ATileManager::ATileManager()
 void ATileManager::PostRegisterAllComponents()
 {
 	Super::PostRegisterAllComponents();
-	SetupDefaultTiles(SizeX, SizeY);
+#if WITH_EDITOR
+	SetupDefaultTilemap(SizeX, SizeY);
+#endif // WITH_EDITOR
 }
 
-// Called when the game starts or when spawned
 void ATileManager::BeginPlay()
 {
 	Super::BeginPlay();
 	AMainGS* gs = Cast<AMainGS>(UGameplayStatics::GetGameState(GetWorld()));
 	if(gs) gs->F_TileHoveredEvent.AddUFunction(this, FName("CallDelFunc_TileHoverdEvent"));
-	SetupDefaultTiles(SizeX, SizeY);
+	SetupDefaultTilemap(SizeX, SizeY);
 }
 
 FVector ATileManager::GetCurrentTileLocation()
@@ -47,12 +47,14 @@ FVector ATileManager::GetCurrentTileLocation()
 	return CurrentTileLocation;
 }
 
-// Tile transform setting & Instantiate tiles
-void ATileManager::SetupDefaultTiles(int CountX, int CountY)
+// 타일 인스턴스들로 기본 타일맵 생성
+void ATileManager::SetupDefaultTilemap(int CountX, int CountY)
 {
 	float oneUnit = 100 * TileScale;
-	float startXPoint = -(CountX * oneUnit * 0.5f) + (oneUnit * 0.5f); // 전체 타일 길이의 반 + 한 타일의 반
-	float startYPoint = -(CountY * oneUnit * 0.5f) + (oneUnit * 0.5f); // 전체 타일 길이의 반 + 한 타일의 반
+	float startPointX = -(CountX * oneUnit * 0.5f) + (oneUnit * 0.5f); // 전체 타일 길이의 반 + 한 타일의 반
+	float startPointY = -(CountY * oneUnit * 0.5f) + (oneUnit * 0.5f); // 전체 타일 길이의 반 + 한 타일의 반
+	float startPointZ = GetActorLocation().Z;
+
 	if (DefaultTileISM) {
 		if(!DefaultTileISM->IsVisible()) DefaultTileISM->SetVisibility(true);
 		if(DefaultTileISM->GetInstanceCount() > 0) DefaultTileISM->ClearInstances();
@@ -61,7 +63,7 @@ void ATileManager::SetupDefaultTiles(int CountX, int CountY)
 			for (int y = 0; y < CountY; y++) {
 				DefaultTileISM->AddInstance(FTransform(
 					FRotator().ZeroRotator,
-					FVector(startXPoint + x * oneUnit, startYPoint + y * oneUnit, GetActorLocation().Z),
+					FVector(startPointX + x * oneUnit, startPointY + y * oneUnit, startPointZ),
 					FVector(TileScale)
 				));
 			}

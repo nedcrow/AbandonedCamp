@@ -18,10 +18,6 @@ public:
 	UPROPERTY(BlueprintReadWrite, EditAnywhere)
 	class UTileSnapComponent* TileSnapComponent;
 
-protected:
-	virtual void PostEditMove(bool bFinished) override;
-	virtual void BeginPlay() override;
-
-public:	
-	
+	UPROPERTY(BlueprintReadWrite, EditAnywhere, Category = "Data_Size")
+	FVector TileSize = FVector().OneVector;
 };

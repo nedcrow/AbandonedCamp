@@ -14,13 +14,3 @@ ATileBase::ATileBase()
 
 	TileSnapComponent = CreateDefaultSubobject<UTileSnapComponent>(TEXT("TileSnapComponent"));
 }
-
-void ATileBase::PostEditMove(bool bFinished)
-{
-	Super::PostEditMove(bFinished);
-}
-
-void ATileBase::BeginPlay()
-{
-	Super::BeginPlay();	
-}

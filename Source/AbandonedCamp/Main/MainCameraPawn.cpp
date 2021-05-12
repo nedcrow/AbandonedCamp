@@ -51,7 +51,7 @@ void AMainCameraPawn::BeginPlay()
 void AMainCameraPawn::Tick(float DeltaTime)
 {
 	Super::Tick(DeltaTime);
-	TraceCursor();
+	CheckCurrentTile();
 }
 
 // Called to bind functionality to input
@@ -62,7 +62,7 @@ void AMainCameraPawn::SetupPlayerInputComponent(UInputComponent* PlayerInputComp
 	PlayerInputComponent->BindAxis(TEXT("MoveForward"), this, &AMainCameraPawn::MoveForward);
 	PlayerInputComponent->BindAxis(TEXT("MoveRight"), this, &AMainCameraPawn::MoveRight);
 	PlayerInputComponent->BindAxis(TEXT("TurnRight"), this, &AMainCameraPawn::TurnRight);
-	PlayerInputComponent->BindAction(TEXT("ClickLeft"), IE_Pressed, this, &AMainCameraPawn::TraceCursor);
+	PlayerInputComponent->BindAction(TEXT("ClickLeft"), IE_Pressed, this, &AMainCameraPawn::TouchActor);
 }
 
 void AMainCameraPawn::MoveForward(float Value)
@@ -97,10 +97,69 @@ void AMainCameraPawn::TurnRight(float Value)
 	AddControllerYawInput(Value * TurnSpeed);
 }
 
-void AMainCameraPawn::TraceCursor()
+void AMainCameraPawn::CheckCurrentTile(){
+	TArray<FHitResult> outHits = TraceCursor();
+	HoverActorWithTag(outHits, FName("Tile"));
+}
+
+void AMainCameraPawn::HoverActorWithTag(TArray<FHitResult> OutHits, FName Tag)
 {
+	/* 맞은 타일 확인 및 인덱스 번호 갱신 */
+	AMainGS* gs = Cast<AMainGS>(UGameplayStatics::GetGameState(GetWorld()));
+	bool isFound = false;
+	for (auto hit : OutHits) {
+		if (hit.GetActor() && hit.GetActor()->GetComponentsByTag(UInstancedStaticMeshComponent::StaticClass(), Tag).Num() > 0) {
+			UInstancedStaticMeshComponent* TileISM = Cast<UInstancedStaticMeshComponent>(hit.GetActor()->GetComponentsByTag(UInstancedStaticMeshComponent::StaticClass(), FName("Tile"))[0]);
+
+			float closestValue = -1;
+			int targetIndex = 0;
+			FVector hitLocation = FVector(hit.ImpactPoint.X, hit.ImpactPoint.Y, 0);
+
+			for (auto body : TileISM->InstanceBodies)
+			{
+				float dist = FVector::Dist(hitLocation, FVector(body->GetUnrealWorldTransform().GetLocation().X, body->GetUnrealWorldTransform().GetLocation().Y, 0));
+
+				if (dist < closestValue || closestValue < 0) {
+					closestValue = dist;
+					targetIndex = body->InstanceBodyIndex;
+				}
+			}
+
+			if (gs->HoveredTileIndex != targetIndex) {
+				gs->HoveredTileIndex = targetIndex;
+				gs->OnRep_ChangedTileIndex();
+			}
+			isFound = true;
+			break;
+		}
+	}
+
+	if (isFound == false && gs->HoveredTileIndex != -1) {
+		gs->HoveredTileIndex = -1;
+		gs->OnRep_ChangedTileIndex();
+	}
+}
+
+void AMainCameraPawn::TouchActor() {
+	TArray<FHitResult> outHits = TraceCursor();
+	//HoverActorWithTag(outHits, FName("Building"));	
+
+	AMainGS* gs = Cast<AMainGS>(UGameplayStatics::GetGameState(GetWorld()));
+	for (auto hit : outHits) {
+		if (hit.GetActor() && hit.GetActor()->ActorHasTag(TEXT("Building")))
+		{
+			UGameplayStatics::ApplyPointDamage(hit.GetActor(), 0, -hit.ImpactNormal, hit, HitController, this, UDamageType::StaticClass());
+			break;
+		}
+	}
+}
+
+TArray<FHitResult> AMainCameraPawn::TraceCursor()
+{
+	TArray<FHitResult> OutHits;
+
 	if (!bCanSelectTile) {
-		return;
+		return OutHits;
 	}
 
 	APlayerController* PC = Cast<APlayerController>(GetController());
@@ -130,8 +189,6 @@ void AMainCameraPawn::TraceCursor()
 
 		TArray<AActor*> ActorToIgnore;
 
-		TArray<FHitResult> OutHits;
-
 		/* 장애물을 대비한 multi tracing */
 		bool Result = UKismetSystemLibrary::LineTraceMultiForObjects(
 			GetWorld(),
@@ -147,49 +204,8 @@ void AMainCameraPawn::TraceCursor()
 			FLinearColor::Green,
 			5.0f
 		);
-
-		CheckCurrentTile(OutHits);
-			
+		return OutHits;
 	}
-}
-
-void AMainCameraPawn::CheckCurrentTile(TArray<FHitResult> OutHits)
-{
-	/* 맞은 타일 확인 및 인덱스 번호 갱신 */
-	AMainGS* gs = Cast<AMainGS>(UGameplayStatics::GetGameState(GetWorld()));
-	bool isFound = false;
-	for (auto hit : OutHits) {
-		if (hit.GetActor() && hit.GetActor()->GetComponentsByTag(UInstancedStaticMeshComponent::StaticClass(), FName("Tile")).Num() > 0) {
-			UInstancedStaticMeshComponent* TileISM = Cast<UInstancedStaticMeshComponent>(hit.GetActor()->GetComponentsByTag(UInstancedStaticMeshComponent::StaticClass(), FName("Tile"))[0]);
-
-			float closestValue = -1;
-			int targetIndex = 0;
-			FVector hitLocation = FVector(hit.ImpactPoint.X, hit.ImpactPoint.Y, 0);
-
-			for (auto body : TileISM->InstanceBodies)
-			{
-				float dist = FVector::Dist(hitLocation, FVector(body->GetUnrealWorldTransform().GetLocation().X, body->GetUnrealWorldTransform().GetLocation().Y, 0));
-
-				if (dist < closestValue || closestValue < 0) {
-					closestValue = dist;
-					targetIndex = body->InstanceBodyIndex;
-				}
-			}
-
-			if (gs->HoveredTileIndex != targetIndex) {
-				UE_LOG(LogTemp, Warning, TEXT("CameraPawn _ Hit (%d -> %d)"), gs->HoveredTileIndex, targetIndex);
-				gs->HoveredTileIndex = targetIndex;
-				gs->OnRep_ChangedTileIndex();
-			}
-			isFound = true;
-			break;
-		}
-	}
-
-	if (isFound == false && gs->HoveredTileIndex != -1) {
-		UE_LOG(LogTemp, Warning, TEXT("CameraPawn _ UnHit (%d -> %d)"), gs->HoveredTileIndex, -1);
-		gs->HoveredTileIndex = -1;
-		gs->OnRep_ChangedTileIndex();
-	}
+	return OutHits;
 }
 
