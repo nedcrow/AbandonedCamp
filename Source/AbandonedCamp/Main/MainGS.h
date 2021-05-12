@@ -7,6 +7,7 @@
 #include "MainGS.generated.h"
 
 DECLARE_MULTICAST_DELEGATE_OneParam(FTileHoveredDelegate_OneParam, bool);
+DECLARE_MULTICAST_DELEGATE_TwoParams(FTouchDelegate_TwoParams, FName, FVector);
 
 /**
  * 
@@ -23,18 +24,32 @@ class ABANDONEDCAMP_API AMainGS : public AGameStateBase
 		virtual void GetLifetimeReplicatedProps(TArray<FLifetimeProperty>& OutLifetimeProps) const override;
 		
 		UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Tile")
-			int TotalTileCount = 0;
+		int TotalTileCount = 0;
 
+		// HoveredTileEvent
 		UPROPERTY(ReplicatedUsing = OnRep_ChangedTileIndex, VisibleAnywhere, BlueprintReadOnly, Category = "Tile")
-			int HoveredTileIndex = -1;
+		int HoveredTileIndex = -1;
 
 		UFUNCTION()
-			void OnRep_ChangedTileIndex();
+		void OnRep_ChangedTileIndex();
+		FTileHoveredDelegate_OneParam F_TileHoveredEvent;
 
+
+		// TouchedActorEvent
+		UPROPERTY(ReplicatedUsing = OnRep_ChangedTileIndex, VisibleAnywhere, BlueprintReadOnly, Category = "Tile")
+		FName CurrentActorName;
+		FVector CurrentActorLocation;
+
+		UFUNCTION()
+		void OnRep_ChangedCurrentActorName();
+		FTouchDelegate_TwoParams F_TouchEvent;
+
+
+		// ETC
 		UFUNCTION()
 			ATileManager* GetTileManager();
 
-		FTileHoveredDelegate_OneParam F_TileHoveredEvent;
+
 
 		
 };

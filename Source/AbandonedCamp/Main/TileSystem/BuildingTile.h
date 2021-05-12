@@ -17,12 +17,6 @@ class ABANDONEDCAMP_API ABuildingTile : public ATileBase
 public:
 	ABuildingTile();
 
-	UPROPERTY(BlueprintReadOnly, VisibleAnywhere)
-	class UBoxComponent* Box;
-
-	UPROPERTY(BlueprintReadOnly, VisibleAnywhere)
-	class UStaticMeshComponent* BodyMesh;
-
 	UPROPERTY(BlueprintReadWrite, EditAnywhere)
 	class UHUDSceneComponent* HUDScene;
 
@@ -31,28 +25,26 @@ public:
 
 protected:
 	virtual void PostRegisterAllComponents() override;
+	virtual void BeginPlay() override;
 
 public:
 	// Interaction
-	virtual float TakeDamage(float Damage, struct FDamageEvent const& DamageEvent, AController* EventInstigator, AActor* DamageCauser) override;
-
 	UPROPERTY(BlueprintReadOnly, EditAnywhere)
 	uint8 bCanInteraction : 1;
 
 	UPROPERTY(BlueprintReadOnly, EditAnywhere)
 	uint8 bIsTouched : 1;
 
+	UFUNCTION()
+	void CallDelFunc_TouchEvent(FName TargetName, FVector TargetLocation);
+
+
 	// Effect
-	UPROPERTY(BlueprintReadWrite, EditAnywhere)
+	UPROPERTY(BlueprintReadWrite, EditAnywhere, Category = "Effects")
 	TArray<UParticleSystem*> InteractionEffects;
 	TArray<UParticleSystemComponent*> InteractionEffectsComponents;
 	UParticleSystemComponent* InteractionEffectsComponent;
 
-	UFUNCTION(NetMulticast, Unreliable)
-	void NetMulticast_SpawnEffects();
-	void NetMulticast_SpawnEffects_Implementation();
-
-	UFUNCTION(NetMulticast, Unreliable)
-	void NetMulticast_DestroyEffects();
-	void NetMulticast_DestroyEffects_Implementation();
+	void SpawnEffects();
+	void DestroyEffects();
 };

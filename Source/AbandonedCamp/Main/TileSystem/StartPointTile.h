@@ -14,17 +14,7 @@ class ABANDONEDCAMP_API AStartPointTile : public ATileBase
 public:	
 	AStartPointTile();
 
-	UPROPERTY(BlueprintReadOnly, VisibleAnywhere)
-		class UBoxComponent* Box;
-
-	UPROPERTY(BlueprintReadWrite, EditAnywhere)
-		class UStaticMeshComponent* BodyMesh;
-
-
 protected:
 	virtual void BeginPlay() override;
-
-public:
-	virtual void Tick(float DeltaTime) override;
 
 };

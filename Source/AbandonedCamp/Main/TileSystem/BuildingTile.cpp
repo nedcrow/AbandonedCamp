@@ -2,12 +2,14 @@
 
 
 #include "BuildingTile.h"
+#include "../MainGS.h"
 #include "../UI/HUDSceneComponent.h"
 #include "../UI/OnOffButtonWidgetBase.h"
 #include "Components/BoxComponent.h"
 #include "Components/StaticMeshComponent.h"
 #include "Components/WidgetComponent.h"
 #include "Kismet/GameplayStatics.h"
+#include "Net/UnrealNetwork.h"
 #include "Particles/ParticleSystemComponent.h"
 
 ABuildingTile::ABuildingTile()
@@ -15,22 +17,13 @@ ABuildingTile::ABuildingTile()
 	// Set this actor to call Tick() every frame.  You can turn this off to improve performance if you don't need it.
 	PrimaryActorTick.bCanEverTick = true;
 
-	// RootComponent 생성
-	Box = CreateDefaultSubobject<UBoxComponent>(TEXT("Box"));
-	RootComponent = Box;
-	Box->SetBoxExtent(FVector(50.0f));
-
-	// BodyMesh 생성 후 위치를 Box 바닥으로 이동
-	BodyMesh = CreateDefaultSubobject<UStaticMeshComponent>(TEXT("BodyMesh"));
-	BodyMesh->SetupAttachment(RootComponent);
-	BodyMesh->AddRelativeLocation(FVector(0.f, 0.f, -Box->GetScaledBoxExtent().Z));
-
 	HUDScene = CreateDefaultSubobject<UHUDSceneComponent>(TEXT("HUDScene"));
 	HUDScene->SetupAttachment(RootComponent);
 
 	Widget = CreateDefaultSubobject<UWidgetComponent>(TEXT("Widget"));
 	Widget->SetupAttachment(HUDScene);
 	Widget->SetRelativeRotation(FRotator(0, 180, 0));
+	Widget->SetDrawSize(FVector2D(0.1f, 0.1f));
 
 	Tags.Add(FName("Building"));
 }
@@ -40,24 +33,14 @@ void ABuildingTile::PostRegisterAllComponents()
 	Super::PostRegisterAllComponents();
 }
 
-float ABuildingTile::TakeDamage(float Damage, FDamageEvent const& DamageEvent, AController* EventInstigator, AActor* DamageCauser)
+void ABuildingTile::BeginPlay()
 {
-	if (bCanInteraction) {
-		if (bIsTouched) {
-			NetMulticast_DestroyEffects();
-			bIsTouched = false;
-		}
-		else {
-			NetMulticast_SpawnEffects();
-			bIsTouched = true;
-		}
-
-	}
-
-	return 0.0f;
+	Super::BeginPlay();
+	AMainGS* gs = Cast<AMainGS>(UGameplayStatics::GetGameState(GetWorld()));
+	if (gs) gs->F_TouchEvent.AddUFunction(this, FName("CallDelFunc_TouchEvent"));
 }
 
-void ABuildingTile::NetMulticast_SpawnEffects_Implementation()
+void ABuildingTile::SpawnEffects()
 {
 	if (InteractionEffects.Num() > 0 && InteractionEffectsComponents.Num() == 0) {
 
@@ -73,11 +56,29 @@ void ABuildingTile::NetMulticast_SpawnEffects_Implementation()
 	}
 }
 
-void ABuildingTile::NetMulticast_DestroyEffects_Implementation()
+void ABuildingTile::DestroyEffects()
 {
 	for (auto effectComponent : InteractionEffectsComponents) {
 		effectComponent->DestroyComponent();
 	}
 
 	InteractionEffectsComponents.Empty();
+}
+
+void ABuildingTile::CallDelFunc_TouchEvent(FName TargetName, FVector TargetLocation)
+{
+	bool canTouch = TargetName == GetFName() &&
+		TargetLocation == GetActorLocation() &&
+		bCanInteraction == true;
+
+	if (bCanInteraction) {
+		if (bIsTouched) {
+			DestroyEffects();
+			bIsTouched = false;
+		}
+		else {
+			SpawnEffects();
+			bIsTouched = true;
+		}
+	}
 }

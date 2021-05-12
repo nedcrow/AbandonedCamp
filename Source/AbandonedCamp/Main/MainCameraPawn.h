@@ -15,9 +15,6 @@ public:
 	// Sets default values for this pawn's properties
 	AMainCameraPawn();
 
-	// Components
-	//UPROPERTY(EditAnywhere, BlueprintReadOnly)
-	//	class USphereComponent* SphereCollision;
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly)
 		class USphereComponent* Sphere;
 	
@@ -41,8 +38,10 @@ public:
 	// Called every frame
 	virtual void Tick(float DeltaTime) override;
 
+
 	// Called to bind functionality to input
 	virtual void SetupPlayerInputComponent(class UInputComponent* PlayerInputComponent) override;
+
 
 	// Translate
 	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category="Pawn")
@@ -51,15 +50,28 @@ public:
 	void MoveRight(float Value);
 	void TurnRight(float Value);
 
-	// Interaction
-	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Interaction")
-	uint8 bCanSelectTile = true;
-	
+
+	// CurrentTile checking
 	void CheckCurrentTile();
 	void HoverActorWithTag(TArray<FHitResult> OutHits, FName Tag);
-	void TouchActor();
-	TArray<FHitResult> TraceCursor();
+
+
+	// Touch interaction
+	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Interaction")
+	uint8 bCanSelectTile = true;
+
+	UFUNCTION()
+	void CallTouchBuildingActor();
+
+	UFUNCTION(Server, Reliable)
+	void Server_TouchActor(FName ActorName, FVector ActorLocation);
+	void Server_TouchActor_Implementation(FName ActorName, FVector ActorLocation);
+
+	UFUNCTION(NetMulticast, Reliable)
+	void NetMulticast_TouchActor(FName ActorName, FVector ActorLocation);
+	void NetMulticast_TouchActor_Implementation(FName ActorName, FVector ActorLocation);
 
 private:
 	AController* HitController;
+	TArray<FHitResult> TraceCursor();
 };

@@ -18,9 +18,6 @@ AMainCameraPawn::AMainCameraPawn()
  	// Set this pawn to call Tick() every frame.  You can turn this off to improve performance if you don't need it.
 	PrimaryActorTick.bCanEverTick = true;
 
-	/*Sphere = CreateDefaultSubobject<USphereComponent>(TEXT("Sphere"));
-	RootComponent = Sphere;*/
-
 	Body = CreateDefaultSubobject<USphereComponent>(TEXT("Body"));
 	RootComponent = Body;
 
@@ -31,7 +28,6 @@ AMainCameraPawn::AMainCameraPawn()
 
 	Camera = CreateDefaultSubobject<UCameraComponent>(TEXT("Camera"));
 	Camera->SetupAttachment(SpringArm);
-	//Camera->SetAspectRatio(1.0f);
 
 	PawnMovementComponent = CreateDefaultSubobject<UFloatingPawnMovement>(TEXT("PawnMovement"));
 	PawnMovementComponent->UpdatedComponent = RootComponent;
@@ -62,7 +58,7 @@ void AMainCameraPawn::SetupPlayerInputComponent(UInputComponent* PlayerInputComp
 	PlayerInputComponent->BindAxis(TEXT("MoveForward"), this, &AMainCameraPawn::MoveForward);
 	PlayerInputComponent->BindAxis(TEXT("MoveRight"), this, &AMainCameraPawn::MoveRight);
 	PlayerInputComponent->BindAxis(TEXT("TurnRight"), this, &AMainCameraPawn::TurnRight);
-	PlayerInputComponent->BindAction(TEXT("ClickLeft"), IE_Pressed, this, &AMainCameraPawn::TouchActor);
+	PlayerInputComponent->BindAction(TEXT("ClickLeft"), IE_Pressed, this, &AMainCameraPawn::CallTouchBuildingActor);
 }
 
 void AMainCameraPawn::MoveForward(float Value)
@@ -140,18 +136,27 @@ void AMainCameraPawn::HoverActorWithTag(TArray<FHitResult> OutHits, FName Tag)
 	}
 }
 
-void AMainCameraPawn::TouchActor() {
-	TArray<FHitResult> outHits = TraceCursor();
-	//HoverActorWithTag(outHits, FName("Building"));	
-
+void AMainCameraPawn::CallTouchBuildingActor() {
 	AMainGS* gs = Cast<AMainGS>(UGameplayStatics::GetGameState(GetWorld()));
-	for (auto hit : outHits) {
-		if (hit.GetActor() && hit.GetActor()->ActorHasTag(TEXT("Building")))
+	TArray<FHitResult> OutHits = TraceCursor();
+	for (auto outHit : OutHits) {
+		if (outHit.GetActor() && outHit.GetActor()->ActorHasTag("Building"))
 		{
-			UGameplayStatics::ApplyPointDamage(hit.GetActor(), 0, -hit.ImpactNormal, hit, HitController, this, UDamageType::StaticClass());
+			Server_TouchActor(outHit.GetActor()->GetFName(), outHit.GetActor()->GetActorLocation());
 			break;
 		}
 	}
+}
+
+void AMainCameraPawn::Server_TouchActor_Implementation(FName ActorName, FVector ActorLocation) {
+	NetMulticast_TouchActor(ActorName, ActorLocation);
+}
+
+void AMainCameraPawn::NetMulticast_TouchActor_Implementation(FName ActorName, FVector ActorLocation) {
+	AMainGS* gs = Cast<AMainGS>(UGameplayStatics::GetGameState(GetWorld()));
+	gs->CurrentActorName = ActorName;
+	gs->CurrentActorLocation = ActorLocation;
+	gs->OnRep_ChangedCurrentActorName();
 }
 
 TArray<FHitResult> AMainCameraPawn::TraceCursor()
@@ -165,7 +170,7 @@ TArray<FHitResult> AMainCameraPawn::TraceCursor()
 	APlayerController* PC = Cast<APlayerController>(GetController());
 	if (PC && PC->IsLocalController()) {
 
-		// tracing
+		// tracing 준비
 		float MouseX;
 		float MouseY;
 		FVector CursorWorldPosition;
@@ -189,7 +194,7 @@ TArray<FHitResult> AMainCameraPawn::TraceCursor()
 
 		TArray<AActor*> ActorToIgnore;
 
-		/* 장애물을 대비한 multi tracing */
+		// 장애물을 대비한 multi tracing
 		bool Result = UKismetSystemLibrary::LineTraceMultiForObjects(
 			GetWorld(),
 			TraceStart,
@@ -202,7 +207,7 @@ TArray<FHitResult> AMainCameraPawn::TraceCursor()
 			true,
 			FLinearColor::Red,
 			FLinearColor::Green,
-			5.0f
+			100.0f
 		);
 		return OutHits;
 	}

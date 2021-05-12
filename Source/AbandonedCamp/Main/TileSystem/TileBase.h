@@ -15,6 +15,12 @@ public:
 	// Sets default values for this actor's properties
 	ATileBase();
 
+	UPROPERTY(BlueprintReadOnly, VisibleAnywhere)
+	class UBoxComponent* Box;
+
+	UPROPERTY(BlueprintReadOnly, VisibleAnywhere)
+	class UStaticMeshComponent* BodyMesh;
+
 	UPROPERTY(BlueprintReadWrite, EditAnywhere)
 	class UTileSnapComponent* TileSnapComponent;
 

@@ -18,6 +18,7 @@ void AMainGS::BeginPlay() {
 void AMainGS::GetLifetimeReplicatedProps(TArray < FLifetimeProperty >& OutLifetimeProps) const {
 	Super::GetLifetimeReplicatedProps(OutLifetimeProps);
 	DOREPLIFETIME(AMainGS, HoveredTileIndex);
+	DOREPLIFETIME(AMainGS, CurrentActorName);
 }
 
 void AMainGS::OnRep_ChangedTileIndex()
@@ -35,6 +36,15 @@ void AMainGS::OnRep_ChangedTileIndex()
 		}
 	}
 
+}
+
+void AMainGS::OnRep_ChangedCurrentActorName()
+{
+	AMainPC* PC = Cast<AMainPC>(UGameplayStatics::GetPlayerController(GetWorld(), 0));
+
+	if (PC->IsLocalController()) {
+		F_TouchEvent.Broadcast(CurrentActorName, CurrentActorLocation);
+	}
 }
 
 ATileManager* AMainGS::GetTileManager()
