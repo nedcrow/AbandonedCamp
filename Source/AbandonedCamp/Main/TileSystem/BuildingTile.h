@@ -43,7 +43,6 @@ public:
 	UPROPERTY(BlueprintReadWrite, EditAnywhere, Category = "Effects")
 	TArray<UParticleSystem*> InteractionEffects;
 	TArray<UParticleSystemComponent*> InteractionEffectsComponents;
-	UParticleSystemComponent* InteractionEffectsComponent;
 
 	void SpawnEffects();
 	void DestroyEffects();
