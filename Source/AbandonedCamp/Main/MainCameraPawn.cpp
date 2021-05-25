@@ -10,6 +10,7 @@
 #include "GameFramework/SpringArmComponent.h"
 #include "Kismet/GameplayStatics.h"
 #include "Kismet/KismetSystemLibrary.h"
+#include "TileSystem/StartPointTile.h"
 
 
 // Sets default values
@@ -30,8 +31,7 @@ AMainCameraPawn::AMainCameraPawn()
 	Camera->SetupAttachment(SpringArm);
 
 	PawnMovementComponent = CreateDefaultSubobject<UFloatingPawnMovement>(TEXT("PawnMovement"));
-	PawnMovementComponent->UpdatedComponent = RootComponent;
-
+	
 	bUseControllerRotationYaw = true;
 
 }
@@ -40,7 +40,7 @@ AMainCameraPawn::AMainCameraPawn()
 void AMainCameraPawn::BeginPlay()
 {
 	Super::BeginPlay();
-	RootComponent->SetRelativeLocation(FVector(.0f, .0f, 200.0f));
+	TransportToStartPoint();
 }
 
 // Called every frame
@@ -59,6 +59,21 @@ void AMainCameraPawn::SetupPlayerInputComponent(UInputComponent* PlayerInputComp
 	PlayerInputComponent->BindAxis(TEXT("MoveRight"), this, &AMainCameraPawn::MoveRight);
 	PlayerInputComponent->BindAxis(TEXT("TurnRight"), this, &AMainCameraPawn::TurnRight);
 	PlayerInputComponent->BindAction(TEXT("ClickLeft"), IE_Pressed, this, &AMainCameraPawn::CallTouchBuildingActor);
+}
+
+void AMainCameraPawn::TransportToStartPoint()
+{
+	TArray<AActor*> OutActors;
+	UGameplayStatics::GetAllActorsOfClassWithTag(GetWorld(), AStartPointTile::StaticClass(), FName("StartPoint"), OutActors);
+	if (OutActors.Num() > 0) {
+		RootComponent->SetRelativeLocation(FVector(OutActors[0]->GetActorLocation().X, OutActors[0]->GetActorLocation().Y, 200.0f));
+	}
+	else {
+		RootComponent->SetRelativeLocation(FVector(.0f, .0f, 200.0f));
+	}
+	if (RootComponent->GetRelativeRotation().Yaw != 0) {
+		AddControllerYawInput((GetControlRotation().Yaw < 0 ? GetControlRotation().Yaw : -GetControlRotation().Yaw) * 2);
+	}
 }
 
 void AMainCameraPawn::MoveForward(float Value)

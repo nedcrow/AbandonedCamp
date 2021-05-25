@@ -70,8 +70,4 @@ void UTileSnapComponent::SnapTileManager(bool bFinished)
 	}
 }
 
-void UTileSnapComponent::TickComponent(float DeltaTime, ELevelTick TickType, FActorComponentTickFunction* ThisTickFunction)
-{
-	Super::TickComponent(DeltaTime, TickType, ThisTickFunction);
-}
 

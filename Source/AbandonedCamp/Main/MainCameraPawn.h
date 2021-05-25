@@ -42,6 +42,7 @@ public:
 	// Called to bind functionality to input
 	virtual void SetupPlayerInputComponent(class UInputComponent* PlayerInputComponent) override;
 
+	void TransportToStartPoint();
 
 	// Translate
 	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category="Pawn")
@@ -58,7 +59,7 @@ public:
 
 	// Touch interaction
 	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Interaction")
-	uint8 bCanSelectTile = true;
+	bool bCanSelectTile = true;
 
 	UFUNCTION()
 	void CallTouchBuildingActor();

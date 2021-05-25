@@ -21,6 +21,9 @@ public:
 	UPROPERTY(BlueprintReadWrite, EditAnywhere)
 	class UInstancedStaticMeshComponent* DefaultTileISM;
 
+	UPROPERTY(BlueprintReadWrite, EditAnywhere)
+	class UInstancedStaticMeshComponent* MistTileISM;
+
 protected:
 	virtual void PostRegisterAllComponents() override;
 	virtual void BeginPlay() override;
@@ -33,6 +36,9 @@ public:
 	FVector GetCurrentTileLocation();
 
 #pragma region About TileMap
+	UPROPERTY(BlueprintReadWrite, EditAnywhere, Category = "TileMap")
+	uint8 bIsMistTile : 1;
+
 	/* X축 타일 갯수 */
 	UPROPERTY(BlueprintReadWrite, EditAnywhere, Category = "TileMap")
 	int SizeX = 3;
@@ -44,7 +50,7 @@ public:
 	UPROPERTY(BlueprintReadWrite, EditAnywhere, Category = "TileMap")
 	int TileScale = 1;
 
-	void SetupDefaultTilemap(int CountX, int CountY);
+	void SpawnInstancedTilemap(int CountX, int CountY);
 
 #pragma endregion
 

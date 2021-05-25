@@ -1,0 +1,100 @@
+// Fill out your copyright notice in the Description page of Project Settings.
+
+
+#include "BonFireComponent.h"
+#include "Engine/World.h"
+#include "Engine/Canvas.h"
+#include "Kismet/GameplayStatics.h"
+#include "Kismet/KismetRenderingLibrary.h"
+#include "Landscape.h"
+
+// Sets default values for this component's properties
+UBonFireComponent::UBonFireComponent()
+{
+	// Set this component to be initialized when the game starts, and to be ticked every frame.  You can turn these features
+	// off to improve performance if you don't need them.
+	PrimaryComponentTick.bCanEverTick = true;
+
+	// ...
+}
+
+
+// Called when the game starts
+void UBonFireComponent::PostEditComponentMove(bool bFinished)
+{
+	Super::PostEditComponentMove(bFinished);
+}
+
+void UBonFireComponent::BeginPlay()
+{
+	Super::BeginPlay();
+	DeformateToLandscape();
+}
+
+
+// Called every frame
+void UBonFireComponent::TickComponent(float DeltaTime, ELevelTick TickType, FActorComponentTickFunction* ThisTickFunction)
+{
+	Super::TickComponent(DeltaTime, TickType, ThisTickFunction);
+
+	// ...
+}
+
+void UBonFireComponent::SpawnEffects() {
+
+}
+
+void UBonFireComponent::DestroyEffects()
+{
+}
+
+void UBonFireComponent::DeformateToLandscape()
+{
+	ALandscape* land = Cast<ALandscape>(UGameplayStatics::GetActorOfClass(GetWorld(), ALandscape::StaticClass()));
+	if (land && RenderTarget) {
+		// 초기화
+		UKismetRenderingLibrary::ClearRenderTarget2D(GetWorld(), RenderTarget);
+
+		// Tracing
+		FHitResult outHit;
+		FVector traceStart = GetOwner()->GetActorLocation();
+		FVector traceEnd = traceStart + (GetUpVector() * -9999.f);
+		FCollisionQueryParams collisionParam;
+		collisionParam.AddIgnoredActor(GetOwner());
+		GetWorld()->LineTraceSingleByChannel(outHit, traceStart, traceEnd, ECollisionChannel::ECC_Visibility, collisionParam);
+
+		// RenderTarget 위에 마스킹
+		if (outHit.GetActor()) {
+			UCanvas* canvas;
+			FVector origin;
+			FVector boxExtent;
+			land->GetActorBounds(false, origin, boxExtent);	
+			
+			FVector2D HitScreenPosition = FVector2D(
+				abs(land->GetActorLocation().X - outHit.Location.X) / (boxExtent.X * 2),
+				abs(land->GetActorLocation().Y - outHit.Location.Y) / (boxExtent.Y * 2)
+			);
+			FVector2D screenSize = FVector2D(RenderTarget->SizeX, RenderTarget->SizeY);
+			FDrawToRenderTargetContext targetContext;
+			
+			UKismetRenderingLibrary::BeginDrawCanvasToRenderTarget(GetWorld(), RenderTarget, canvas, screenSize, targetContext);
+			FCanvasMaterialTransform CanvasMaterialTransform = GetCanvasMaterialTransform(HitScreenPosition, screenSize, FireLightRadius * 0.01f);
+			canvas->K2_DrawMaterial(MaskingMaterial, CanvasMaterialTransform.Position, CanvasMaterialTransform.Size, FVector2D(0, 0));
+
+			//UKismetRenderingLibrary::DrawMaterialToRenderTarget(GetWorld(), RenderTarget, MaskingMaterial);
+			UKismetRenderingLibrary::EndDrawCanvasToRenderTarget(GetWorld(), targetContext);
+		}
+	}	
+}
+
+FCanvasMaterialTransform UBonFireComponent::GetCanvasMaterialTransform(FVector2D Position, FVector2D Size, float Scale)
+{
+	FCanvasMaterialTransform result;
+
+	FVector2D halfPos = Position - 0.5f;
+	FVector2D halfSize = Size * 0.5f;
+	result.Position = (FVector2D(Size.X, Size.Y) * FVector2D(halfPos.X, halfPos.Y)) + (halfSize * (1 - Scale));
+	result.Size = Size * Scale;
+
+	return result;
+}

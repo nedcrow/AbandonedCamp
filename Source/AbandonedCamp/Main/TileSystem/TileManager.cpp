@@ -23,6 +23,9 @@ ATileManager::ATileManager()
 	DefaultTileISM->SetupAttachment(Box);
 	DefaultTileISM->ComponentTags.Add("Tile");
 
+	MistTileISM = CreateAbstractDefaultSubobject<UInstancedStaticMeshComponent>(TEXT("MistTileISM"));
+	MistTileISM->SetupAttachment(Box);
+
 	bReplicates = true;
 }
 
@@ -30,7 +33,7 @@ void ATileManager::PostRegisterAllComponents()
 {
 	Super::PostRegisterAllComponents();
 #if WITH_EDITOR
-	SetupDefaultTilemap(SizeX, SizeY);
+	SpawnInstancedTilemap(SizeX, SizeY);
 #endif // WITH_EDITOR
 }
 
@@ -39,7 +42,7 @@ void ATileManager::BeginPlay()
 	Super::BeginPlay();
 	AMainGS* gs = Cast<AMainGS>(UGameplayStatics::GetGameState(GetWorld()));
 	if(gs) gs->F_TileHoveredEvent.AddUFunction(this, FName("CallDelFunc_TileHoverdEvent"));
-	SetupDefaultTilemap(SizeX, SizeY);
+	SpawnInstancedTilemap(SizeX, SizeY);
 }
 
 FVector ATileManager::GetCurrentTileLocation()
@@ -48,13 +51,14 @@ FVector ATileManager::GetCurrentTileLocation()
 }
 
 // 타일 인스턴스들로 기본 타일맵 생성
-void ATileManager::SetupDefaultTilemap(int CountX, int CountY)
+void ATileManager::SpawnInstancedTilemap(int CountX, int CountY)
 {
 	float oneUnit = 100 * TileScale;
 	float startPointX = -(CountX * oneUnit * 0.5f) + (oneUnit * 0.5f); // 전체 타일 길이의 반 + 한 타일의 반
 	float startPointY = -(CountY * oneUnit * 0.5f) + (oneUnit * 0.5f); // 전체 타일 길이의 반 + 한 타일의 반
 	float startPointZ = GetActorLocation().Z;
 
+	// DefaultTile
 	if (DefaultTileISM) {
 		if(!DefaultTileISM->IsVisible()) DefaultTileISM->SetVisibility(true);
 		if(DefaultTileISM->GetInstanceCount() > 0) DefaultTileISM->ClearInstances();
@@ -70,6 +74,23 @@ void ATileManager::SetupDefaultTilemap(int CountX, int CountY)
 		}
 		AMainGS* gs = Cast<AMainGS>(UGameplayStatics::GetGameState(GetWorld()));
 		if (gs) gs->TotalTileCount = CountX * CountY;
+	}
+
+	// MistTile
+	if (MistTileISM) {
+		if(MistTileISM->GetInstanceCount() > 0) MistTileISM->ClearInstances();
+
+		if (bIsMistTile) {
+			for (int x = 0; x < CountX; x++) {
+				for (int y = 0; y < CountY; y++) {
+					MistTileISM->AddInstance(FTransform(
+						FRotator().ZeroRotator,
+						FVector(startPointX + x * oneUnit, startPointY + y * oneUnit, startPointZ),
+						FVector(TileScale)
+					));
+				}
+			}
+		}		
 	}
 }
 
