@@ -11,7 +11,6 @@ enum class ECharacterState : uint8
 {
 	Idle	UMETA(DisplayName = "Idle"),
 	Guard	UMETA(DisplayName = "Guard"),
-	Run		UMETA(DisplayName = "Run"),
 	Battle	UMETA(DisplayName = "Battle"),
 	Dead	UMETA(DisplayName = "Dead")
 };

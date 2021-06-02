@@ -23,28 +23,30 @@ EBTNodeResult::Type UBTTask_SetStateWithDistance::ExecuteTask(UBehaviorTreeCompo
 				);
 
 				UE_LOG(LogTemp, Warning, TEXT("TargetLocation : %f, %f, %f"), targetLocation.X, targetLocation.Y, targetLocation.Z);
-				UE_LOG(LogTemp, Warning, TEXT("dist : %f"), CurrentDistance);
 				switch (TargetCondition)
 				{
 				case ECondition::LessThenDistance: // <
-
 					if (CurrentDistance <= TargetDistance)
 					{
 						camper->SetCurrentState(TargetState);
+						UE_LOG(LogTemp, Warning, TEXT("LessThenDistance : %f"), CurrentDistance);
 					}
 					break;
 
 				case ECondition::GreaterThenDistance: // >
-
 					if (CurrentDistance >= TargetDistance)
 					{
 						camper->SetCurrentState(TargetState);
+						UE_LOG(LogTemp, Warning, TEXT("GreaterThenDistance : %f"), CurrentDistance);
 					}
 					break;
 				case ECondition::IgnoreDistance:
-					camper->SetCurrentState(TargetState);					
+					camper->SetCurrentState(TargetState);		
+					UE_LOG(LogTemp, Warning, TEXT("IgnoreDistance : %f"), CurrentDistance);
 					break;
-				}			
+				default:
+					break;
+				}				
 			}
 		}
 	}

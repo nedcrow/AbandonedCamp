@@ -70,34 +70,13 @@ void ACamperCharacter::OnRep_CurrentState()
 {
 }
 
-// CurrentState가 Idle에서 바뀌지 않으면 타겟을 변경
 void ACamperCharacter::SetCurrentState(ECharacterState NewState)
 {
 	ACamperAIController* AIC = GetController<ACamperAIController>();
 	if (AIC)
 	{
-		// 타겟 주변 Nm 안으로 순찰 위치 변경
-		if (NewState == ECharacterState::Idle) {
-			ABuildingManager* buildingM = Cast<ABuildingManager>(UGameplayStatics::GetActorOfClass(GetWorld(), ABuildingManager::StaticClass()));
-			if (buildingM && buildingM->FireBuildingArr.Num() > 0) {
-				int max = buildingM->FireBuildingArr.Num() - 1;
-				int index = FMath::RandRange(0, max);
-				FVector targetLocation = buildingM->FireBuildingArr[index]->GetActorLocation();
-				targetLocation = FVector(
-					targetLocation.X + (FMath::RandRange(100, 300) * (FMath::RandBool() ? -1 : 1)),
-					targetLocation.Y + (FMath::RandRange(100, 300) * (FMath::RandBool() ? -1 : 1)),
-					GetActorLocation().Z
-				);
-
-				AIC->SetTargetActor(buildingM->FireBuildingArr[index]);
-				AIC->SetTargetLocation(targetLocation);
-			}
-			return;
-		}
-		
-		// 상태 변경
-		/*CurrentState = NewState;
-		AIC->SetCurrentState(NewState);*/
+		CurrentState = NewState;
+		AIC->SetCurrentState(NewState);
 	}
 }
 
