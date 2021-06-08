@@ -14,8 +14,6 @@ class ABANDONEDCAMP_API AMistPlane : public AActor
 public:	
 	// Sets default values for this actor's properties
 	AMistPlane();
-	UPROPERTY(BlueprintReadWrite, EditAnywhere)
-	class UStaticMeshComponent* Plane;
 
 protected:
 	virtual void PostInitializeComponents() override;

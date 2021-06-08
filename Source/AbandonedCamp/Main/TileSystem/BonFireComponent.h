@@ -25,13 +25,11 @@ public:
 	// Sets default values for this component's properties
 	UBonFireComponent();
 
-protected:
+public:
 	virtual void PostEditComponentMove(bool bFinished) override;
 	virtual void BeginPlay() override;
 
 public:	
-	// Called every frame
-	virtual void TickComponent(float DeltaTime, ELevelTick TickType, FActorComponentTickFunction* ThisTickFunction) override;
 
 
 	// FireLights
@@ -52,10 +50,18 @@ public:
 
 	TArray<UParticleSystemComponent*> InteractionEffectsComponents;
 
-	void SpawnEffects();
-	void DestroyEffects();
-	void DeformateToLandscape(UMaterialInstance* MI);
+	FCanvasMaterialTransform LastTransform;
 
+	UFUNCTION()
+	void SpawnEffects();
+
+	UFUNCTION()
+	void DestroyEffects();
+
+	UFUNCTION()
+	void DeformateToLandscape();
+
+	UFUNCTION()
 	FCanvasMaterialTransform GetCanvasMaterialTransform(FVector2D Position, FVector2D Size, float Scale);
 	
 };

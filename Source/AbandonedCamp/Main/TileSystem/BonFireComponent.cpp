@@ -23,6 +23,8 @@ UBonFireComponent::UBonFireComponent()
 void UBonFireComponent::PostEditComponentMove(bool bFinished)
 {
 	Super::PostEditComponentMove(bFinished);
+	DestroyEffects();
+	SpawnEffects();
 }
 
 void UBonFireComponent::BeginPlay()
@@ -31,31 +33,33 @@ void UBonFireComponent::BeginPlay()
 	SpawnEffects();
 }
 
-
-// Called every frame
-void UBonFireComponent::TickComponent(float DeltaTime, ELevelTick TickType, FActorComponentTickFunction* ThisTickFunction)
-{
-	Super::TickComponent(DeltaTime, TickType, ThisTickFunction);
-
-	// ...
-}
-
 void UBonFireComponent::SpawnEffects() {
-	DeformateToLandscape(MaskingMaterial);
+	DeformateToLandscape();
 }
 
 void UBonFireComponent::DestroyEffects()
 {
-	DeformateToLandscape(EraseMaterial);
+	ALandscape* land = Cast<ALandscape>(UGameplayStatics::GetActorOfClass(GetWorld(), ALandscape::StaticClass()));
+	if (land) {
+		// RenderTarget 위에 마스킹
+		UCanvas* canvas;
+		FVector origin;
+		FVector boxExtent;
+		land->GetActorBounds(false, origin, boxExtent);
+
+		FVector2D screenSize = FVector2D(RenderTarget->SizeX, RenderTarget->SizeY);
+		FDrawToRenderTargetContext targetContext;
+
+		UKismetRenderingLibrary::BeginDrawCanvasToRenderTarget(GetWorld(), RenderTarget, canvas, screenSize, targetContext);
+		canvas->K2_DrawMaterial(EraseMaterial, LastTransform.Position, LastTransform.Size, FVector2D(0, 0));
+		UKismetRenderingLibrary::EndDrawCanvasToRenderTarget(GetWorld(), targetContext);
+	}
 }
 
-void UBonFireComponent::DeformateToLandscape(UMaterialInstance* MI)
+void UBonFireComponent::DeformateToLandscape()
 {
 	ALandscape* land = Cast<ALandscape>(UGameplayStatics::GetActorOfClass(GetWorld(), ALandscape::StaticClass()));
-	UE_LOG(LogTemp, Warning, TEXT("BonFire_01"));
 	if (land && RenderTarget) {
-		// 초기화
-		//UKismetRenderingLibrary::ClearRenderTarget2D(GetWorld(), RenderTarget);
 
 		UE_LOG(LogTemp, Warning, TEXT("BonFire_02"));
 
@@ -83,6 +87,7 @@ void UBonFireComponent::DeformateToLandscape(UMaterialInstance* MI)
 			
 			UKismetRenderingLibrary::BeginDrawCanvasToRenderTarget(GetWorld(), RenderTarget, canvas, screenSize, targetContext);
 			FCanvasMaterialTransform CanvasMaterialTransform = GetCanvasMaterialTransform(HitScreenPosition, screenSize, FireLightRadius * 0.01f);
+			LastTransform = CanvasMaterialTransform;
 			canvas->K2_DrawMaterial(MaskingMaterial, CanvasMaterialTransform.Position, CanvasMaterialTransform.Size, FVector2D(0, 0));
 
 			UKismetRenderingLibrary::EndDrawCanvasToRenderTarget(GetWorld(), targetContext);
