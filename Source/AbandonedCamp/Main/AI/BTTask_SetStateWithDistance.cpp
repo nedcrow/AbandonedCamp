@@ -2,33 +2,32 @@
 
 
 #include "BTTask_SetStateWithDistance.h"
-#include "CamperAIController.h"
-#include "../Characters/CamperCharacter.h"
+#include "CommonAIController.h"
+#include "../Characters/CommonCharacter.h"
 
 #include "BehaviorTree/BlackBoardComponent.h"
 
 EBTNodeResult::Type UBTTask_SetStateWithDistance::ExecuteTask(UBehaviorTreeComponent& OwnerComp, uint8* NodeMemory) {
 
-	ACamperAIController* AIC = Cast<ACamperAIController>(OwnerComp.GetAIOwner());
+	ACommonAIController* AIC = Cast<ACommonAIController>(OwnerComp.GetAIOwner());
 	if(AIC){
-		ACamperCharacter* camper = AIC->GetPawn<ACamperCharacter>();
+		ACommonCharacter* character = AIC->GetPawn<ACommonCharacter>();
 		FVector targetLocation = AIC->BBComponent->GetValueAsVector(TEXT("TargetLocation"));
 
-		if (camper)
+		if (character)
 		{
-			if (camper->CurrentState != ECharacterState::Dead) {
+			if (character->CurrentState != ECharacterState::Dead) {
 				float CurrentDistance = FVector::Distance(
-					camper->GetActorLocation(),
+					character->GetActorLocation(),
 					targetLocation
 				);
 
-				UE_LOG(LogTemp, Warning, TEXT("TargetLocation : %f, %f, %f"), targetLocation.X, targetLocation.Y, targetLocation.Z);
 				switch (TargetCondition)
 				{
 				case ECondition::LessThenDistance: // <
 					if (CurrentDistance <= TargetDistance)
 					{
-						camper->SetCurrentState(TargetState);
+						character->SetCurrentState(TargetState);
 						UE_LOG(LogTemp, Warning, TEXT("LessThenDistance : %f"), CurrentDistance);
 					}
 					break;
@@ -36,12 +35,12 @@ EBTNodeResult::Type UBTTask_SetStateWithDistance::ExecuteTask(UBehaviorTreeCompo
 				case ECondition::GreaterThenDistance: // >
 					if (CurrentDistance >= TargetDistance)
 					{
-						camper->SetCurrentState(TargetState);
+						character->SetCurrentState(TargetState);
 						UE_LOG(LogTemp, Warning, TEXT("GreaterThenDistance : %f"), CurrentDistance);
 					}
 					break;
 				case ECondition::IgnoreDistance:
-					camper->SetCurrentState(TargetState);		
+					character->SetCurrentState(TargetState);		
 					UE_LOG(LogTemp, Warning, TEXT("IgnoreDistance : %f"), CurrentDistance);
 					break;
 				default:

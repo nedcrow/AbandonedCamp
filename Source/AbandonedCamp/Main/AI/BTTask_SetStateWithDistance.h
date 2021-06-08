@@ -4,7 +4,7 @@
 
 #include "CoreMinimal.h"
 #include "BehaviorTree/Tasks/BTTask_BlackboardBase.h"
-#include "../Characters/CamperCharacter.h"
+#include "../Characters/CommonCharacter.h"
 #include "BTTask_SetStateWithDistance.generated.h"
 
 UENUM(BlueprintType)

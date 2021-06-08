@@ -5,7 +5,6 @@
 #include "../AI/CamperAIController.h"
 #include "../BuildingManager.h"
 
-//#include "BehaviorTree/BlackboardComponent.h"
 #include "Components/CapsuleComponent.h"
 #include "Components/StaticMeshComponent.h"
 #include "GameFramework/CharacterMovementComponent.h"
@@ -32,6 +31,9 @@ ACamperCharacter::ACamperCharacter()
 	PawnSensing->bHearNoises = false;
 
 	AutoPossessAI = EAutoPossessAI::PlacedInWorldOrSpawned;
+
+	CountAttackAnim = 3;
+	CountHitAnim = 3;
 }
 
 // Called when the game starts or when spawned
@@ -40,7 +42,6 @@ void ACamperCharacter::BeginPlay()
 	Super::BeginPlay();
 	
 	SetCurrentState(ECharacterState::Idle);
-
 	if (PawnSensing)
 	{
 		PawnSensing->OnSeePawn.AddDynamic(this, &ACamperCharacter::ProcessSeenPawn);
@@ -61,28 +62,9 @@ void ACamperCharacter::SetupPlayerInputComponent(UInputComponent* PlayerInputCom
 
 }
 
-void ACamperCharacter::GetLifetimeReplicatedProps(TArray<FLifetimeProperty>& OutLifetimeProps) const
-{
-	DOREPLIFETIME(ACamperCharacter, CurrentState);
-}
-
-void ACamperCharacter::OnRep_CurrentState()
-{
-}
-
-void ACamperCharacter::SetCurrentState(ECharacterState NewState)
-{
-	ACamperAIController* AIC = GetController<ACamperAIController>();
-	if (AIC)
-	{
-		CurrentState = NewState;
-		AIC->SetCurrentState(NewState);
-	}
-}
-
 void ACamperCharacter::ProcessSeenPawn(APawn* Pawn)
 {
-	if (CurrentState == ECharacterState::Idle) {
+	if (CurrentState != ECharacterState::Dead) {
 		
 		if (Pawn->ActorHasTag("Stranger")) {
 			ACamperAIController* AIC = GetController<ACamperAIController>();

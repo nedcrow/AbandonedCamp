@@ -28,7 +28,7 @@ void UBonFireComponent::PostEditComponentMove(bool bFinished)
 void UBonFireComponent::BeginPlay()
 {
 	Super::BeginPlay();
-	DeformateToLandscape();
+	SpawnEffects();
 }
 
 
@@ -41,19 +41,23 @@ void UBonFireComponent::TickComponent(float DeltaTime, ELevelTick TickType, FAct
 }
 
 void UBonFireComponent::SpawnEffects() {
-
+	DeformateToLandscape(MaskingMaterial);
 }
 
 void UBonFireComponent::DestroyEffects()
 {
+	DeformateToLandscape(EraseMaterial);
 }
 
-void UBonFireComponent::DeformateToLandscape()
+void UBonFireComponent::DeformateToLandscape(UMaterialInstance* MI)
 {
 	ALandscape* land = Cast<ALandscape>(UGameplayStatics::GetActorOfClass(GetWorld(), ALandscape::StaticClass()));
+	UE_LOG(LogTemp, Warning, TEXT("BonFire_01"));
 	if (land && RenderTarget) {
 		// ÃÊ±âÈ­
-		UKismetRenderingLibrary::ClearRenderTarget2D(GetWorld(), RenderTarget);
+		//UKismetRenderingLibrary::ClearRenderTarget2D(GetWorld(), RenderTarget);
+
+		UE_LOG(LogTemp, Warning, TEXT("BonFire_02"));
 
 		// Tracing
 		FHitResult outHit;
@@ -81,7 +85,6 @@ void UBonFireComponent::DeformateToLandscape()
 			FCanvasMaterialTransform CanvasMaterialTransform = GetCanvasMaterialTransform(HitScreenPosition, screenSize, FireLightRadius * 0.01f);
 			canvas->K2_DrawMaterial(MaskingMaterial, CanvasMaterialTransform.Position, CanvasMaterialTransform.Size, FVector2D(0, 0));
 
-			//UKismetRenderingLibrary::DrawMaterialToRenderTarget(GetWorld(), RenderTarget, MaskingMaterial);
 			UKismetRenderingLibrary::EndDrawCanvasToRenderTarget(GetWorld(), targetContext);
 		}
 	}	

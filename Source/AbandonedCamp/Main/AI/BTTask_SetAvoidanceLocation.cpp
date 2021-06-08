@@ -58,7 +58,7 @@ FVector UBTTask_SetAvoidanceLocation::FindNoBlocking(APawn* Pawn, FVector Avoida
 	float AcosAngle = FMath::Acos(dot);
 	float angle = FMath::RadiansToDegrees(AcosAngle);
 	FVector cross = FVector::CrossProduct(FVector::ForwardVector, goalDir);
-	float turnAngle;
+	float turnAngle = 0;
 	if (cross.Z > 0)
 	{
 		turnAngle = angle; //right
@@ -68,7 +68,7 @@ FVector UBTTask_SetAvoidanceLocation::FindNoBlocking(APawn* Pawn, FVector Avoida
 		turnAngle = -angle; //left
 	}
 
-	int turnDir;
+	int turnDir=2;
 	FVector traceStart;
 	switch (SearchDir)
 	{

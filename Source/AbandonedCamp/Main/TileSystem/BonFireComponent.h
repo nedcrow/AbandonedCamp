@@ -45,13 +45,16 @@ public:
 	UMaterialInstance* MaskingMaterial;
 
 	UPROPERTY(BlueprintReadWrite, EditAnywhere, Category = "Data")
+	UMaterialInstance* EraseMaterial;
+
+	UPROPERTY(BlueprintReadWrite, EditAnywhere, Category = "Data")
 	UParticleSystem* LightBoundaryEffects;
 
 	TArray<UParticleSystemComponent*> InteractionEffectsComponents;
 
 	void SpawnEffects();
 	void DestroyEffects();
-	void DeformateToLandscape();
+	void DeformateToLandscape(UMaterialInstance* MI);
 
 	FCanvasMaterialTransform GetCanvasMaterialTransform(FVector2D Position, FVector2D Size, float Scale);
 	

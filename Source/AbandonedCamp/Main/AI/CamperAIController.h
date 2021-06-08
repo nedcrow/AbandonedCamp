@@ -3,34 +3,22 @@
 #pragma once
 
 #include "CoreMinimal.h"
-#include "AIController.h"
-#include "../Characters/CamperCharacter.h"
+#include "CommonAIController.h"
 #include "CamperAIController.generated.h"
 
 /**
  * 
  */
 UCLASS()
-class ABANDONEDCAMP_API ACamperAIController : public AAIController
+class ABANDONEDCAMP_API ACamperAIController : public ACommonAIController
 {
 	GENERATED_BODY()
 
 public:
-	ACamperAIController();
-
-	UPROPERTY(BlueprintReadWrite, EditAnywhere)
-	class UBehaviorTreeComponent* BTComponent;
-
-	UPROPERTY(BlueprintReadWrite, EditAnywhere)
-	class UBlackboardComponent* BBComponent;
 
 	class AActor* CurrentEnermy;
 
 	virtual void OnPossess(APawn* InPawn) override;
-
-	virtual void OnUnPossess() override;
-
-	void SetCurrentState(ECharacterState EState);
 
 	void SetTargetActor(AActor* Target);
 

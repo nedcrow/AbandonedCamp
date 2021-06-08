@@ -3,20 +3,11 @@
 #pragma once
 
 #include "CoreMinimal.h"
-#include "GameFramework/Character.h"
+#include "CommonCharacter.h"
 #include "CamperCharacter.generated.h"
 
-UENUM(BlueprintType)
-enum class ECharacterState : uint8
-{
-	Idle	UMETA(DisplayName = "Idle"),
-	Guard	UMETA(DisplayName = "Guard"),
-	Battle	UMETA(DisplayName = "Battle"),
-	Dead	UMETA(DisplayName = "Dead")
-};
-
 UCLASS()
-class ABANDONEDCAMP_API ACamperCharacter : public ACharacter
+class ABANDONEDCAMP_API ACamperCharacter : public ACommonCharacter
 {
 	GENERATED_BODY()
 
@@ -41,21 +32,6 @@ public:
 	// Called to bind functionality to input
 	virtual void SetupPlayerInputComponent(class UInputComponent* PlayerInputComponent) override;
 
-	virtual void GetLifetimeReplicatedProps(TArray<FLifetimeProperty>& OutLifetimeProps) const override;
-
-	// AI
-	UPROPERTY(BlueprintReadOnly, EditAnywhere, Category = "AI")
-	class UBehaviorTree* BehaviorTree;
-
-	UPROPERTY(EditAnywhere, BlueprintReadWrite, ReplicatedUsing = "OnRep_CurrentState", Category = "AI")
-	ECharacterState CurrentState;
-
-	UFUNCTION()
-	void OnRep_CurrentState();
-
-	UFUNCTION(BlueprintCallable)
-	void SetCurrentState(ECharacterState NewState);
-
 	UFUNCTION()
 	void ProcessSeenPawn(APawn* Pawn);
 
@@ -74,7 +50,4 @@ public:
 
 	UPROPERTY(BlueprintReadWrite, EditAnywhere, Category = "Status")
 	float Attack = 30.0f;
-
-	UPROPERTY(BlueprintReadWrite, EditAnywhere, Category = "Status")
-	float AttackRange = 100.0f;
 };
