@@ -17,3 +17,8 @@ EBTNodeResult::Type UBTTask_UpdateTargetLocation::ExecuteTask(UBehaviorTreeCompo
 	}
 	return EBTNodeResult::Succeeded;
 }
+
+FVector UBTTask_UpdateTargetLocation::GetAvoidanceLocation() {
+	
+	return FVector::ZeroVector;
+}
