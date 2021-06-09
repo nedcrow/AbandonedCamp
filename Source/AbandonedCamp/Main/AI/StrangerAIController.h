@@ -4,6 +4,7 @@
 
 #include "CoreMinimal.h"
 #include "CommonAIController.h"
+#include "../MainGS.h"
 #include "StrangerAIController.generated.h"
 
 /**
@@ -20,4 +21,6 @@ public:
 	void SetTargetActor(AActor* Target);
 
 	void SetTargetLocation(FVector Location);
+
+	void SetNightState(ENightState EState);
 };

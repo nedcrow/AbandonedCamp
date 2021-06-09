@@ -6,6 +6,14 @@
 #include "GameFramework/GameStateBase.h"
 #include "MainGS.generated.h"
 
+UENUM(BlueprintType)
+enum class ENightState : uint8
+{
+	Day		UMETA(DisplayName = "Day"),
+	Night	UMETA(DisplayName = "Night"),
+};
+
+DECLARE_MULTICAST_DELEGATE_OneParam(FTileStateDelegate_OneParam, ENightState);
 DECLARE_MULTICAST_DELEGATE_OneParam(FTileHoveredDelegate_OneParam, bool);
 DECLARE_MULTICAST_DELEGATE_TwoParams(FTouchDelegate_TwoParams, FName, FVector);
 
@@ -25,6 +33,17 @@ class ABANDONEDCAMP_API AMainGS : public AGameStateBase
 		
 		UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Tile")
 		int TotalTileCount = 0;
+
+		UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Status")
+		int CurrentNight = 0;
+
+		// OnOffNightEvent
+		UPROPERTY(ReplicatedUsing = OnRep_ChangedCurrentNight, VisibleAnywhere, BlueprintReadOnly, Category = "Status")
+		ENightState NightState;
+
+		UFUNCTION()
+		void OnRep_ChangedCurrentNight();
+		FTileStateDelegate_OneParam F_OnNightEvent;
 
 		// HoveredTileEvent
 		UPROPERTY(ReplicatedUsing = OnRep_ChangedTileIndex, VisibleAnywhere, BlueprintReadOnly, Category = "Tile")
@@ -47,7 +66,7 @@ class ABANDONEDCAMP_API AMainGS : public AGameStateBase
 
 		// ETC
 		UFUNCTION()
-			ATileManager* GetTileManager();
+		ATileManager* GetTileManager();
 
 
 

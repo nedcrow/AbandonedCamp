@@ -28,7 +28,6 @@ EBTNodeResult::Type UBTTask_SetStateWithDistance::ExecuteTask(UBehaviorTreeCompo
 					if (CurrentDistance <= TargetDistance)
 					{
 						character->SetCurrentState(TargetState);
-						UE_LOG(LogTemp, Warning, TEXT("LessThenDistance : %f"), CurrentDistance);
 					}
 					break;
 
@@ -36,12 +35,10 @@ EBTNodeResult::Type UBTTask_SetStateWithDistance::ExecuteTask(UBehaviorTreeCompo
 					if (CurrentDistance >= TargetDistance)
 					{
 						character->SetCurrentState(TargetState);
-						UE_LOG(LogTemp, Warning, TEXT("GreaterThenDistance : %f"), CurrentDistance);
 					}
 					break;
 				case ECondition::IgnoreDistance:
-					character->SetCurrentState(TargetState);		
-					UE_LOG(LogTemp, Warning, TEXT("IgnoreDistance : %f"), CurrentDistance);
+					character->SetCurrentState(TargetState);
 					break;
 				default:
 					break;

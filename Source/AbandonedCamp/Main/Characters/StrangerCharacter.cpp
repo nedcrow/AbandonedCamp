@@ -4,6 +4,7 @@
 #include "StrangerCharacter.h"
 #include "../AI/StrangerAIController.h"
 #include "../BuildingManager.h"
+#include "../MainGS.h"
 
 #include "Components/CapsuleComponent.h"
 #include "GameFramework/CharacterMovementComponent.h"
@@ -31,6 +32,9 @@ AStrangerCharacter::AStrangerCharacter()
 void AStrangerCharacter::BeginPlay()
 {
 	Super::BeginPlay();
+
+	AMainGS* GS = Cast<AMainGS>(UGameplayStatics::GetGameState(GetWorld()));
+	if (GS) GS->F_OnNightEvent.AddUFunction(this, FName("CallDelFunc_OnNightEvent"));
 }
 
 // Called every frame
@@ -61,6 +65,14 @@ void AStrangerCharacter::ProcessSeenPawn(APawn* Pawn)
 				UE_LOG(LogTemp, Warning, TEXT("I found you [%s] :-)"), *Pawn->GetFName().ToString());
 			}*/
 		}
+	}
+}
+
+void AStrangerCharacter::CallDelFunc_OnNightEvent(ENightState NightState)
+{
+	AStrangerAIController* AIC = GetController<AStrangerAIController>();
+	if (AIC) {
+		AIC->SetNightState(NightState);
 	}
 }
 

@@ -4,6 +4,7 @@
 
 #include "CoreMinimal.h"
 #include "CommonCharacter.h"
+#include "../MainGS.h"
 #include "StrangerCharacter.generated.h"
 
 UCLASS()
@@ -50,4 +51,7 @@ public:
 
 	UPROPERTY(BlueprintReadWrite, EditAnywhere, Category = "Status")
 		float Attack = 30.0f;
+
+	UFUNCTION()
+		void CallDelFunc_OnNightEvent(ENightState NightState);
 };

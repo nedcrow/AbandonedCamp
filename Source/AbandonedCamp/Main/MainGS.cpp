@@ -21,6 +21,17 @@ void AMainGS::GetLifetimeReplicatedProps(TArray < FLifetimeProperty >& OutLifeti
 	DOREPLIFETIME(AMainGS, CurrentActorName);
 }
 
+void AMainGS::OnRep_ChangedCurrentNight()
+{
+	AMainPC* PC = Cast<AMainPC>(UGameplayStatics::GetPlayerController(GetWorld(), 0));
+
+	if (PC->IsLocalController()) {
+		if (F_OnNightEvent.IsBound() == true) {
+			F_OnNightEvent.Broadcast(ENightState::Night);
+		}
+	}
+}
+
 void AMainGS::OnRep_ChangedTileIndex()
 {
 	AMainPC* PC = Cast<AMainPC>(UGameplayStatics::GetPlayerController(GetWorld(), 0));
@@ -35,7 +46,6 @@ void AMainGS::OnRep_ChangedTileIndex()
 			}
 		}
 	}
-
 }
 
 void AMainGS::OnRep_ChangedCurrentActorName()

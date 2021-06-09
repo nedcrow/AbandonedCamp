@@ -23,13 +23,14 @@ UBonFireComponent::UBonFireComponent()
 void UBonFireComponent::PostEditComponentMove(bool bFinished)
 {
 	Super::PostEditComponentMove(bFinished);
-	DestroyEffects();
-	SpawnEffects();
+	/*DestroyEffects();
+	SpawnEffects();*/
 }
 
 void UBonFireComponent::BeginPlay()
 {
 	Super::BeginPlay();
+	DestroyEffects();
 	SpawnEffects();
 }
 
@@ -60,9 +61,6 @@ void UBonFireComponent::DeformateToLandscape()
 {
 	ALandscape* land = Cast<ALandscape>(UGameplayStatics::GetActorOfClass(GetWorld(), ALandscape::StaticClass()));
 	if (land && RenderTarget) {
-
-		UE_LOG(LogTemp, Warning, TEXT("BonFire_02"));
-
 		// Tracing
 		FHitResult outHit;
 		FVector traceStart = GetOwner()->GetActorLocation();

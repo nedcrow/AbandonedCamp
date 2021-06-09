@@ -31,7 +31,6 @@ public:
 
 public:	
 
-
 	// FireLights
 	UPROPERTY(BlueprintReadWrite, EditAnywhere, Category = "Data")
 	class UTextureRenderTarget2D* RenderTarget;

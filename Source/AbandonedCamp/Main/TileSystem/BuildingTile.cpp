@@ -36,14 +36,13 @@ void ABuildingTile::PostRegisterAllComponents()
 void ABuildingTile::BeginPlay()
 {
 	Super::BeginPlay();
-	AMainGS* gs = Cast<AMainGS>(UGameplayStatics::GetGameState(GetWorld()));
-	if (gs) gs->F_TouchEvent.AddUFunction(this, FName("CallDelFunc_TouchEvent"));
+	AMainGS* GS = Cast<AMainGS>(UGameplayStatics::GetGameState(GetWorld()));
+	if (GS) GS->F_TouchEvent.AddUFunction(this, FName("CallDelFunc_TouchEvent"));
 }
 
 void ABuildingTile::SpawnEffects()
 {
 	if (InteractionEffects.Num() > 0 && InteractionEffectsComponents.Num() == 0) {
-
 		for (auto effect : InteractionEffects) {
 			InteractionEffectsComponents.Add(
 				UGameplayStatics::SpawnEmitterAtLocation(
@@ -72,13 +71,27 @@ void ABuildingTile::CallDelFunc_TouchEvent(FName TargetName, FVector TargetLocat
 		bCanInteraction == true;
 
 	if (bCanInteraction) {
-		if (bIsTouched) {
-			DestroyEffects();
-			bIsTouched = false;
-		}
-		else {
-			SpawnEffects();
-			bIsTouched = true;
+		AMainGS* gs = Cast<AMainGS>(UGameplayStatics::GetGameState(GetWorld()));
+		if (gs) {
+
+			// Effect On/Off
+			if (bIsTouched) {
+				DestroyEffects();
+				bIsTouched = false;
+				gs->NightState = ENightState::Day;
+				gs->OnRep_ChangedCurrentNight();
+			}
+			else {
+				SpawnEffects();
+				bIsTouched = true;
+				gs->NightState = ENightState::Night;
+				gs->OnRep_ChangedCurrentNight();
+
+				// Plus round status
+				if (bCanStartRound) {
+					gs->CurrentNight++;
+				}
+			}
 		}
 	}
 }

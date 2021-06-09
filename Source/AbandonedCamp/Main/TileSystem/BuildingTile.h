@@ -29,10 +29,13 @@ protected:
 
 public:
 	// Interaction
-	UPROPERTY(BlueprintReadOnly, EditAnywhere)
+	UPROPERTY(BlueprintReadWrite, EditAnywhere)
 	uint8 bCanInteraction : 1;
 
-	UPROPERTY(BlueprintReadOnly, EditAnywhere)
+	UPROPERTY(BlueprintReadWrite, EditAnywhere)
+	uint8 bCanStartRound : 1;
+
+	UPROPERTY(BlueprintReadOnly, VisibleAnywhere)
 	uint8 bIsTouched : 1;
 
 	UFUNCTION()
