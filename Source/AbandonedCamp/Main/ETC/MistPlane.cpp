@@ -16,5 +16,4 @@ void AMistPlane::PostInitializeComponents()
 {
 	Super::PostInitializeComponents();
 	UKismetRenderingLibrary::ClearRenderTarget2D(GetWorld(), RenderTarget);
-	UE_LOG(LogTemp, Warning, TEXT("MistPlane"));
 }
