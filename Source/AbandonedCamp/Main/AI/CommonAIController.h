@@ -7,6 +7,12 @@
 #include "../Characters/CommonCharacter.h"
 #include "CommonAIController.generated.h"
 
+UENUM(BlueprintType)
+enum class EMoveState : uint8 {
+	ToTarget = 0	UMETA(Display = "ToTarget"),
+	ToAvoidance = 1	UMETA(Display = "ToAvoidance"),
+};
+
 /**
  * 
  */
@@ -29,4 +35,9 @@ public:
 	virtual void OnUnPossess() override;
 
 	void SetCurrentState(ECharacterState EState);
+
+	void SetTargetActor(AActor* Target);
+
+	void SetTargetLocation(FVector Location);
+
 };

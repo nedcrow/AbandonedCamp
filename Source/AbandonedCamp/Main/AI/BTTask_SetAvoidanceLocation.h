@@ -30,5 +30,5 @@ public:
 
 	EDirection LastTurn;
 
-	FVector FindNoBlocking(APawn* Pawn, FVector AvoidanceLocation, AActor* TargetActor, EDirection SearchDir = EDirection::Center);
+	FVector FindNoBlocking(APawn* Pawn, FVector ALocation, FVector BLocation, AActor* TargetActor, EDirection SearchDir = EDirection::Center);
 };

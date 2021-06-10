@@ -18,9 +18,5 @@ public:
 
 	class AActor* CurrentEnermy;
 
-	void SetTargetActor(AActor* Target);
-
-	void SetTargetLocation(FVector Location);
-
 	void SetNightState(ENightState EState);
 };

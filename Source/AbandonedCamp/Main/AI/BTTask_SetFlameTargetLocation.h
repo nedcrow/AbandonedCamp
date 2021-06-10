@@ -15,23 +15,6 @@ public:
 		AActor* Actor;
 	UPROPERTY(EditAnywhere, BlueprintReadWrite)
 		float Distance;
-//};
-//public:
-//	FORCEINLINE FDistanceInfo(AActor* InActor, float InDistance);
-	//public:
-	//
-	//	void Set(AActor* InActor, float InDistance);
-
-
-//public:
-//	FORCEINLINE FDistanceInfo::FDistanceInfo(AActor* InActor, float InDistance)
-//		: Actor(InActor), Distance(InDistance)
-//	{}
-	/*FORCEINLINE void FDistanceInfo::Set(AActor* InActor, float InDistance)
-	{
-		Actor = InActor;
-		Distance = InDistance;
-	}*/
 };
 
 /**
@@ -43,4 +26,7 @@ class ABANDONEDCAMP_API UBTTask_SetFlameTargetLocation : public UBTTask_Blackboa
 	GENERATED_BODY()
 public:
 	virtual EBTNodeResult::Type ExecuteTask(UBehaviorTreeComponent& OwnerComp, uint8* NodeMemory) override;
+
+	UPROPERTY(BlueprintReadWrite, EditAnywhere, Category = "Condition")
+	uint8 bUseAvoidance : 1;
 };

@@ -34,3 +34,13 @@ void ACommonAIController::SetCurrentState(ECharacterState EState)
 {
 	if (BBComponent) BBComponent->SetValueAsEnum(TEXT("CurrentState"), (uint8)EState);
 }
+
+void ACommonAIController::SetTargetActor(AActor* Target)
+{
+	if (BBComponent) BBComponent->SetValueAsObject(TEXT("TargetActor"), Target);
+}
+
+void ACommonAIController::SetTargetLocation(FVector Location)
+{
+	if (BBComponent) BBComponent->SetValueAsVector(TEXT("TargetLocation"), Location);
+}

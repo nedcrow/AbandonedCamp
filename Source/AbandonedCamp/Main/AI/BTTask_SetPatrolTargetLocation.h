@@ -16,4 +16,7 @@ class ABANDONEDCAMP_API UBTTask_SetPatrolTargetLocation : public UBTTask_Blackbo
 
 public:
 	virtual EBTNodeResult::Type ExecuteTask(UBehaviorTreeComponent& OwnerComp, uint8* NodeMemory) override;
+
+	UPROPERTY(BlueprintReadWrite, EditAnywhere, Category = "Condition")
+	uint8 bUseAvoidance:1;
 };

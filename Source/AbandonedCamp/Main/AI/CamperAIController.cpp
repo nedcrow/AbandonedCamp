@@ -15,16 +15,6 @@ void ACamperAIController::OnPossess(APawn* InPawn)
 	}
 }
 
-void ACamperAIController::SetTargetActor(AActor* Target)
-{
-	if (BBComponent) BBComponent->SetValueAsObject(TEXT("TargetActor"), Target);
-}
-
-void ACamperAIController::SetTargetLocation(FVector Location)
-{
-	if (BBComponent) BBComponent->SetValueAsVector(TEXT("TargetLocation"), Location);
-}
-
 void ACamperAIController::SetAvoidanceLocation(FVector Location)
 {
 	if (BBComponent) BBComponent->SetValueAsVector(TEXT("AvoidanceLocation"), Location);

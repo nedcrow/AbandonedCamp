@@ -20,9 +20,5 @@ public:
 
 	virtual void OnPossess(APawn* InPawn) override;
 
-	void SetTargetActor(AActor* Target);
-
-	void SetTargetLocation(FVector Location);
-
 	void SetAvoidanceLocation(FVector Location);
 };
