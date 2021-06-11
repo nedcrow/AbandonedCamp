@@ -110,7 +110,7 @@ FVector UBTTask_SetAvoidanceLocation::FindNoBlocking(APawn* Pawn, FVector ALocat
 	//if(TargetActor)actorToIgnore.Add(TargetActor);
 
 	// TargetLocation 방향 각도 계산	
-	FRotator tempAngle = UKismetMathLibrary::FindLookAtRotation(ALocation, FVector(BLocation.X, BLocation.Y, 0));
+	FRotator turnRotator = UKismetMathLibrary::FindLookAtRotation(ALocation, FVector(BLocation.X, BLocation.Y, 0));
 
 	// 충돌체 반복 탐색
 	float rotateUnit = 180 / (CountOfTracePerHalfround - 1);
@@ -123,27 +123,29 @@ FVector UBTTask_SetAvoidanceLocation::FindNoBlocking(APawn* Pawn, FVector ALocat
 		float addAngle = rotateUnit * i;
 		float turnAngle;
 		float dist;
-		FVector traceStart;
-		FVector traceEnd;
+		FVector sideTraceStart;
+		FVector sideTraceEnd;
+		FVector centerTraceStart;
+		FVector centerTraceEnd;
 		FVector result;
 		switch (SearchDir)
 		{
 		case EDirection::Center:
-			traceStart = ALocation;
+			sideTraceStart = ALocation;
 			break;
 		case EDirection::Left:	
-			turnAngle = tempAngle.Yaw + addAngle + 90;
-			traceStart = ALocation + (boxExtent.Y * 0.5f * FRotator(0.f, turnAngle, 0.f).Vector());
-			dist = lastDist != 0 ? lastDist : FVector().Distance(traceStart, BLocation);
-			traceEnd = traceStart + (dist * FRotator(0.f, turnAngle - 90.0f, 0.f).Vector());
-			result = traceStart + (lastDist * FRotator(0.f, turnAngle - 90.0f, 0.f).Vector());
+			turnAngle = turnRotator.Yaw + addAngle + 90;
+			sideTraceStart = ALocation + (boxExtent.Y * 0.5f * FRotator(0.f, turnAngle, 0.f).Vector());
+			dist = lastDist != 0 ? lastDist + 50 : FVector().Distance(sideTraceStart, BLocation);
+			sideTraceEnd = sideTraceStart + (dist * FRotator(0.f, turnAngle - 90.0f, 0.f).Vector());
+			result = sideTraceStart + (lastDist * FRotator(0.f, turnAngle - 90.0f, 0.f).Vector());
 			break;
 		case EDirection::Right:
-			turnAngle = tempAngle.Yaw - addAngle - 90;
-			traceStart = ALocation + (boxExtent.Y * 0.5f * FRotator(0.f, turnAngle, 0.f).Vector());
-			dist = lastDist != 0 ? lastDist : FVector().Distance(traceStart, BLocation);
-			traceEnd = traceStart + (dist * FRotator(0.f, turnAngle + 90.0f, 0.f).Vector());
-			result = traceStart + (lastDist * FRotator(0.f, turnAngle + 90.0f, 0.f).Vector());
+			turnAngle = turnRotator.Yaw - addAngle - 90;
+			sideTraceStart = ALocation + (boxExtent.Y * 0.5f * FRotator(0.f, turnAngle, 0.f).Vector());
+			dist = lastDist != 0 ? lastDist + 50 : FVector().Distance(sideTraceStart, BLocation);
+			sideTraceEnd = sideTraceStart + (dist * FRotator(0.f, turnAngle + 90.0f, 0.f).Vector());
+			result = sideTraceStart + (lastDist * FRotator(0.f, turnAngle + 90.0f, 0.f).Vector());
 			break;
 		default:
 			break;
@@ -166,11 +168,11 @@ FVector UBTTask_SetAvoidanceLocation::FindNoBlocking(APawn* Pawn, FVector ALocat
 			5.0f
 		);*/
 
-		/*FHitResult outHit2;
+		FHitResult outHit2;
 		bool targetPointCast = UKismetSystemLibrary::LineTraceSingleForObjects(
 			GetWorld(),
-			traceStart,
-			BLocation,
+			ALocation,
+			sideTraceEnd,
 			objects,
 			true,
 			actorToIgnore,
@@ -180,13 +182,13 @@ FVector UBTTask_SetAvoidanceLocation::FindNoBlocking(APawn* Pawn, FVector ALocat
 			FLinearColor::Yellow,
 			FLinearColor::Green,
 			5.0f
-		);*/
+		);
 
 		FHitResult outHit;
 		bool cast = UKismetSystemLibrary::LineTraceSingleForObjects(
 			GetWorld(),
-			traceStart,
-			traceEnd,
+			sideTraceStart,
+			sideTraceEnd,
 			objects,
 			true,
 			actorToIgnore,
@@ -195,15 +197,15 @@ FVector UBTTask_SetAvoidanceLocation::FindNoBlocking(APawn* Pawn, FVector ALocat
 			true,
 			FLinearColor::Red,
 			FLinearColor::Green,
-			1.0f
+			5.0f
 		);
 
-		if (!outHit.GetActor() || outHit.GetActor() == TargetActor) {	
+		if ((!outHit.GetActor() || outHit.GetActor() == TargetActor) && (!outHit2.GetActor() || outHit2.GetActor() == TargetActor)) {
 			FHitResult outHitTest;
 			bool castLog = UKismetSystemLibrary::LineTraceSingleForObjects(
 				GetWorld(),
-				traceStart,
-				traceEnd,
+				ALocation,
+				sideTraceEnd,
 				objects,
 				true,
 				actorToIgnore,
@@ -212,12 +214,12 @@ FVector UBTTask_SetAvoidanceLocation::FindNoBlocking(APawn* Pawn, FVector ALocat
 				true,
 				FLinearColor::Red,
 				FLinearColor::Green,
-				100.0f
+				5.0f
 			);
-			return lastDist == 0 ? traceEnd : result;
+			return lastDist == 0 ? sideTraceEnd : result;
 		}
 		else {
-			lastDist = FVector::Distance(traceStart, outHit.ImpactPoint);
+			lastDist = FVector::Distance(sideTraceStart, outHit.ImpactPoint);
 		}
 	}
 	return FVector().ZeroVector;
