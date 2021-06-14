@@ -3,7 +3,7 @@
 
 #include "StrangerCharacter.h"
 #include "../AI/StrangerAIController.h"
-#include "../BuildingManager.h"
+//#include "../BuildingManager.h"
 #include "../MainGS.h"
 
 #include "Components/CapsuleComponent.h"
@@ -26,6 +26,7 @@ AStrangerCharacter::AStrangerCharacter()
 
 	CountAttackAnim = 2;
 	CountHitAnim = 2;
+	Tags.Add(TEXT("Stranger"));
 }
 
 // Called when the game starts or when spawned

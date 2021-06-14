@@ -72,8 +72,7 @@ void ACamperCharacter::ProcessSeenPawn(APawn* Pawn)
 			{
 				AIC->SetTargetActor(Pawn);
 				AIC->SetTargetLocation(Pawn->GetActorLocation());
-
-				UE_LOG(LogTemp, Warning, TEXT("I found you [%s] :-)"), *Pawn->GetFName().ToString());
+				AIC->SetCurrentState(ECharacterState::Guard);
 			}
 		}
 	}

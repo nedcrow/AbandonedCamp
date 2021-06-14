@@ -67,14 +67,19 @@ public:
 	UPROPERTY(BlueprintReadWrite, EditAnywhere, Category = "TileUI")
 	UMaterialInterface* Unable_Build_MI;
 
-	/* decal material 추천 */
 	UPROPERTY(BlueprintReadWrite, EditAnywhere, Category = "TileUI")
 	UMaterialInterface* Border_MI;
 
 	class UDecalComponent* CursorToWorld;
 
+	// Hovered tile
 	UFUNCTION()
-	void CallDelFunc_TileHoverdEvent(bool isHovered);
+	void CallDelFunc_TileHoveredEvent(bool isHovered);
+
+
+	// Buildable tile
+	void OnBuildableTile();
+	void OffBuildableTile();
 
 #pragma endregion	
 };

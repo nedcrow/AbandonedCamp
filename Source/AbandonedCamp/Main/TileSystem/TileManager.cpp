@@ -2,8 +2,11 @@
 
 
 #include "TileManager.h"
+#include "BonFireComponent.h"
 #include "../MainGS.h"
 #include "../MainPC.h"
+#include "../BuildingManager.h"
+
 #include "Components/SceneComponent.h"
 #include "Components/StaticMeshComponent.h"
 #include "Components/BoxComponent.h"
@@ -41,7 +44,7 @@ void ATileManager::BeginPlay()
 {
 	Super::BeginPlay();
 	AMainGS* gs = Cast<AMainGS>(UGameplayStatics::GetGameState(GetWorld()));
-	if(gs) gs->F_TileHoveredEvent.AddUFunction(this, FName("CallDelFunc_TileHoverdEvent"));
+	if(gs) gs->F_TileHoveredEvent.AddUFunction(this, FName("CallDelFunc_TileHoveredEvent"));
 	SpawnInstancedTilemap(SizeX, SizeY);
 }
 
@@ -77,24 +80,24 @@ void ATileManager::SpawnInstancedTilemap(int CountX, int CountY)
 	}
 
 	// MistTile
-	if (MistTileISM) {
-		if(MistTileISM->GetInstanceCount() > 0) MistTileISM->ClearInstances();
+	//if (MistTileISM) {
+	//	if(MistTileISM->GetInstanceCount() > 0) MistTileISM->ClearInstances();
 
-		if (bIsMistTile) {
-			for (int x = 0; x < CountX; x++) {
-				for (int y = 0; y < CountY; y++) {
-					MistTileISM->AddInstance(FTransform(
-						FRotator().ZeroRotator,
-						FVector(startPointX + x * oneUnit, startPointY + y * oneUnit, startPointZ),
-						FVector(TileScale)
-					));
-				}
-			}
-		}		
-	}
+	//	if (bIsMistTile) {
+	//		for (int x = 0; x < CountX; x++) {
+	//			for (int y = 0; y < CountY; y++) {
+	//				MistTileISM->AddInstance(FTransform(
+	//					FRotator().ZeroRotator,
+	//					FVector(startPointX + x * oneUnit, startPointY + y * oneUnit, startPointZ),
+	//					FVector(TileScale)
+	//				));
+	//			}
+	//		}
+	//	}		
+	//}
 }
 
-void ATileManager::CallDelFunc_TileHoverdEvent(bool isHovered)
+void ATileManager::CallDelFunc_TileHoveredEvent(bool isHovered)
 {
 	AMainGS* gs = Cast<AMainGS>(UGameplayStatics::GetGameState(GetWorld()));
 	if (gs) {
@@ -128,6 +131,33 @@ void ATileManager::CallDelFunc_TileHoverdEvent(bool isHovered)
 			//UE_LOG(LogTemp, Warning, TEXT("TileManager _ Out!!!!"));
 		}
 	}
+}
+
+void ATileManager::OnBuildableTile()
+{
+	if (Able_Build_MI == nullptr) {
+		UE_LOG(LogTemp, Warning, TEXT("!!!- Null : border_MI -!!!"));
+		return;
+	}
+
+	TArray<FVector> DecalLocations;
+	for (int i=0; i< DefaultTileISM->GetInstanceCount(); i++)
+	{
+		FTransform temp;
+		DefaultTileISM->GetInstanceTransform(i,temp);
+		
+		UE_LOG(LogTemp,Warning,TEXT("%f, %f, %f"), temp.GetLocation().X, temp.GetLocation().Y);
+	}
+
+	ABuildingManager* buildingM = Cast<ABuildingManager>(UGameplayStatics::GetActorOfClass(GetWorld(), ABuildingManager::StaticClass()));
+	for (auto fire : buildingM->FireBuildingArr) {
+		UBonFireComponent* fireComponent = Cast<UBonFireComponent>(fire->GetComponentByClass(UBonFireComponent::StaticClass()));
+		//fireComponent->FireLightRadius
+	}
+}
+
+void ATileManager::OffBuildableTile()
+{
 }
 
 
