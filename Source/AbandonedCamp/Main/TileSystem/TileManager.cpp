@@ -148,12 +148,12 @@ void ATileManager::OnBuildableTile()
 					DecalLocations.Add(FVector(
 						fire->GetActorLocation().X + (i * oneUnit),
 						fire->GetActorLocation().Y + (j * oneUnit),
-						fire->GetActorLocation().Z
+						fire->GetActorLocation().Z + 50.0f
 					));
 					DecalLocations.Add(FVector(
 						fire->GetActorLocation().X - (i * oneUnit),
 						fire->GetActorLocation().Y - (j * oneUnit),
-						fire->GetActorLocation().Z
+						fire->GetActorLocation().Z + 50.0f
 					));
 				}
 			}
