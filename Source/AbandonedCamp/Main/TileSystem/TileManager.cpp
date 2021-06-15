@@ -26,8 +26,8 @@ ATileManager::ATileManager()
 	DefaultTileISM->SetupAttachment(Box);
 	DefaultTileISM->ComponentTags.Add("Tile");
 
-	MistTileISM = CreateAbstractDefaultSubobject<UInstancedStaticMeshComponent>(TEXT("MistTileISM"));
-	MistTileISM->SetupAttachment(Box);
+	BuildableISM = CreateAbstractDefaultSubobject<UInstancedStaticMeshComponent>(TEXT("BuildableISM"));
+	BuildableISM->SetupAttachment(Box);
 
 	bReplicates = true;
 }
@@ -78,23 +78,6 @@ void ATileManager::SpawnInstancedTilemap(int CountX, int CountY)
 		AMainGS* gs = Cast<AMainGS>(UGameplayStatics::GetGameState(GetWorld()));
 		if (gs) gs->TotalTileCount = CountX * CountY;
 	}
-
-	// MistTile
-	//if (MistTileISM) {
-	//	if(MistTileISM->GetInstanceCount() > 0) MistTileISM->ClearInstances();
-
-	//	if (bIsMistTile) {
-	//		for (int x = 0; x < CountX; x++) {
-	//			for (int y = 0; y < CountY; y++) {
-	//				MistTileISM->AddInstance(FTransform(
-	//					FRotator().ZeroRotator,
-	//					FVector(startPointX + x * oneUnit, startPointY + y * oneUnit, startPointZ),
-	//					FVector(TileScale)
-	//				));
-	//			}
-	//		}
-	//	}		
-	//}
 }
 
 void ATileManager::CallDelFunc_TileHoveredEvent(bool isHovered)
@@ -140,24 +123,59 @@ void ATileManager::OnBuildableTile()
 		return;
 	}
 
-	TArray<FVector> DecalLocations;
-	for (int i=0; i< DefaultTileISM->GetInstanceCount(); i++)
+
+	/*for (int i=0; i< DefaultTileISM->GetInstanceCount(); i++)
 	{
 		FTransform temp;
 		DefaultTileISM->GetInstanceTransform(i,temp);
 		
 		UE_LOG(LogTemp,Warning,TEXT("%f, %f, %f"), temp.GetLocation().X, temp.GetLocation().Y);
-	}
+	}*/
 
+	TArray<FVector> DecalLocations;
 	ABuildingManager* buildingM = Cast<ABuildingManager>(UGameplayStatics::GetActorOfClass(GetWorld(), ABuildingManager::StaticClass()));
 	for (auto fire : buildingM->FireBuildingArr) {
 		UBonFireComponent* fireComponent = Cast<UBonFireComponent>(fire->GetComponentByClass(UBonFireComponent::StaticClass()));
-		//fireComponent->FireLightRadius
+		int loopCountX = fireComponent->FireLightRadius;
+		int loopCountY = fireComponent->FireLightRadius;
+		float oneUnit = 100 * TileScale;
+
+		// (X,Y)가 (0,0)인 경우를 제외한 위치만 선택
+		for (int i = 0; i < loopCountX; i++) {
+			for (int j = 0; j < loopCountY; j++) {
+				if (i == 0 && j == 0) {}
+				else {
+					DecalLocations.Add(FVector(
+						fire->GetActorLocation().X + (i * oneUnit),
+						fire->GetActorLocation().Y + (j * oneUnit),
+						fire->GetActorLocation().Z
+					));
+					DecalLocations.Add(FVector(
+						fire->GetActorLocation().X - (i * oneUnit),
+						fire->GetActorLocation().Y - (j * oneUnit),
+						fire->GetActorLocation().Z
+					));
+				}
+			}
+			loopCountY -= 1;
+		}
+	}
+
+	for (auto location : DecalLocations) {
+		if (!BuildableISM->IsVisible()) BuildableISM->SetVisibility(true);
+		if (BuildableISM->GetInstanceCount() > 0) BuildableISM->ClearInstances();
+
+		BuildableISM->AddInstance(FTransform(
+			FRotator().ZeroRotator,
+			location,
+			FVector(TileScale)
+		));
 	}
 }
 
 void ATileManager::OffBuildableTile()
 {
+	BuildableISM->ClearInstances();
 }
 
 

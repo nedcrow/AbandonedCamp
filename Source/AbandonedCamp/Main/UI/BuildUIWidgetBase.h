@@ -35,11 +35,32 @@ class ABANDONEDCAMP_API UBuildUIWidgetBase : public UUserWidget
 public:
 	virtual void NativeConstruct() override;
 
-	UPROPERTY(BlueprintReadWrite, EditAnywhere, Category = "Data")
-	class UDataTable* BuildingDataTable;
-
+	// Properties
 	UPROPERTY(BlueprintReadWrite, EditAnywhere, Category = "Widget")
 	class UScrollBox* BuildingScrollBox;
 
+	UPROPERTY(BlueprintReadWrite, EditAnywhere, Category = "Widget")
+	class UButton* BuildingTabButton;
+
+	//UPROPERTY(Meta = (BindWidgetAnim), Meta =(AllowPrivateAccess = true))
+	//class UWidgetAnimation* SlideIn;
+
+	//UPROPERTY(Meta = (BindWidgetAnim), Meta = (AllowPrivateAccess = true))
+	//class UWidgetAnimation* SlideOut; // bluprint compile error
+
+
+	// Data
+	UPROPERTY(BlueprintReadWrite, EditAnywhere, Category = "Data")
+	class UDataTable* BuildingDataTable;
+
+	// Init
 	void InitBuildingWidgets();
+
+	// BuildingTab
+	UPROPERTY(BlueprintReadWrite, EditAnywhere, Category = "Data")
+	bool bIsActive = true;
+
+	UFUNCTION()
+	void OnClickBuildingTabButton();
+	void CallOffBuildableTiles();
 };

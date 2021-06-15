@@ -22,7 +22,7 @@ public:
 	class UInstancedStaticMeshComponent* DefaultTileISM;
 
 	UPROPERTY(BlueprintReadWrite, EditAnywhere)
-	class UInstancedStaticMeshComponent* MistTileISM;
+	class UInstancedStaticMeshComponent* BuildableISM;
 
 protected:
 	virtual void PostRegisterAllComponents() override;

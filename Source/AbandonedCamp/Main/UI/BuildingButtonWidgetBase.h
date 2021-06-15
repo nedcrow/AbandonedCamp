@@ -27,4 +27,9 @@ public:
 	class UTextBlock* BuildingName;
 
 	void InitButton(FName Name, UMaterialInstance* MI);
+
+	UFUNCTION()
+	void OnClickBuildingButton();
+	void CallOnBuildableTiles();
+	void CallOffBuildableTiles();
 };
