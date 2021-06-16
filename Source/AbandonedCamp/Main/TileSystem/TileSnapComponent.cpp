@@ -17,7 +17,7 @@ UTileSnapComponent::UTileSnapComponent()
 void UTileSnapComponent::PostEditComponentMove(bool bFinished)
 {
 	Super::PostEditComponentMove(bFinished);
-	SnapTileManager(bFinished);
+	SnapToTileManager(bFinished);
 }
 
 /*
@@ -25,7 +25,7 @@ void UTileSnapComponent::PostEditComponentMove(bool bFinished)
 * 스냅 위치 : TileManager 매트릭스 중 가장 가까운 Actor
 * 스냅 시점 : Edit 상태를 포함하여 액터가 움직였을 때 (때문에 반드시 PostEditComponentMove 통해 실행)
 */
-void UTileSnapComponent::SnapTileManager(bool bFinished)
+void UTileSnapComponent::SnapToTileManager(bool bFinished)
 {
 	ATileManager* tileManager = Cast<ATileManager>(UGameplayStatics::GetActorOfClass(GetWorld(), ATileManager::StaticClass()));
 	if (tileManager && bFinished) {

@@ -30,5 +30,6 @@ protected:
 	
 	virtual void PostEditComponentMove(bool bFinished) override;
 
-	void SnapTileManager(bool bFinished);
+public:
+	void SnapToTileManager(bool bFinished);
 };

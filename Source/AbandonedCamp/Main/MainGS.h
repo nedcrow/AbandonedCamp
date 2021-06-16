@@ -62,6 +62,9 @@ class ABANDONEDCAMP_API AMainGS : public AGameStateBase
 		//void OnRep_ChangedUIMode();
 		//FUIStateDelegate_OneParam F_ChangedUIModeEvent;
 
+		// Build
+		AActor* CurrentSelectedBuilding;
+
 		// HoveredTileEvent
 		UPROPERTY(ReplicatedUsing = OnRep_ChangedTileIndex, VisibleAnywhere, BlueprintReadOnly, Category = "Tile")
 		int HoveredTileIndex = -1;

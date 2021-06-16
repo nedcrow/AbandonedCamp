@@ -26,4 +26,6 @@ public: // UI
 
 	UPROPERTY(BlueprintReadWrite, EditAnywhere, Category = "UI")
 	class UMainUIWidgetBase* MainUIWidgetObject;
+
+	void SetCurrentSelectedBuildingLocation(FVector Location);
 };

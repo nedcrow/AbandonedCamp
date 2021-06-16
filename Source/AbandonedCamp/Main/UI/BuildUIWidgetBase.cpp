@@ -4,8 +4,10 @@
 #include "BuildUIWidgetBase.h"
 #include "BuildingButtonWidgetBase.h"
 #include "../MainGS.h"
+#include "../TileSystem/BuildingTile.h"
 #include "../TileSystem/TileManager.h"
 
+#include "Components/BoxComponent.h"
 #include "Components/Button.h"
 #include "Components/ScrollBox.h"
 #include "Engine/StreamableManager.h"
@@ -38,7 +40,7 @@ void UBuildUIWidgetBase::InitBuildingWidgets() {
 	for (int i = 0; i < buildingDataArray.Num(); ++i) {
 		UMaterialInstance* MI = loader.LoadSynchronous<UMaterialInstance>(buildingDataArray[i]->ItemImage);
 		UBuildingButtonWidgetBase* buttonWidget = Cast<UBuildingButtonWidgetBase>(BuildingScrollBox->GetChildAt(i));
-		buttonWidget->InitButton(FName(buildingDataArray[i]->ItemName), MI);
+		buttonWidget->InitButton(FName(buildingDataArray[i]->ItemName), MI, buildingDataArray[i]->ItemActor);
 	}	
 }
 
@@ -72,8 +74,7 @@ void UBuildUIWidgetBase::CallOffBuildableTiles()
 	AMainGS* GS = Cast<AMainGS>(UGameplayStatics::GetGameState(GetWorld()));
 	if (GS) {
 		ATileManager* TM = GS->GetTileManager();
-		if (TM) {
-			TM->OffBuildableTile();
-		}
+		if (TM) TM->OffBuildableTile();
+		if (GS->CurrentSelectedBuilding) GS->CurrentSelectedBuilding->Destroy();
 	}
 }

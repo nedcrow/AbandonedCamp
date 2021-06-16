@@ -94,7 +94,7 @@ void ATileManager::CallDelFunc_TileHoveredEvent(bool isHovered)
 		int tileIndex = gs->HoveredTileIndex;
 		FTransform tileTransform;
 		DefaultTileISM->GetInstanceTransform(tileIndex, tileTransform, true);
-		FVector tileLocation = FVector(tileTransform.GetLocation().X, tileTransform.GetLocation().Y, tileTransform.GetLocation().Z + 0);
+		FVector tileLocation = CurrentTileLocation = FVector(tileTransform.GetLocation().X, tileTransform.GetLocation().Y, tileTransform.GetLocation().Z + 0);
 
 		// selectedTileDecal 없으면 생성
 		if (CursorToWorld == nullptr) {
@@ -114,6 +114,9 @@ void ATileManager::CallDelFunc_TileHoveredEvent(bool isHovered)
 			//UE_LOG(LogTemp, Warning, TEXT("TileManager _ Out!!!!"));
 		}
 	}
+
+	AMainPC* pc = Cast<AMainPC>(UGameplayStatics::GetPlayerController(GetWorld(), 0));
+	pc->SetCurrentSelectedBuildingLocation(CurrentTileLocation);
 }
 
 void ATileManager::OnBuildableTile()
@@ -123,15 +126,7 @@ void ATileManager::OnBuildableTile()
 		return;
 	}
 
-
-	/*for (int i=0; i< DefaultTileISM->GetInstanceCount(); i++)
-	{
-		FTransform temp;
-		DefaultTileISM->GetInstanceTransform(i,temp);
-		
-		UE_LOG(LogTemp,Warning,TEXT("%f, %f, %f"), temp.GetLocation().X, temp.GetLocation().Y);
-	}*/
-
+	// 타일 위치 계산 (8각형)
 	TArray<FVector> DecalLocations;
 	ABuildingManager* buildingM = Cast<ABuildingManager>(UGameplayStatics::GetActorOfClass(GetWorld(), ABuildingManager::StaticClass()));
 	for (auto fire : buildingM->FireBuildingArr) {
@@ -140,31 +135,47 @@ void ATileManager::OnBuildableTile()
 		int loopCountY = fireComponent->FireLightRadius;
 		float oneUnit = 100 * TileScale;
 
-		// (X,Y)가 (0,0)인 경우를 제외한 위치만 선택
+		UBoxComponent* fireBoxComp = Cast<UBoxComponent>(fire->GetComponentByClass(UBoxComponent::StaticClass()));
+		float minusZ = -fireBoxComp->GetScaledBoxExtent().Z * 2;
+
+		// (X,Y)가 (0,0)인 경우를 제외한 4 분면 위치 생성
 		for (int i = 0; i < loopCountX; i++) {
 			for (int j = 0; j < loopCountY; j++) {
-				if (i == 0 && j == 0) {}
-				else {
+				bool isStartPoint = i == 0 && j == 0;
+				bool isFirstLine = i > 0 && j > 0;
+				if (!isStartPoint) {
+					if (isFirstLine) {
+						DecalLocations.Add(FVector(
+							fire->GetActorLocation().X + (i * oneUnit),
+							fire->GetActorLocation().Y + (j * oneUnit),
+							fire->GetActorLocation().Z + minusZ
+						));
+						DecalLocations.Add(FVector(
+							fire->GetActorLocation().X - (i * oneUnit),
+							fire->GetActorLocation().Y - (j * oneUnit),
+							fire->GetActorLocation().Z + minusZ
+						));
+					}
 					DecalLocations.Add(FVector(
 						fire->GetActorLocation().X + (i * oneUnit),
-						fire->GetActorLocation().Y + (j * oneUnit),
-						fire->GetActorLocation().Z + 50.0f
+						fire->GetActorLocation().Y - (j * oneUnit),
+						fire->GetActorLocation().Z + minusZ
 					));
 					DecalLocations.Add(FVector(
 						fire->GetActorLocation().X - (i * oneUnit),
-						fire->GetActorLocation().Y - (j * oneUnit),
-						fire->GetActorLocation().Z + 50.0f
+						fire->GetActorLocation().Y + (j * oneUnit),
+						fire->GetActorLocation().Z + minusZ
 					));
 				}
 			}
-			loopCountY -= 1;
+			if (i >= FMath::Floor(loopCountX * 0.5f)) loopCountY -= 1;
 		}
 	}
 
+	// tile 생성
+	if (!BuildableISM->IsVisible()) BuildableISM->SetVisibility(true);
+	if (BuildableISM->GetInstanceCount() == 0) BuildableISM->ClearInstances();
 	for (auto location : DecalLocations) {
-		if (!BuildableISM->IsVisible()) BuildableISM->SetVisibility(true);
-		if (BuildableISM->GetInstanceCount() > 0) BuildableISM->ClearInstances();
-
 		BuildableISM->AddInstance(FTransform(
 			FRotator().ZeroRotator,
 			location,

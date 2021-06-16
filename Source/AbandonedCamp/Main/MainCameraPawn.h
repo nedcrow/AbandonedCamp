@@ -62,7 +62,7 @@ public:
 	bool bCanSelectTile = true;
 
 	UFUNCTION()
-	void CallTouchBuildingActor();
+	void CallLeftClickEvent();
 
 	UFUNCTION(Server, Reliable)
 	void Server_TouchActor(FName ActorName, FVector ActorLocation);

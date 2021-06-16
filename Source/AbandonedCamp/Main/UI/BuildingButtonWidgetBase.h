@@ -4,6 +4,7 @@
 
 #include "CoreMinimal.h"
 #include "Blueprint/UserWidget.h"
+#include "../TileSystem/BuildingTile.h"
 #include "BuildingButtonWidgetBase.generated.h"
 
 /**
@@ -17,6 +18,7 @@ class ABANDONEDCAMP_API UBuildingButtonWidgetBase : public UUserWidget
 public:
 	virtual void NativeConstruct() override;
 
+	//Properties
 	UPROPERTY(BlueprintReadWrite, EditAnywhere, Category = "Widget")
 	class UBorder* BuildingBorder;
 
@@ -26,8 +28,14 @@ public:
 	UPROPERTY(BlueprintReadWrite, EditAnywhere, Category = "Widget")
 	class UTextBlock* BuildingName;
 
-	void InitButton(FName Name, UMaterialInstance* MI);
+	//Data
+	UPROPERTY(BlueprintReadOnly, VisibleAnywhere, Category = "Data")
+	TSubclassOf<class ABuildingTile> BuildingClass;
 
+	//Init
+	void InitButton(FName Name, UMaterialInstance* MI, UClass* Class);
+
+	//Interaction
 	UFUNCTION()
 	void OnClickBuildingButton();
 	void CallOnBuildableTiles();

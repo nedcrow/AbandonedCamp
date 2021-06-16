@@ -3,6 +3,9 @@
 
 #include "MainCameraPawn.h"
 #include "MainGS.h"
+#include "TileSystem/StartPointTile.h"
+#include "TileSystem/TileManager.h"
+
 #include "Camera/CameraComponent.h"
 #include "Components/InstancedStaticMeshComponent.h"
 #include "Components/SphereComponent.h"
@@ -10,7 +13,7 @@
 #include "GameFramework/SpringArmComponent.h"
 #include "Kismet/GameplayStatics.h"
 #include "Kismet/KismetSystemLibrary.h"
-#include "TileSystem/StartPointTile.h"
+
 
 
 // Sets default values
@@ -58,7 +61,7 @@ void AMainCameraPawn::SetupPlayerInputComponent(UInputComponent* PlayerInputComp
 	PlayerInputComponent->BindAxis(TEXT("MoveForward"), this, &AMainCameraPawn::MoveForward);
 	PlayerInputComponent->BindAxis(TEXT("MoveRight"), this, &AMainCameraPawn::MoveRight);
 	PlayerInputComponent->BindAxis(TEXT("TurnRight"), this, &AMainCameraPawn::TurnRight);
-	PlayerInputComponent->BindAction(TEXT("ClickLeft"), IE_Pressed, this, &AMainCameraPawn::CallTouchBuildingActor);
+	PlayerInputComponent->BindAction(TEXT("ClickLeft"), IE_Pressed, this, &AMainCameraPawn::CallLeftClickEvent);
 }
 
 void AMainCameraPawn::TransportToStartPoint()
@@ -151,16 +154,25 @@ void AMainCameraPawn::HoverActorWithTag(TArray<FHitResult> OutHits, FName Tag)
 	}
 }
 
-void AMainCameraPawn::CallTouchBuildingActor() {
+void AMainCameraPawn::CallLeftClickEvent() {
 	AMainGS* gs = Cast<AMainGS>(UGameplayStatics::GetGameState(GetWorld()));
-	TArray<FHitResult> OutHits = TraceCursor();
-	for (auto outHit : OutHits) {
-		if (outHit.GetActor() && outHit.GetActor()->ActorHasTag("Building"))
-		{
-			Server_TouchActor(outHit.GetActor()->GetFName(), outHit.GetActor()->GetActorLocation());
-			break;
+	if (gs) {
+		TArray<FHitResult> outHits = TraceCursor();
+		for (auto outHit : outHits) {
+			if (outHit.GetActor() && outHit.GetActor()->ActorHasTag("Building"))
+			{
+				Server_TouchActor(outHit.GetActor()->GetFName(), outHit.GetActor()->GetActorLocation());
+				break;
+			}
+		}
+
+		ATileManager* TM = gs->GetTileManager();
+		if (TM) {
+			TM->OffBuildableTile();
+			gs->CurrentSelectedBuilding = nullptr;
 		}
 	}
+	
 }
 
 void AMainCameraPawn::Server_TouchActor_Implementation(FName ActorName, FVector ActorLocation) {

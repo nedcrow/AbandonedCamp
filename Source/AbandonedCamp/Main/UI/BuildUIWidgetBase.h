@@ -21,8 +21,8 @@ struct ABANDONEDCAMP_API FBuildingDataStruct : public FTableRowBase
 	UPROPERTY(BlueprintReadWrite, EditAnywhere)
 	TAssetPtr<class UMaterialInstance> ItemImage;
 
-	/*UPROPERTY(BlueprintReadWrite, EditAnywhere)
-	TAssetPtr<class USkeletalMesh> GunMesh;*/
+	UPROPERTY(BlueprintReadWrite, EditAnywhere)
+	TSubclassOf<class ABuildingTile> ItemActor;
 };
 
 /**
@@ -42,13 +42,6 @@ public:
 	UPROPERTY(BlueprintReadWrite, EditAnywhere, Category = "Widget")
 	class UButton* BuildingTabButton;
 
-	//UPROPERTY(Meta = (BindWidgetAnim), Meta =(AllowPrivateAccess = true))
-	//class UWidgetAnimation* SlideIn;
-
-	//UPROPERTY(Meta = (BindWidgetAnim), Meta = (AllowPrivateAccess = true))
-	//class UWidgetAnimation* SlideOut; // bluprint compile error
-
-
 	// Data
 	UPROPERTY(BlueprintReadWrite, EditAnywhere, Category = "Data")
 	class UDataTable* BuildingDataTable;
@@ -57,7 +50,7 @@ public:
 	void InitBuildingWidgets();
 
 	// BuildingTab
-	UPROPERTY(BlueprintReadWrite, EditAnywhere, Category = "Data")
+	UPROPERTY(BlueprintReadOnly, VisibleAnywhere, Category = "Data")
 	bool bIsActive = true;
 
 	UFUNCTION()

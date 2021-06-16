@@ -2,7 +2,10 @@
 
 
 #include "MainPC.h"
+#include "MainGS.h"
+#include "TileSystem/TileSnapComponent.h"
 #include "UI/MainUIWidgetBase.h"
+#include "Kismet/GameplayStatics.h"
 
 
 AMainPC::AMainPC() 
@@ -18,5 +21,21 @@ void AMainPC::BeginPlay() {
 
 		bShowMouseCursor = true;
 		SetInputMode(FInputModeGameAndUI());
+	}
+}
+
+void AMainPC::SetCurrentSelectedBuildingLocation(FVector Location)
+{
+	AMainGS* GS = Cast<AMainGS>(UGameplayStatics::GetGameState(GetWorld()));
+	if (GS) {
+		if (GS->CurrentSelectedBuilding) {
+
+			GS->CurrentSelectedBuilding->SetActorLocation(Location);
+
+			UTileSnapComponent* snapComp = Cast<UTileSnapComponent>(GS->CurrentSelectedBuilding->GetComponentByClass(UTileSnapComponent::StaticClass()));
+			if (snapComp) {
+				snapComp->SnapToTileManager(true);
+			}
+		}
 	}
 }
