@@ -52,4 +52,6 @@ public:
 	UFUNCTION(BlueprintCallable)
 	void SetCurrentState(ECharacterState NewState);
 
+	// Attack
+	bool bCanAttack = true;
 };

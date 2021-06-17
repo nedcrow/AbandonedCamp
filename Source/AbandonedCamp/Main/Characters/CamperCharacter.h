@@ -18,6 +18,9 @@ public:
 	UPROPERTY(BlueprintReadOnly, VisibleAnywhere)
 	class UStaticMeshComponent* Weapon;
 
+	//UPROPERTY(BlueprintReadOnly, VisibleAnywhere)
+	//class UCapsuleComponent* WeaponCapsule;
+
 	UPROPERTY(BlueprintReadOnly, VisibleAnywhere)
 	class UPawnSensingComponent* PawnSensing;
 
@@ -37,7 +40,7 @@ public:
 
 	// Status
 	UPROPERTY(BlueprintReadWrite, EditAnywhere, Category = "Status")
-	float CurrentHP;
+	float CurrentHP = 100.0f;
 
 	UPROPERTY(BlueprintReadWrite, EditAnywhere, Category = "Status")
 	float MaxHP = 100.0f;
@@ -50,4 +53,24 @@ public:
 
 	UPROPERTY(BlueprintReadWrite, EditAnywhere, Category = "Status")
 	float Attack = 30.0f;
+
+	// OverlapEvent
+	//UFUNCTION()
+	//void WeaponOverlap(
+	//	class UPrimitiveComponent* OverlappedComp, 
+	//	class AActor* OtherActor,
+	//	class UPrimitiveComponent* OtherComp,
+	//	int32 OtherBodyIndex,
+	//	bool bFromSweep,
+	//	const FHitResult& SweepResult);
+
+	// OverlapEvent
+	UFUNCTION()
+	void OnBeginOverlap(
+		UPrimitiveComponent* OverlappedComponent,
+		AActor* OtherActor,
+		UPrimitiveComponent* OtherComp,
+		int32 OtherBodyIndex,
+		bool bFromSweep,
+		const FHitResult& SweepResult);
 };

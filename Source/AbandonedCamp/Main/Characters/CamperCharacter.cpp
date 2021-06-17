@@ -21,8 +21,14 @@ ACamperCharacter::ACamperCharacter()
 	GetMesh()->SetRelativeLocation(FVector(0, 0, -GetCapsuleComponent()->GetUnscaledCapsuleHalfHeight()));
 	GetMesh()->SetRelativeRotation(FRotator(0, -90.f, 0));
 
-	Weapon = CreateDefaultSubobject<UStaticMeshComponent>(TEXT("Weapon2"));
+	Weapon = CreateDefaultSubobject<UStaticMeshComponent>(TEXT("Weapon"));
 	Weapon->SetupAttachment(GetMesh(), TEXT("WeaponSocket"));
+	Weapon->SetGenerateOverlapEvents(true);
+
+	//WeaponCapsule = CreateDefaultSubobject<UCapsuleComponent>(TEXT("WeaponCapsule"));
+	//WeaponCapsule->SetupAttachment(GetMesh(), TEXT("WeaponSocket"));
+	//WeaponCapsule->SetGenerateOverlapEvents(true);
+	Weapon->OnComponentBeginOverlap.AddDynamic(this, &ACamperCharacter::OnBeginOverlap);
 
 	GetCharacterMovement()->MaxWalkSpeed = WalkSpeed;
 
@@ -76,5 +82,29 @@ void ACamperCharacter::ProcessSeenPawn(APawn* Pawn)
 			}
 		}
 	}
+}
+
+void ACamperCharacter::OnBeginOverlap(
+	UPrimitiveComponent* OverlappedComponent,
+	AActor* OtherActor,
+	UPrimitiveComponent* OtherComp,
+	int32 OtherBodyIndex,
+	bool bFromSweep,
+	const FHitResult& SweepResult) {
+	bool isSuccess = OtherActor->ActorHasTag(TEXT("Stranger"));
+
+	if (isSuccess) {
+		if (bCanAttack) {
+			UE_LOG(LogTemp, Warning, TEXT("OverlappedComponent: %s"), *OverlappedComponent->GetFName().ToString());
+			UE_LOG(LogTemp, Warning, TEXT("OtherActor: %s"), *OtherActor->GetFName().ToString());
+			UE_LOG(LogTemp, Warning, TEXT("OtherComp: %s"), *OtherComp->GetFName().ToString());
+			UE_LOG(LogTemp, Warning, TEXT("OtherBodyIndex: %d"), OtherBodyIndex);
+			UE_LOG(LogTemp, Warning, TEXT("bFromSweep: %s"), bFromSweep ? TEXT("True") : TEXT("False"));
+
+			bCanAttack = false;
+		}
+	}
+	
+	
 }
 
