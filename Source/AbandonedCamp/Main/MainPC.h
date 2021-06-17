@@ -28,4 +28,5 @@ public: // UI
 	class UMainUIWidgetBase* MainUIWidgetObject;
 
 	void SetCurrentSelectedBuildingLocation(FVector Location);
+	void DeformateToLandscapeFrom(AActor* TargetActor);
 };

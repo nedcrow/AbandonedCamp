@@ -4,6 +4,7 @@
 #include "MainPC.h"
 #include "MainGS.h"
 #include "TileSystem/TileSnapComponent.h"
+#include "TileSystem/BonFireComponent.h"
 #include "UI/MainUIWidgetBase.h"
 #include "Kismet/GameplayStatics.h"
 
@@ -35,6 +36,22 @@ void AMainPC::SetCurrentSelectedBuildingLocation(FVector Location)
 			UTileSnapComponent* snapComp = Cast<UTileSnapComponent>(GS->CurrentSelectedBuilding->GetComponentByClass(UTileSnapComponent::StaticClass()));
 			if (snapComp) {
 				snapComp->SnapToTileManager(true);
+			}
+
+			
+		}
+	}
+}
+
+void AMainPC::DeformateToLandscapeFrom(AActor* TargetActor)
+{
+	AMainGS* GS = Cast<AMainGS>(UGameplayStatics::GetGameState(GetWorld()));
+	if (GS) {
+		if (TargetActor) {
+			UBonFireComponent* fireComp = Cast<UBonFireComponent>(TargetActor->GetComponentByClass(UBonFireComponent::StaticClass()));
+			if (fireComp) {
+				fireComp->DestroyEffects();
+				fireComp->SpawnEffects();
 			}
 		}
 	}

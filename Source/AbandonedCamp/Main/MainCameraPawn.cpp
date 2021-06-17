@@ -3,6 +3,7 @@
 
 #include "MainCameraPawn.h"
 #include "MainGS.h"
+#include "MainPC.h"
 #include "TileSystem/StartPointTile.h"
 #include "TileSystem/TileManager.h"
 
@@ -164,6 +165,11 @@ void AMainCameraPawn::CallLeftClickEvent() {
 				Server_TouchActor(outHit.GetActor()->GetFName(), outHit.GetActor()->GetActorLocation());
 				break;
 			}
+		}
+
+		AMainPC* pc = Cast<AMainPC>(UGameplayStatics::GetPlayerController(GetWorld(), 0));
+		if (pc && gs->CurrentSelectedBuilding != nullptr) {
+			pc->DeformateToLandscapeFrom(gs->CurrentSelectedBuilding);
 		}
 
 		ATileManager* TM = gs->GetTileManager();
