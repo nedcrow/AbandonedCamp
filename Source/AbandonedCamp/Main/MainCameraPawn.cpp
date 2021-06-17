@@ -2,6 +2,7 @@
 
 
 #include "MainCameraPawn.h"
+#include "BuildingManager.h"
 #include "MainGS.h"
 #include "MainPC.h"
 #include "TileSystem/StartPointTile.h"
@@ -120,7 +121,7 @@ void AMainCameraPawn::CheckCurrentTile(){
 void AMainCameraPawn::HoverActorWithTag(TArray<FHitResult> OutHits, FName Tag)
 {
 	/* 맞은 타일 확인 및 인덱스 번호 갱신 */
-	AMainGS* gs = Cast<AMainGS>(UGameplayStatics::GetGameState(GetWorld()));
+	AMainGS* GS = Cast<AMainGS>(UGameplayStatics::GetGameState(GetWorld()));
 	bool isFound = false;
 	for (auto hit : OutHits) {
 		if (hit.GetActor() && hit.GetActor()->GetComponentsByTag(UInstancedStaticMeshComponent::StaticClass(), Tag).Num() > 0) {
@@ -140,24 +141,25 @@ void AMainCameraPawn::HoverActorWithTag(TArray<FHitResult> OutHits, FName Tag)
 				}
 			}
 
-			if (gs->HoveredTileIndex != targetIndex) {
-				gs->HoveredTileIndex = targetIndex;
-				gs->OnRep_ChangedTileIndex();
+			if (GS->HoveredTileIndex != targetIndex) {
+				GS->HoveredTileIndex = targetIndex;
+				GS->OnRep_ChangedTileIndex();
 			}
 			isFound = true;
 			break;
 		}
 	}
 
-	if (isFound == false && gs->HoveredTileIndex != -1) {
-		gs->HoveredTileIndex = -1;
-		gs->OnRep_ChangedTileIndex();
+	if (isFound == false && GS->HoveredTileIndex != -1) {
+		GS->HoveredTileIndex = -1;
+		GS->OnRep_ChangedTileIndex();
 	}
 }
 
 void AMainCameraPawn::CallLeftClickEvent() {
-	AMainGS* gs = Cast<AMainGS>(UGameplayStatics::GetGameState(GetWorld()));
-	if (gs) {
+	AMainGS* GS = Cast<AMainGS>(UGameplayStatics::GetGameState(GetWorld()));
+	if (GS) {
+		// Touch Actor
 		TArray<FHitResult> outHits = TraceCursor();
 		for (auto outHit : outHits) {
 			if (outHit.GetActor() && outHit.GetActor()->ActorHasTag("Building"))
@@ -167,15 +169,22 @@ void AMainCameraPawn::CallLeftClickEvent() {
 			}
 		}
 
-		AMainPC* pc = Cast<AMainPC>(UGameplayStatics::GetPlayerController(GetWorld(), 0));
-		if (pc && gs->CurrentSelectedBuilding != nullptr) {
-			pc->DeformateToLandscapeFrom(gs->CurrentSelectedBuilding);
+		// 새 건물 건설 시 DeformateToLandscape
+		AMainPC* PC = Cast<AMainPC>(UGameplayStatics::GetPlayerController(GetWorld(), 0));
+		if (PC && GS->CurrentSelectedBuilding != nullptr) {
+			PC->DeformateToLandscapeFrom(GS->CurrentSelectedBuilding);
 		}
 
-		ATileManager* TM = gs->GetTileManager();
+		// 건설 모드 종료
+		ABuildingManager* BM = GS->GetBuildingManager();
+		if (BM) {
+			//BM->BuildingArr.Add(GS->CurrentSelectedBuilding);
+			BM->UpdateManager();
+		}
+		ATileManager* TM = GS->GetTileManager();
 		if (TM) {
 			TM->OffBuildableTile();
-			gs->CurrentSelectedBuilding = nullptr;
+			GS->CurrentSelectedBuilding = nullptr;
 		}
 	}
 	
@@ -186,10 +195,10 @@ void AMainCameraPawn::Server_TouchActor_Implementation(FName ActorName, FVector 
 }
 
 void AMainCameraPawn::NetMulticast_TouchActor_Implementation(FName ActorName, FVector ActorLocation) {
-	AMainGS* gs = Cast<AMainGS>(UGameplayStatics::GetGameState(GetWorld()));
-	gs->CurrentActorName = ActorName;
-	gs->CurrentActorLocation = ActorLocation;
-	gs->OnRep_ChangedCurrentActorName();
+	AMainGS* GS = Cast<AMainGS>(UGameplayStatics::GetGameState(GetWorld()));
+	GS->CurrentActorName = ActorName;
+	GS->CurrentActorLocation = ActorLocation;
+	GS->OnRep_ChangedCurrentActorName();
 }
 
 TArray<FHitResult> AMainCameraPawn::TraceCursor()

@@ -86,6 +86,9 @@ class ABANDONEDCAMP_API AMainGS : public AGameStateBase
 		UFUNCTION()
 		ATileManager* GetTileManager();
 
+		UFUNCTION()
+		ABuildingManager* GetBuildingManager();
+
 
 
 		

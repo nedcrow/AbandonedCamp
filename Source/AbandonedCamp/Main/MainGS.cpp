@@ -2,6 +2,7 @@
 
 
 #include "MainGS.h"
+#include "BuildingManager.h"
 #include "MainPC.h"
 #include "TileSystem/TileManager.h"
 #include "Net/UnrealNetwork.h"
@@ -60,4 +61,9 @@ void AMainGS::OnRep_ChangedCurrentActorName()
 ATileManager* AMainGS::GetTileManager()
 {
 	return Cast<ATileManager>(UGameplayStatics::GetActorOfClass(GetWorld(), ATileManager::StaticClass()));
+}
+
+ABuildingManager* AMainGS::GetBuildingManager()
+{
+	return Cast<ABuildingManager>(UGameplayStatics::GetActorOfClass(GetWorld(), ABuildingManager::StaticClass()));
 }
