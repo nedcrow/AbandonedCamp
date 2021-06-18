@@ -4,7 +4,7 @@
 #include "BuildingTile.h"
 #include "../MainGS.h"
 #include "../UI/HUDSceneComponent.h"
-#include "../UI/OnOffButtonWidgetBase.h"
+#include "../UI/HPBarWidgetBase.h"
 #include "Components/BoxComponent.h"
 #include "Components/StaticMeshComponent.h"
 #include "Components/WidgetComponent.h"
@@ -36,8 +36,17 @@ void ABuildingTile::PostRegisterAllComponents()
 void ABuildingTile::BeginPlay()
 {
 	Super::BeginPlay();
+	OnRep_CurrentHP();
+
+	// Event
 	AMainGS* GS = Cast<AMainGS>(UGameplayStatics::GetGameState(GetWorld()));
 	if (GS) GS->F_TouchEvent.AddUFunction(this, FName("CallDelFunc_TouchEvent"));
+}
+
+void ABuildingTile::GetLifetimeReplicatedProps(TArray<FLifetimeProperty>& OutLifetimeProps) const
+{
+	Super::GetLifetimeReplicatedProps(OutLifetimeProps);
+	DOREPLIFETIME(ABuildingTile, CurrentHP);
 }
 
 void ABuildingTile::SpawnEffects()
@@ -93,5 +102,19 @@ void ABuildingTile::CallDelFunc_TouchEvent(FName TargetName, FVector TargetLocat
 				}
 			}
 		}
+	}
+}
+
+float ABuildingTile::TakeDamage(float DamageAmount, FDamageEvent const& DamageEvent, AController* EventInstigator, AActor* DamageCauser)
+{
+	return 0.0f;
+}
+
+void ABuildingTile::OnRep_CurrentHP()
+{
+	UHPBarWidgetBase* HPBarWidgetObj = Cast<UHPBarWidgetBase>(Widget->GetUserWidgetObject());
+	if (HPBarWidgetObj)
+	{
+		HPBarWidgetObj->SetHPBar(CurrentHP / MaxHP);
 	}
 }

@@ -33,14 +33,13 @@ class ABANDONEDCAMP_API UBuildUIWidgetBase : public UUserWidget
 {
 	GENERATED_BODY()
 public:
-	virtual void NativeConstruct() override;
-
-	// Properties
 	UPROPERTY(BlueprintReadWrite, EditAnywhere, Category = "Widget")
 	class UScrollBox* BuildingScrollBox;
 
 	UPROPERTY(BlueprintReadWrite, EditAnywhere, Category = "Widget")
 	class UButton* BuildingTabButton;
+
+	virtual void NativeConstruct() override;
 
 	// Data
 	UPROPERTY(BlueprintReadWrite, EditAnywhere, Category = "Data")

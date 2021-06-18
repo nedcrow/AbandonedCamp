@@ -16,9 +16,6 @@ class ABANDONEDCAMP_API UBuildingButtonWidgetBase : public UUserWidget
 	GENERATED_BODY()
 
 public:
-	virtual void NativeConstruct() override;
-
-	//Properties
 	UPROPERTY(BlueprintReadWrite, EditAnywhere, Category = "Widget")
 	class UBorder* BuildingBorder;
 
@@ -27,6 +24,8 @@ public:
 
 	UPROPERTY(BlueprintReadWrite, EditAnywhere, Category = "Widget")
 	class UTextBlock* BuildingName;
+
+	virtual void NativeConstruct() override;
 
 	//Data
 	UPROPERTY(BlueprintReadOnly, VisibleAnywhere, Category = "Data")

@@ -17,16 +17,26 @@ public:
 	AStrangerCharacter();
 
 	UPROPERTY(BlueprintReadOnly, VisibleAnywhere)
-	class UPawnSensingComponent* PawnSensing;
+		class USphereComponent* WeaponA;
+
+	UPROPERTY(BlueprintReadOnly, VisibleAnywhere)
+		class USphereComponent* WeaponB;
+
+	UPROPERTY(BlueprintReadOnly, VisibleAnywhere)
+		class UHUDSceneComponent* HUDScene;
+
+	UPROPERTY(BlueprintReadOnly, VisibleAnywhere)
+		class UWidgetComponent* HPBarWidget;
+
+	UPROPERTY(BlueprintReadOnly, VisibleAnywhere)
+		class UPawnSensingComponent* PawnSensing;
 
 protected:
 	// Called when the game starts or when spawned
 	virtual void BeginPlay() override;
+	virtual void GetLifetimeReplicatedProps(TArray<FLifetimeProperty>& OutLifetimeProps) const override;
 
-public:	
-	// Called every frame
-	virtual void Tick(float DeltaTime) override;
-
+public:		
 	// Called to bind functionality to input
 	virtual void SetupPlayerInputComponent(class UInputComponent* PlayerInputComponent) override;
 
@@ -34,8 +44,8 @@ public:
 		void ProcessSeenPawn(APawn* Pawn);
 
 	// Status
-	UPROPERTY(BlueprintReadWrite, EditAnywhere, Category = "Status")
-		float CurrentHP;
+	UPROPERTY(ReplicatedUsing = "OnRep_CurrentHP", BlueprintReadWrite, EditAnywhere, Category = "Status")
+		float CurrentHP = 100.0f;
 
 	UPROPERTY(BlueprintReadWrite, EditAnywhere, Category = "Status")
 		float MaxHP = 100.0f;
@@ -50,8 +60,23 @@ public:
 		float WarmthSight = 1000.0f;
 
 	UPROPERTY(BlueprintReadWrite, EditAnywhere, Category = "Status")
-		float Attack = 30.0f;
+		float AttackPoint = 30.0f;
 
 	UFUNCTION()
 		void CallDelFunc_OnNightEvent(ENightState NightState);
+
+	// OverlapEvent
+	UFUNCTION()
+		void OnBeginOverlap(
+		UPrimitiveComponent* OverlappedComponent,
+		AActor* OtherActor,
+		UPrimitiveComponent* OtherComp,
+		int32 OtherBodyIndex,
+		bool bFromSweep,
+		const FHitResult& SweepResult);
+
+	// TakeDamage
+	virtual float TakeDamage(float DamageAmount, struct FDamageEvent const& DamageEvent, class AController* EventInstigator, AActor* DamageCauser) override;
+	UFUNCTION()
+		void OnRep_CurrentHP();
 };

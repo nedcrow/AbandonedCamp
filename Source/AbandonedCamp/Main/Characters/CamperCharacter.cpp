@@ -3,10 +3,12 @@
 
 #include "CamperCharacter.h"
 #include "../AI/CamperAIController.h"
-#include "../BuildingManager.h"
+#include "../UI/HUDSceneComponent.h"
+#include "../UI/HPBarWidgetBase.h"
 
 #include "Components/CapsuleComponent.h"
 #include "Components/StaticMeshComponent.h"
+#include "Components/WidgetComponent.h"
 #include "GameFramework/CharacterMovementComponent.h"
 #include "Kismet/GameplayStatics.h"
 #include "Net/UnrealNetwork.h"
@@ -23,12 +25,17 @@ ACamperCharacter::ACamperCharacter()
 
 	Weapon = CreateDefaultSubobject<UStaticMeshComponent>(TEXT("Weapon"));
 	Weapon->SetupAttachment(GetMesh(), TEXT("WeaponSocket"));
-	Weapon->SetGenerateOverlapEvents(true);
-
-	//WeaponCapsule = CreateDefaultSubobject<UCapsuleComponent>(TEXT("WeaponCapsule"));
-	//WeaponCapsule->SetupAttachment(GetMesh(), TEXT("WeaponSocket"));
-	//WeaponCapsule->SetGenerateOverlapEvents(true);
 	Weapon->OnComponentBeginOverlap.AddDynamic(this, &ACamperCharacter::OnBeginOverlap);
+	WeaponArr.Add(Weapon);
+
+	HUDScene = CreateDefaultSubobject<UHUDSceneComponent>(TEXT("HUDScene"));
+	HUDScene->SetupAttachment(RootComponent);
+	HUDScene->SetRelativeLocation(FVector(0.f, 0.f, GetCapsuleComponent()->GetUnscaledCapsuleHalfHeight()));
+
+	HPBarWidget = CreateDefaultSubobject<UWidgetComponent>(TEXT("HPBarWidget"));
+	HPBarWidget->SetupAttachment(HUDScene);
+	HPBarWidget->SetRelativeRotation(FRotator(0, 180, 0));
+	HPBarWidget->SetDrawSize(FVector2D(80.0f, 12.0f));
 
 	GetCharacterMovement()->MaxWalkSpeed = WalkSpeed;
 
@@ -48,17 +55,18 @@ void ACamperCharacter::BeginPlay()
 	Super::BeginPlay();
 	
 	SetCurrentState(ECharacterState::Idle);
+	OnRep_CurrentHP();
+
 	if (PawnSensing)
 	{
 		PawnSensing->OnSeePawn.AddDynamic(this, &ACamperCharacter::ProcessSeenPawn);
 	}
 }
 
-// Called every frame
-void ACamperCharacter::Tick(float DeltaTime)
+void ACamperCharacter::GetLifetimeReplicatedProps(TArray<FLifetimeProperty>& OutLifetimeProps) const
 {
-	Super::Tick(DeltaTime);
-
+	Super::GetLifetimeReplicatedProps(OutLifetimeProps);
+	DOREPLIFETIME(ACamperCharacter, CurrentHP);
 }
 
 // Called to bind functionality to input
@@ -94,17 +102,54 @@ void ACamperCharacter::OnBeginOverlap(
 	bool isSuccess = OtherActor->ActorHasTag(TEXT("Stranger"));
 
 	if (isSuccess) {
+		UE_LOG(LogTemp, Warning, TEXT("OverlapEvent - 1"));
 		if (bCanAttack) {
-			UE_LOG(LogTemp, Warning, TEXT("OverlappedComponent: %s"), *OverlappedComponent->GetFName().ToString());
-			UE_LOG(LogTemp, Warning, TEXT("OtherActor: %s"), *OtherActor->GetFName().ToString());
-			UE_LOG(LogTemp, Warning, TEXT("OtherComp: %s"), *OtherComp->GetFName().ToString());
-			UE_LOG(LogTemp, Warning, TEXT("OtherBodyIndex: %d"), OtherBodyIndex);
-			UE_LOG(LogTemp, Warning, TEXT("bFromSweep: %s"), bFromSweep ? TEXT("True") : TEXT("False"));
-
-			bCanAttack = false;
+			UE_LOG(LogTemp, Warning, TEXT("OverlapEvent - 2"));
+			if (GetWorld()->IsServer()) {
+				UGameplayStatics::ApplyPointDamage(OtherActor, AttackPoint, SweepResult.ImpactNormal, SweepResult, GetController(), this, UDamageType::StaticClass());
+				UE_LOG(LogTemp, Warning, TEXT("OverlapEvent: to %s"), *OtherActor->GetFName().ToString());
+				bCanAttack = false;
+			}
 		}
+	}	
+}
+
+float ACamperCharacter::TakeDamage(float DamageAmount, FDamageEvent const& DamageEvent, AController* EventInstigator, AActor* DamageCauser)
+{
+	Super::TakeDamage(DamageAmount, DamageEvent, EventInstigator, DamageCauser);
+
+	if (CurrentHP <= 0) {
+		return 0.f;
 	}
-	
-	
+
+	if (!GetWorld()->IsServer() || DamageCauser->ActorHasTag("Camper"))
+	{
+		return 0.f;
+	}
+
+	float tempHP = CurrentHP;
+	tempHP -= DamageAmount;
+
+	if (CurrentHP != tempHP)
+	{
+		CurrentHP = tempHP;
+		OnRep_CurrentHP();
+	}
+
+	if (CurrentHP <= 0) {
+		ACamperAIController* AIC = GetController<ACamperAIController>();
+		if (AIC) AIC->SetCurrentState(ECharacterState::Dead);
+	}
+
+	return 0.0f;
+}
+
+void ACamperCharacter::OnRep_CurrentHP()
+{
+	UHPBarWidgetBase* HPBarWidgetObj = Cast<UHPBarWidgetBase>(HPBarWidget->GetUserWidgetObject());
+	if (HPBarWidgetObj)
+	{
+		HPBarWidgetObj->SetHPBar(CurrentHP / MaxHP);
+	}
 }
 

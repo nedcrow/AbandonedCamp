@@ -18,9 +18,12 @@ public:
 	UPROPERTY(BlueprintReadOnly, VisibleAnywhere)
 	class UStaticMeshComponent* Weapon;
 
-	//UPROPERTY(BlueprintReadOnly, VisibleAnywhere)
-	//class UCapsuleComponent* WeaponCapsule;
+	UPROPERTY(BlueprintReadOnly, VisibleAnywhere)
+	class UHUDSceneComponent* HUDScene;
 
+	UPROPERTY(BlueprintReadOnly, VisibleAnywhere)
+	class UWidgetComponent* HPBarWidget;
+	
 	UPROPERTY(BlueprintReadOnly, VisibleAnywhere)
 	class UPawnSensingComponent* PawnSensing;
 
@@ -30,7 +33,8 @@ protected:
 
 public:	
 	// Called every frame
-	virtual void Tick(float DeltaTime) override;
+
+	virtual void GetLifetimeReplicatedProps(TArray<FLifetimeProperty>& OutLifetimeProps) const override;
 
 	// Called to bind functionality to input
 	virtual void SetupPlayerInputComponent(class UInputComponent* PlayerInputComponent) override;
@@ -39,7 +43,7 @@ public:
 	void ProcessSeenPawn(APawn* Pawn);
 
 	// Status
-	UPROPERTY(BlueprintReadWrite, EditAnywhere, Category = "Status")
+	UPROPERTY(ReplicatedUsing = "OnRep_CurrentHP", BlueprintReadWrite, EditAnywhere, Category = "Status")
 	float CurrentHP = 100.0f;
 
 	UPROPERTY(BlueprintReadWrite, EditAnywhere, Category = "Status")
@@ -52,17 +56,7 @@ public:
 	float RunSpeed = 300.0f;
 
 	UPROPERTY(BlueprintReadWrite, EditAnywhere, Category = "Status")
-	float Attack = 30.0f;
-
-	// OverlapEvent
-	//UFUNCTION()
-	//void WeaponOverlap(
-	//	class UPrimitiveComponent* OverlappedComp, 
-	//	class AActor* OtherActor,
-	//	class UPrimitiveComponent* OtherComp,
-	//	int32 OtherBodyIndex,
-	//	bool bFromSweep,
-	//	const FHitResult& SweepResult);
+	float AttackPoint = 30.0f;
 
 	// OverlapEvent
 	UFUNCTION()
@@ -73,4 +67,9 @@ public:
 		int32 OtherBodyIndex,
 		bool bFromSweep,
 		const FHitResult& SweepResult);
+
+	// TakeDamage
+	virtual float TakeDamage(float DamageAmount, struct FDamageEvent const& DamageEvent, class AController* EventInstigator, AActor* DamageCauser) override;
+	UFUNCTION()
+	void OnRep_CurrentHP();
 };

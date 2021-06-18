@@ -43,3 +43,14 @@ void ACommonCharacter::SetCurrentState(ECharacterState NewState)
 	}
 }
 
+void ACommonCharacter::SetGenerateOverlapEventOfWeapons(bool Value)
+{
+	for (auto weapon : WeaponArr) {
+		weapon->SetGenerateOverlapEvents(Value);
+	}
+
+	for (auto weaponSphere : WeaponSphereArr) {
+		weaponSphere->SetGenerateOverlapEvents(Value);
+	}
+}
+

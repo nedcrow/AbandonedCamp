@@ -26,8 +26,19 @@ public:
 protected:
 	virtual void PostRegisterAllComponents() override;
 	virtual void BeginPlay() override;
+	virtual void GetLifetimeReplicatedProps(TArray<FLifetimeProperty>& OutLifetimeProps) const override;
 
 public:
+	// Status
+	UPROPERTY(ReplicatedUsing = "OnRep_CurrentHP", BlueprintReadWrite, EditAnywhere, Category = "Status")
+	float CurrentHP = 100.0f;
+
+	UPROPERTY(BlueprintReadWrite, EditAnywhere, Category = "Status")
+	float MaxHP = 100.0f;
+
+	UPROPERTY(BlueprintReadWrite, EditAnywhere, Category = "Status")
+	float AttackPoint = 30.0f;
+
 	// Interaction
 	UPROPERTY(BlueprintReadWrite, EditAnywhere)
 	uint8 bCanInteraction : 1;
@@ -40,6 +51,11 @@ public:
 
 	UFUNCTION()
 	void CallDelFunc_TouchEvent(FName TargetName, FVector TargetLocation);
+
+	// TakeDamage
+	virtual float TakeDamage(float DamageAmount, struct FDamageEvent const& DamageEvent, class AController* EventInstigator, AActor* DamageCauser) override;
+	UFUNCTION()
+	void OnRep_CurrentHP();
 
 
 	// Effect

@@ -4,6 +4,7 @@
 
 #include "CoreMinimal.h"
 #include "GameFramework/Character.h"
+#include "Components/SphereComponent.h"
 #include "CommonCharacter.generated.h"
 
 UENUM(BlueprintType)
@@ -53,5 +54,10 @@ public:
 	void SetCurrentState(ECharacterState NewState);
 
 	// Attack
-	bool bCanAttack = true;
+	TArray<UStaticMeshComponent*> WeaponArr;
+	TArray<USphereComponent*> WeaponSphereArr;
+	UPROPERTY(BlueprintReadOnly, EditAnywhere, Category = "Attack")
+	bool bCanAttack = false;
+
+	void SetGenerateOverlapEventOfWeapons(bool Value);
 };
