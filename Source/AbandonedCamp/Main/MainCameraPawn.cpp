@@ -193,9 +193,11 @@ void AMainCameraPawn::Build()
 		ATileManager* TM = GS->GetTileManager();
 		if (TM) {
 			for (auto location : TM->BuildableLocations) {
-				if (location.X == GS->CurrentSelectedBuilding->GetActorLocation().X && location.Y == GS->CurrentSelectedBuilding->GetActorLocation().Y) {
-					isBuildable = true;
-					break;
+				if (GS->CurrentSelectedBuilding) {
+					if (location.X == GS->CurrentSelectedBuilding->GetActorLocation().X && location.Y == GS->CurrentSelectedBuilding->GetActorLocation().Y) {
+						isBuildable = true;
+						break;
+					}
 				}
 			}
 
@@ -216,7 +218,7 @@ void AMainCameraPawn::Build()
 				// TM, GS ÃÊ±âÈ­
 				TM->OffBuildableTile();
 				GS->CurrentSelectedBuilding = nullptr;
-				GS->CurrentUIState = EUIState::Build;
+				GS->CurrentUIState = EUIState::Normal;
 			}
 		}
 	}
