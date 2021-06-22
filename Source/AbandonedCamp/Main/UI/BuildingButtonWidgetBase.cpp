@@ -32,10 +32,19 @@ void UBuildingButtonWidgetBase::OnClickBuildingButton()
 {
 	CallOnBuildableTiles();
 
-	ABuildingTile* buildingActor = GetWorld()->SpawnActor<ABuildingTile>(BuildingClass, FVector(0.f, 0.f, -999.f), FRotator().ZeroRotator);
 	AMainGS* GS = Cast<AMainGS>(UGameplayStatics::GetGameState(GetWorld()));
-	if (GS && buildingActor) {
-		GS->CurrentSelectedBuilding = buildingActor;
+	if (GS) {
+		// 선택된 빌딩이 있으면 삭제
+		if (GS->CurrentSelectedBuilding) {
+			GS->CurrentSelectedBuilding->Destroy();
+		}
+
+		// 새 빌딩 생성
+		ABuildingTile* buildingActor = GetWorld()->SpawnActor<ABuildingTile>(BuildingClass, FVector(0.f, 0.f, -999.f), FRotator().ZeroRotator);
+		if (buildingActor) {
+			GS->CurrentSelectedBuilding = buildingActor;
+			GS->CurrentUIState = EUIState::Build;
+		}
 	}
 }
 
@@ -43,8 +52,8 @@ void UBuildingButtonWidgetBase::CallOnBuildableTiles()
 {
 	AMainGS* GS = Cast<AMainGS>(UGameplayStatics::GetGameState(GetWorld()));
 	if (GS) {
-		ATileManager* TM =GS->GetTileManager();
-		if (TM) {
+		ATileManager* TM = GS->GetTileManager();
+		if (TM && TM->BuildableLocations.Num() == 0) {
 			TM->OnBuildableTile();
 		}
 	}

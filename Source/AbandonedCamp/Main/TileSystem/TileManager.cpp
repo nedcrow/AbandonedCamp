@@ -96,22 +96,50 @@ void ATileManager::CallDelFunc_TileHoveredEvent(bool isHovered)
 		DefaultTileISM->GetInstanceTransform(tileIndex, tileTransform, true);
 		FVector tileLocation = CurrentTileLocation = FVector(tileTransform.GetLocation().X, tileTransform.GetLocation().Y, tileTransform.GetLocation().Z + 0);
 
-		// selectedTileDecal 없으면 생성
-		if (CursorToWorld == nullptr) {
-			CursorToWorld = UGameplayStatics::SpawnDecalAtLocation(GetWorld(), Border_MI, FVector(50.0f, 50.0f, 100.0f), tileLocation, FRotator().ZeroRotator, 0.0f);
-			//CursorToWorld->ComponentTags.Add("Tile");
+		// 커서 위치 확인 용 Decal 없으면 생성
+		if (CursorTileDecal == nullptr) {
+			CursorTileDecal = UGameplayStatics::SpawnDecalAtLocation(GetWorld(), Border_MI, FVector(50.0f, 50.0f, 100.0f), tileLocation, FRotator().ZeroRotator, 0.0f);
+		}
+
+		// 빌드 모드에 사용 할 Decal 없으면 생성
+		if (BuildUnableTileDecal == nullptr) {
+			BuildUnableTileDecal = UGameplayStatics::SpawnDecalAtLocation(GetWorld(), Unable_Build_MI, FVector(50.0f, 50.0f, 100.0f), tileLocation, FRotator().ZeroRotator, 0.0f);
 		}
 
 		// Decal 배치
 		if (isHovered == true) {
-			CursorToWorld->SetRelativeLocation(tileLocation);
-			CursorToWorld->Activate(true);
-			//UE_LOG(LogTemp, Warning, TEXT("TileManager _ Hovered!!!!"));
+			// CursorTileDecal : 노멀 모드에서 활성화
+			if (gs->CurrentUIState == EUIState::Normal) {
+				CursorTileDecal->SetRelativeLocation(tileLocation);
+				CursorTileDecal->Activate(true);
+			}
+			else {
+				CursorTileDecal->Activate(false);
+				CursorTileDecal->SetRelativeLocation(FVector(0.0f, 0.0f, -99999.0f));
+			}
+
+			// BuildUnableTileDecal : 빌드모드면서 건설 불가능 지역에서 활성화
+			bool canActive = gs->CurrentUIState == EUIState::Build;
+			for (auto location : gs->GetTileManager()->BuildableLocations) {
+				if (location.X == tileLocation.X && location.Y == tileLocation.Y) {
+					canActive = false;
+					break;
+				}
+			}
+			if (canActive) {				
+				BuildUnableTileDecal->SetRelativeLocation(tileLocation);
+				BuildUnableTileDecal->Activate(true);
+			}
+			else {
+				BuildUnableTileDecal->Activate(false);
+				BuildUnableTileDecal->SetRelativeLocation(FVector(0.0f, 0.0f, -99999.0f));
+			}
 		}
 		else {
-			CursorToWorld->Activate(false);
-			CursorToWorld->SetRelativeLocation(FVector(0.0f, 0.0f, -99999.0f));
-			//UE_LOG(LogTemp, Warning, TEXT("TileManager _ Out!!!!"));
+			CursorTileDecal->Activate(false);
+			CursorTileDecal->SetRelativeLocation(FVector(0.0f, 0.0f, -99999.0f));
+			BuildUnableTileDecal->Activate(false);
+			BuildUnableTileDecal->SetRelativeLocation(FVector(0.0f, 0.0f, -99999.0f));
 		}
 	}
 
@@ -127,7 +155,7 @@ void ATileManager::OnBuildableTile()
 	}
 
 	// 타일 위치 계산 (8각형)
-	TArray<FVector> DecalLocations;
+	BuildableLocations.Empty();
 	ABuildingManager* buildingM = Cast<ABuildingManager>(UGameplayStatics::GetActorOfClass(GetWorld(), ABuildingManager::StaticClass()));
 	for (auto fire : buildingM->FireBuildingArr) {
 		UBonFireComponent* fireComponent = Cast<UBonFireComponent>(fire->GetComponentByClass(UBonFireComponent::StaticClass()));
@@ -136,7 +164,7 @@ void ATileManager::OnBuildableTile()
 		float oneUnit = 100 * TileScale;
 
 		UBoxComponent* fireBoxComp = Cast<UBoxComponent>(fire->GetComponentByClass(UBoxComponent::StaticClass()));
-		float minusZ = -fireBoxComp->GetScaledBoxExtent().Z * 2;
+		float minusZ = fireBoxComp->GetScaledBoxExtent().Z;
 
 		// (X,Y)가 (0,0)인 경우를 제외한 4 분면 위치 생성
 		for (int i = 0; i < loopCountX; i++) {
@@ -145,26 +173,26 @@ void ATileManager::OnBuildableTile()
 				bool isFirstLine = i > 0 && j > 0;
 				if (!isStartPoint) {
 					if (isFirstLine) {
-						DecalLocations.Add(FVector(
+						BuildableLocations.Add(FVector(
 							fire->GetActorLocation().X + (i * oneUnit),
 							fire->GetActorLocation().Y + (j * oneUnit),
-							fire->GetActorLocation().Z + minusZ
+							fire->GetActorLocation().Z - minusZ
 						));
-						DecalLocations.Add(FVector(
+						BuildableLocations.Add(FVector(
 							fire->GetActorLocation().X - (i * oneUnit),
 							fire->GetActorLocation().Y - (j * oneUnit),
-							fire->GetActorLocation().Z + minusZ
+							fire->GetActorLocation().Z - minusZ
 						));
 					}
-					DecalLocations.Add(FVector(
+					BuildableLocations.Add(FVector(
 						fire->GetActorLocation().X + (i * oneUnit),
 						fire->GetActorLocation().Y - (j * oneUnit),
-						fire->GetActorLocation().Z + minusZ
+						fire->GetActorLocation().Z - minusZ
 					));
-					DecalLocations.Add(FVector(
+					BuildableLocations.Add(FVector(
 						fire->GetActorLocation().X - (i * oneUnit),
 						fire->GetActorLocation().Y + (j * oneUnit),
-						fire->GetActorLocation().Z + minusZ
+						fire->GetActorLocation().Z - minusZ
 					));
 				}
 			}
@@ -172,10 +200,20 @@ void ATileManager::OnBuildableTile()
 		}
 	}
 
+	// 이미 건물이 있는 위치 제거
+	for (int i = 0; i < BuildableLocations.Num(); i++) {
+		for (auto building : buildingM->BuildingArr) {
+			if (building->GetActorLocation().X == BuildableLocations[i].X && building->GetActorLocation().Y == BuildableLocations[i].Y) {
+				BuildableLocations.RemoveAt(i);
+				i--;
+			}
+		}
+	}
+
 	// tile 생성
 	if (!BuildableISM->IsVisible()) BuildableISM->SetVisibility(true);
 	if (BuildableISM->GetInstanceCount() == 0) BuildableISM->ClearInstances();
-	for (auto location : DecalLocations) {
+	for (auto location : BuildableLocations) {
 		BuildableISM->AddInstance(FTransform(
 			FRotator().ZeroRotator,
 			location,

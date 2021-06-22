@@ -72,6 +72,9 @@ public:
 	void NetMulticast_TouchActor(FName ActorName, FVector ActorLocation);
 	void NetMulticast_TouchActor_Implementation(FName ActorName, FVector ActorLocation);
 
+	// Build
+	void Build();
+
 private:
 	AController* HitController;
 	TArray<FHitResult> TraceCursor();

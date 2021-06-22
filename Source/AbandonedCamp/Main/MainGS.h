@@ -13,13 +13,13 @@ enum class ENightState : uint8
 	Night	UMETA(DisplayName = "Night"),
 };
 
-//UENUM(BlueprintType)
-//enum class EUIState : uint8
-//{
-//	Normal	UMETA(DisplayName = "Normal"),
-//	Build	UMETA(DisplayName = "Build"),
-//	Menu	UMETA(DisplayName = "Menu"),
-//};
+UENUM(BlueprintType)
+enum class EUIState : uint8
+{
+	Normal	UMETA(DisplayName = "Normal"),
+	Build	UMETA(DisplayName = "Build"),
+	Menu	UMETA(DisplayName = "Menu"),
+};
 
 DECLARE_MULTICAST_DELEGATE_OneParam(FTileStateDelegate_OneParam, ENightState);
 //DECLARE_MULTICAST_DELEGATE_OneParam(FUIStateDelegate_OneParam, EUIState);
@@ -45,6 +45,9 @@ class ABANDONEDCAMP_API AMainGS : public AGameStateBase
 
 		UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Status")
 		int CurrentNight = 0;
+
+		UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Status")
+		EUIState CurrentUIState;
 
 		// OnOffNightEvent
 		UPROPERTY(ReplicatedUsing = OnRep_ChangedCurrentNight, VisibleAnywhere, BlueprintReadOnly, Category = "Status")

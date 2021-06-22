@@ -158,7 +158,7 @@ void AMainCameraPawn::HoverActorWithTag(TArray<FHitResult> OutHits, FName Tag)
 
 void AMainCameraPawn::CallLeftClickEvent() {
 	AMainGS* GS = Cast<AMainGS>(UGameplayStatics::GetGameState(GetWorld()));
-	if (GS) {
+	if (GS && GS->CurrentUIState != EUIState::Build) {
 		// Touch Actor
 		TArray<FHitResult> outHits = TraceCursor();
 		for (auto outHit : outHits) {
@@ -167,27 +167,10 @@ void AMainCameraPawn::CallLeftClickEvent() {
 				Server_TouchActor(outHit.GetActor()->GetFName(), outHit.GetActor()->GetActorLocation());
 				break;
 			}
-		}
+		}		
+	}	
 
-		// 새 건물 건설 시 DeformateToLandscape
-		AMainPC* PC = Cast<AMainPC>(UGameplayStatics::GetPlayerController(GetWorld(), 0));
-		if (PC && GS->CurrentSelectedBuilding != nullptr) {
-			PC->DeformateToLandscapeFrom(GS->CurrentSelectedBuilding);
-		}
-
-		// 건설 모드 종료
-		ABuildingManager* BM = GS->GetBuildingManager();
-		if (BM) {
-			//BM->BuildingArr.Add(GS->CurrentSelectedBuilding);
-			BM->UpdateManager();
-		}
-		ATileManager* TM = GS->GetTileManager();
-		if (TM) {
-			TM->OffBuildableTile();
-			GS->CurrentSelectedBuilding = nullptr;
-		}
-	}
-	
+	Build();
 }
 
 void AMainCameraPawn::Server_TouchActor_Implementation(FName ActorName, FVector ActorLocation) {
@@ -199,6 +182,44 @@ void AMainCameraPawn::NetMulticast_TouchActor_Implementation(FName ActorName, FV
 	GS->CurrentActorName = ActorName;
 	GS->CurrentActorLocation = ActorLocation;
 	GS->OnRep_ChangedCurrentActorName();
+}
+
+void AMainCameraPawn::Build()
+{
+	AMainGS* GS = Cast<AMainGS>(UGameplayStatics::GetGameState(GetWorld()));
+	if (GS) {
+		// 건물 위치가 모닥불 근처인지 확인
+		bool isBuildable = false;
+		ATileManager* TM = GS->GetTileManager();
+		if (TM) {
+			for (auto location : TM->BuildableLocations) {
+				if (location.X == GS->CurrentSelectedBuilding->GetActorLocation().X && location.Y == GS->CurrentSelectedBuilding->GetActorLocation().Y) {
+					isBuildable = true;
+					break;
+				}
+			}
+
+			// 건설 모드 종료
+			if (isBuildable) {
+				// 새 건물 건설 시 DeformateToLandscape
+				AMainPC* PC = Cast<AMainPC>(UGameplayStatics::GetPlayerController(GetWorld(), 0));
+				if (PC && GS->CurrentSelectedBuilding != nullptr) {
+					PC->DeformateToLandscapeFrom(GS->CurrentSelectedBuilding);
+				}
+
+				// BM 업데이트
+				ABuildingManager* BM = GS->GetBuildingManager();
+				if (BM) {
+					BM->UpdateManager();
+				}
+
+				// TM, GS 초기화
+				TM->OffBuildableTile();
+				GS->CurrentSelectedBuilding = nullptr;
+				GS->CurrentUIState = EUIState::Build;
+			}
+		}
+	}
 }
 
 TArray<FHitResult> AMainCameraPawn::TraceCursor()

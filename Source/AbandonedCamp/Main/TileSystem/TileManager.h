@@ -37,7 +37,7 @@ public:
 
 #pragma region About TileMap
 	UPROPERTY(BlueprintReadWrite, EditAnywhere, Category = "TileMap")
-	uint8 bIsMistTile : 1;
+	TArray<FVector> BuildableLocations;
 
 	/* X축 타일 갯수 */
 	UPROPERTY(BlueprintReadWrite, EditAnywhere, Category = "TileMap")
@@ -70,7 +70,8 @@ public:
 	UPROPERTY(BlueprintReadWrite, EditAnywhere, Category = "TileUI")
 	UMaterialInterface* Border_MI;
 
-	class UDecalComponent* CursorToWorld;
+	class UDecalComponent* CursorTileDecal;
+	class UDecalComponent* BuildUnableTileDecal;
 
 	// Hovered tile
 	UFUNCTION()
