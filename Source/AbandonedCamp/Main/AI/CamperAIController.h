@@ -16,8 +16,6 @@ class ABANDONEDCAMP_API ACamperAIController : public ACommonAIController
 
 public:
 
-	class AActor* CurrentEnermy;
-
 	virtual void OnPossess(APawn* InPawn) override;
 
 	void SetAvoidanceLocation(FVector Location);

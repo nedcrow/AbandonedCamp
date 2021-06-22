@@ -24,3 +24,9 @@ ATileBase::ATileBase()
 
 	TileSnapComponent = CreateDefaultSubobject<UTileSnapComponent>(TEXT("TileSnapComponent"));
 }
+
+void ATileBase::PostRegisterAllComponents() {
+	Super::PostRegisterAllComponents();
+	// Box 크기 변경 후 BodyMesh 위치를 Box 바닥으로 이동
+	BodyMesh->SetRelativeLocation(FVector(BodyMesh->GetRelativeLocation().X, BodyMesh->GetRelativeLocation().Y, -Box->GetScaledBoxExtent().Z));
+}

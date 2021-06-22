@@ -11,6 +11,9 @@ class ABANDONEDCAMP_API ATileBase : public AActor
 {
 	GENERATED_BODY()
 	
+private:
+	virtual void PostRegisterAllComponents() override;
+
 public:	
 	// Sets default values for this actor's properties
 	ATileBase();

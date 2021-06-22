@@ -43,6 +43,16 @@ void ACommonCharacter::SetCurrentState(ECharacterState NewState)
 	}
 }
 
+void ACommonCharacter::SetTargetActor(AActor* TargetActor)
+{
+	ACommonAIController* AIC = GetController<ACommonAIController>();
+	if (AIC)
+	{
+		CurrentTargetActor = TargetActor;
+		AIC->SetTargetActor(TargetActor);
+	}
+}
+
 void ACommonCharacter::SetGenerateOverlapEventOfWeapons(bool Value)
 {
 	for (auto weapon : WeaponArr) {

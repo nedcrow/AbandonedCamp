@@ -37,6 +37,7 @@ void ACommonAIController::SetCurrentState(ECharacterState EState)
 
 void ACommonAIController::SetTargetActor(AActor* Target)
 {
+	CurrentEnermy = Target;
 	if (BBComponent) BBComponent->SetValueAsObject(TEXT("TargetActor"), Target);
 }
 

@@ -2,6 +2,7 @@
 
 
 #include "CamperCharacter.h"
+#include "CommonCharacter.h"
 #include "../AI/CamperAIController.h"
 #include "../UI/HUDSceneComponent.h"
 #include "../UI/HPBarWidgetBase.h"
@@ -26,6 +27,7 @@ ACamperCharacter::ACamperCharacter()
 	Weapon = CreateDefaultSubobject<UStaticMeshComponent>(TEXT("Weapon"));
 	Weapon->SetupAttachment(GetMesh(), TEXT("WeaponSocket"));
 	Weapon->OnComponentBeginOverlap.AddDynamic(this, &ACamperCharacter::OnBeginOverlap);
+	Weapon->SetGenerateOverlapEvents(false);
 	WeaponArr.Add(Weapon);
 
 	HUDScene = CreateDefaultSubobject<UHUDSceneComponent>(TEXT("HUDScene"));
@@ -82,8 +84,11 @@ void ACamperCharacter::ProcessSeenPawn(APawn* Pawn)
 		
 		if (Pawn->ActorHasTag("Stranger")) {
 			ACamperAIController* AIC = GetController<ACamperAIController>();
-			if (AIC && AIC->CurrentEnermy != Pawn)
+			ACommonCharacter* CommonChar = Cast<ACommonCharacter>(Pawn);
+			bool canSetEnermy = CommonChar->CurrentState != ECharacterState::Dead && AIC && AIC->CurrentEnermy != Pawn;
+			if (canSetEnermy)
 			{
+				AIC->CurrentEnermy = Pawn;
 				AIC->SetTargetActor(Pawn);
 				AIC->SetTargetLocation(Pawn->GetActorLocation());
 				AIC->SetCurrentState(ECharacterState::Guard);
@@ -99,15 +104,14 @@ void ACamperCharacter::OnBeginOverlap(
 	int32 OtherBodyIndex,
 	bool bFromSweep,
 	const FHitResult& SweepResult) {
-	bool isSuccess = OtherActor->ActorHasTag(TEXT("Stranger"));
+
+	ACamperAIController* AIC = GetController<ACamperAIController>();
+	bool isSuccess = AIC && AIC->CurrentEnermy && OtherActor->ActorHasTag(TEXT("Stranger"));
 
 	if (isSuccess) {
-		UE_LOG(LogTemp, Warning, TEXT("OverlapEvent - 1"));
 		if (bCanAttack) {
-			UE_LOG(LogTemp, Warning, TEXT("OverlapEvent - 2"));
 			if (GetWorld()->IsServer()) {
-				UGameplayStatics::ApplyPointDamage(OtherActor, AttackPoint, SweepResult.ImpactNormal, SweepResult, GetController(), this, UDamageType::StaticClass());
-				UE_LOG(LogTemp, Warning, TEXT("OverlapEvent: to %s"), *OtherActor->GetFName().ToString());
+				UGameplayStatics::ApplyPointDamage(AIC->CurrentEnermy, AttackPoint, SweepResult.ImpactNormal, SweepResult, GetController(), this, UDamageType::StaticClass());
 				bCanAttack = false;
 			}
 		}

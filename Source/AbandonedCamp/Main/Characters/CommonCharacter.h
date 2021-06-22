@@ -41,8 +41,11 @@ public:
 	UPROPERTY(BlueprintReadOnly, EditAnywhere, Category = "AI")
 	class UBehaviorTree* BehaviorTree;
 
-	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "AI")
+	UPROPERTY(BlueprintReadWrite, EditAnywhere, Category = "AI")
 	ECharacterState CurrentState;
+
+	UPROPERTY(BlueprintReadWrite, EditAnywhere, Category = "AI")
+	AActor* CurrentTargetActor;
 
 	UPROPERTY(BlueprintReadWrite, EditAnywhere, Category = "Anim")
 	int CountAttackAnim = 3;
@@ -52,6 +55,9 @@ public:
 
 	UFUNCTION(BlueprintCallable)
 	void SetCurrentState(ECharacterState NewState);
+
+	UFUNCTION(BlueprintCallable)
+	void SetTargetActor(AActor* TargetActor);
 
 	// Attack
 	TArray<UStaticMeshComponent*> WeaponArr;

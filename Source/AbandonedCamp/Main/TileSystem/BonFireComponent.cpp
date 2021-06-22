@@ -59,12 +59,13 @@ void UBonFireComponent::DestroyEffects()
 
 void UBonFireComponent::DeformateToLandscape()
 {
+	// LandScape 준비
 	TArray<AActor*> snowLandArr;
 	UGameplayStatics::GetAllActorsWithTag(GetWorld(), TEXT("SnowLandscape"), snowLandArr);
 	ALandscape* snowLand = snowLandArr.Num() > 0 ? Cast<ALandscape>(snowLandArr[0]) : nullptr;
 	
 	if (snowLand && RenderTarget) {
-		// Tracing
+		// Tracing으로 위치 찾기
 		FHitResult outHit;
 		FVector traceStart = GetOwner()->GetActorLocation();
 		FVector traceEnd = traceStart + (GetUpVector() * -9999.f);

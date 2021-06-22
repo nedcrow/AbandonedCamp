@@ -24,7 +24,6 @@ public:
 	class UWidgetComponent* Widget;
 
 protected:
-	virtual void PostRegisterAllComponents() override;
 	virtual void BeginPlay() override;
 	virtual void GetLifetimeReplicatedProps(TArray<FLifetimeProperty>& OutLifetimeProps) const override;
 

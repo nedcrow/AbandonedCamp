@@ -28,11 +28,6 @@ ABuildingTile::ABuildingTile()
 	Tags.Add(FName("Building"));
 }
 
-void ABuildingTile::PostRegisterAllComponents()
-{
-	Super::PostRegisterAllComponents();
-}
-
 void ABuildingTile::BeginPlay()
 {
 	Super::BeginPlay();
