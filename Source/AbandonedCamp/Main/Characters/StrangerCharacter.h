@@ -23,6 +23,9 @@ public:
 		class USphereComponent* WeaponB;
 
 	UPROPERTY(BlueprintReadOnly, VisibleAnywhere)
+		class UStaticMeshComponent* WeaponC;
+
+	UPROPERTY(BlueprintReadOnly, VisibleAnywhere)
 		class UHUDSceneComponent* HUDScene;
 
 	UPROPERTY(BlueprintReadOnly, VisibleAnywhere)
@@ -54,7 +57,7 @@ public:
 		float WalkSpeed = 100.0f;
 
 	UPROPERTY(BlueprintReadWrite, EditAnywhere, Category = "Status")
-		float RunSpeed = 300.0f;
+		float RunSpeed = 200.0f;
 
 	UPROPERTY(BlueprintReadWrite, EditAnywhere, Category = "Status")
 		float WarmthSight = 1000.0f;

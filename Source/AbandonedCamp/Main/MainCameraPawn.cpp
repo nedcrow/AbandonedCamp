@@ -71,7 +71,13 @@ void AMainCameraPawn::TransportToStartPoint()
 	TArray<AActor*> OutActors;
 	UGameplayStatics::GetAllActorsOfClassWithTag(GetWorld(), AStartPointTile::StaticClass(), FName("StartPoint"), OutActors);
 	if (OutActors.Num() > 0) {
-		RootComponent->SetRelativeLocation(FVector(OutActors[0]->GetActorLocation().X, OutActors[0]->GetActorLocation().Y, 200.0f));
+		RootComponent->SetRelativeLocation(FVector(.0f, .0f, 200.0f));
+		for (auto actor : OutActors) {
+			if (actor->ActorHasTag(TEXT("Camper"))) {
+				RootComponent->SetRelativeLocation(FVector(actor->GetActorLocation().X, actor->GetActorLocation().Y, 200.0f));
+				break;
+			}
+		}
 	}
 	else {
 		RootComponent->SetRelativeLocation(FVector(.0f, .0f, 200.0f));

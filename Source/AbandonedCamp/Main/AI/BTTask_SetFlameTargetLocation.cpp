@@ -28,6 +28,7 @@ EBTNodeResult::Type UBTTask_SetFlameTargetLocation::ExecuteTask(UBehaviorTreeCom
 				DistInfoArr.Sort([](FDistanceInfo a, FDistanceInfo b) {
 					return a.Distance < b.Distance;
 				});
+				AIC->CurrentEnermy = DistInfoArr[0].Actor;
 				AIC->SetTargetActor(DistInfoArr[0].Actor);
 				AIC->SetTargetLocation(DistInfoArr[0].Actor->GetActorLocation());
 			}

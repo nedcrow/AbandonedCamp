@@ -9,6 +9,7 @@
 
 #include "Components/CapsuleComponent.h"
 #include "Components/SphereComponent.h"
+#include "Components/StaticMeshComponent.h"
 #include "Components/WidgetComponent.h"
 #include "GameFramework/CharacterMovementComponent.h"
 #include "Kismet/GameplayStatics.h"
@@ -108,13 +109,10 @@ void AStrangerCharacter::OnBeginOverlap(UPrimitiveComponent* OverlappedComponent
 {
 	AStrangerAIController* AIC = GetController<AStrangerAIController>();
 	bool isSuccess = OtherActor->ActorHasTag(TEXT("Camper")) || OtherActor->ActorHasTag(TEXT("Building"));
-	isSuccess = isSuccess = isSuccess && AIC && AIC->CurrentEnermy;
-	UE_LOG(LogTemp, Warning, TEXT("OtherActor: %s"), *OtherActor->GetFName().ToString());
-	UE_LOG(LogTemp, Warning, TEXT("Overlap Success: %s"), isSuccess?TEXT("t") : TEXT("f"));
+	isSuccess = isSuccess && AIC && AIC->CurrentEnermy;
 
 	if (isSuccess) {
 		if (bCanAttack) {
-			UE_LOG(LogTemp, Warning, TEXT("Successed OtherActor: %s"), *OtherActor->GetFName().ToString());
 			if (GetWorld()->IsServer()) {
 				UGameplayStatics::ApplyPointDamage(OtherActor, AttackPoint, SweepResult.ImpactNormal, SweepResult, GetController(), this, UDamageType::StaticClass());
 			}
@@ -131,7 +129,7 @@ float AStrangerCharacter::TakeDamage(float DamageAmount, FDamageEvent const& Dam
 		return 0.f;
 	}
 
-	if (!GetWorld()->IsServer() || DamageCauser->ActorHasTag("Camper"))
+	if (!GetWorld()->IsServer() || DamageCauser->ActorHasTag("Stranger"))
 	{
 		return 0.f;
 	}

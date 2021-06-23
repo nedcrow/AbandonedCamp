@@ -102,6 +102,28 @@ void ABuildingTile::CallDelFunc_TouchEvent(FName TargetName, FVector TargetLocat
 
 float ABuildingTile::TakeDamage(float DamageAmount, FDamageEvent const& DamageEvent, AController* EventInstigator, AActor* DamageCauser)
 {
+	if (CurrentHP <= 0) {
+		return 0.f;
+	}
+
+	if (!GetWorld()->IsServer() || DamageCauser->ActorHasTag("Camper"))
+	{
+		return 0.f;
+	}
+
+	float tempHP = CurrentHP;
+	tempHP -= DamageAmount;
+
+	if (CurrentHP != tempHP)
+	{
+		CurrentHP = tempHP;
+		OnRep_CurrentHP();
+	}
+
+	if (CurrentHP <= 0) {
+		UE_LOG(LogTemp, Warning, TEXT("Destroy Effect"));
+	}
+
 	return 0.0f;
 }
 
