@@ -4,6 +4,8 @@
 #include "AnimNotify_AttackStart.h"
 #include "../Characters/CommonAnimInstance.h"
 #include "../Characters/CommonCharacter.h"
+#include "../AI/CommonAIController.h"
+#include "Kismet/KismetMathLibrary.h"
 
 void UAnimNotify_AttackStart::Notify(USkeletalMeshComponent* MeshComp, UAnimSequenceBase* Animation) {
 	Super::Notify(MeshComp, Animation);
@@ -13,6 +15,13 @@ void UAnimNotify_AttackStart::Notify(USkeletalMeshComponent* MeshComp, UAnimSequ
 	if (character) {
 		character->SetGenerateOverlapEventOfWeapons(true);
 		character->bCanAttack = true;
+
+		// 타겟 바라보기
+		/*ACommonAIController* AIC = Cast<ACommonAIController>(character->GetController());
+		if (AIC && AIC->CurrentEnermy) {
+			FRotator turnRotator = UKismetMathLibrary::FindLookAtRotation(character->GetActorLocation(), AIC->CurrentEnermy->GetActorLocation());
+			character->SetActorRotation(turnRotator);
+		}*/
 	}
 }
 

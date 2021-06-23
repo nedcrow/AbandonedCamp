@@ -51,7 +51,7 @@ public:
 		float MaxHP = 100.0f;
 
 	UPROPERTY(BlueprintReadWrite, EditAnywhere, Category = "Status")
-		float WalkSpeed = 50.0f;
+		float WalkSpeed = 100.0f;
 
 	UPROPERTY(BlueprintReadWrite, EditAnywhere, Category = "Status")
 		float RunSpeed = 300.0f;

@@ -27,11 +27,13 @@ AStrangerCharacter::AStrangerCharacter()
 	WeaponA = CreateDefaultSubobject<USphereComponent>(TEXT("WeaponA"));
 	WeaponA->SetupAttachment(GetMesh(), TEXT("WeaponSocketA"));
 	WeaponA->OnComponentBeginOverlap.AddDynamic(this, &AStrangerCharacter::OnBeginOverlap);
+	WeaponA->SetGenerateOverlapEvents(false);
 	WeaponSphereArr.Add(WeaponA);
 
 	WeaponB = CreateDefaultSubobject<USphereComponent>(TEXT("WeaponB"));
 	WeaponB->SetupAttachment(GetMesh(), TEXT("WeaponSocketB"));
 	WeaponB->OnComponentBeginOverlap.AddDynamic(this, &AStrangerCharacter::OnBeginOverlap);
+	WeaponB->SetGenerateOverlapEvents(false);
 	WeaponSphereArr.Add(WeaponB);
 
 	HUDScene = CreateDefaultSubobject<UHUDSceneComponent>(TEXT("HUDScene"));
@@ -81,10 +83,14 @@ void AStrangerCharacter::ProcessSeenPawn(APawn* Pawn)
 
 		/*if (Pawn->ActorHasTag("Camper")) {
 			AStrangerAIController* AIC = GetController<AStrangerAIController>();
-			if (AIC && AIC->CurrentEnermy != Pawn)
+			ACommonCharacter* CommonChar = Cast<ACommonCharacter>(Pawn);
+			bool canSetEnermy = CommonChar->CurrentState != ECharacterState::Dead && AIC && AIC->CurrentEnermy != Pawn;
+			if (canSetEnermy)
 			{
+				AIC->CurrentEnermy = Pawn;
 				AIC->SetTargetActor(Pawn);
 				AIC->SetTargetLocation(Pawn->GetActorLocation());
+				AIC->SetCurrentState(ECharacterState::Guard);
 			}
 		}*/
 	}
@@ -100,15 +106,15 @@ void AStrangerCharacter::CallDelFunc_OnNightEvent(ENightState NightState)
 
 void AStrangerCharacter::OnBeginOverlap(UPrimitiveComponent* OverlappedComponent, AActor* OtherActor, UPrimitiveComponent* OtherComp, int32 OtherBodyIndex, bool bFromSweep, const FHitResult& SweepResult)
 {
-	bool isSuccess = OtherActor->ActorHasTag(TEXT("Camper"));
+	AStrangerAIController* AIC = GetController<AStrangerAIController>();
+	bool isSuccess = OtherActor->ActorHasTag(TEXT("Camper")) || OtherActor->ActorHasTag(TEXT("Building"));
+	isSuccess = isSuccess = isSuccess && AIC && AIC->CurrentEnermy;
+	UE_LOG(LogTemp, Warning, TEXT("OtherActor: %s"), *OtherActor->GetFName().ToString());
+	UE_LOG(LogTemp, Warning, TEXT("Overlap Success: %s"), isSuccess?TEXT("t") : TEXT("f"));
 
 	if (isSuccess) {
 		if (bCanAttack) {
-			UE_LOG(LogTemp, Warning, TEXT("OverlappedComponent: %s"), *OverlappedComponent->GetFName().ToString());
-			UE_LOG(LogTemp, Warning, TEXT("OtherActor: %s"), *OtherActor->GetFName().ToString());
-			UE_LOG(LogTemp, Warning, TEXT("OtherComp: %s"), *OtherComp->GetFName().ToString());
-			UE_LOG(LogTemp, Warning, TEXT("OtherBodyIndex: %d"), OtherBodyIndex);
-			UE_LOG(LogTemp, Warning, TEXT("bFromSweep: %s"), bFromSweep ? TEXT("True") : TEXT("False"));
+			UE_LOG(LogTemp, Warning, TEXT("Successed OtherActor: %s"), *OtherActor->GetFName().ToString());
 			if (GetWorld()->IsServer()) {
 				UGameplayStatics::ApplyPointDamage(OtherActor, AttackPoint, SweepResult.ImpactNormal, SweepResult, GetController(), this, UDamageType::StaticClass());
 			}
