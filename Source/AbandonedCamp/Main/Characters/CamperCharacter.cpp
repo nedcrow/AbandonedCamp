@@ -88,10 +88,12 @@ void ACamperCharacter::ProcessSeenPawn(APawn* Pawn)
 			bool canSetEnermy = CommonChar->CurrentState != ECharacterState::Dead && AIC && AIC->CurrentEnermy != Pawn;
 			if (canSetEnermy)
 			{
+				AIC->WalkSpeed = WalkSpeed;
 				AIC->CurrentEnermy = Pawn;
 				AIC->SetTargetActor(Pawn);
 				AIC->SetTargetLocation(Pawn->GetActorLocation());
 				AIC->SetCurrentState(ECharacterState::Guard);
+				GetCharacterMovement()->MaxWalkSpeed = RunSpeed;
 			}
 		}
 	}

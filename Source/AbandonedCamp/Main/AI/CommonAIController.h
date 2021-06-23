@@ -32,6 +32,8 @@ public:
 
 	class AActor* CurrentEnermy;
 
+	float WalkSpeed;
+
 	virtual void OnPossess(APawn* InPawn) override;
 
 	virtual void OnUnPossess() override;

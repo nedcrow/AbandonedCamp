@@ -53,7 +53,7 @@ public:
 	float WalkSpeed = 150.0f;
 
 	UPROPERTY(BlueprintReadWrite, EditAnywhere, Category = "Status")
-	float RunSpeed = 300.0f;
+	float RunSpeed = 240.0f;
 
 	UPROPERTY(BlueprintReadWrite, EditAnywhere, Category = "Status")
 	float AttackPoint = 30.0f;
