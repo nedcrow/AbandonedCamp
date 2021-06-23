@@ -4,8 +4,8 @@
 #include "AnimNotify_AttackStart.h"
 #include "../Characters/CommonAnimInstance.h"
 #include "../Characters/CommonCharacter.h"
-#include "../AI/CommonAIController.h"
-#include "Kismet/KismetMathLibrary.h"
+//#include "../AI/CommonAIController.h"
+//#include "Kismet/KismetMathLibrary.h"
 
 void UAnimNotify_AttackStart::Notify(USkeletalMeshComponent* MeshComp, UAnimSequenceBase* Animation) {
 	Super::Notify(MeshComp, Animation);
