@@ -30,8 +30,6 @@ void UBuildingButtonWidgetBase::InitButton(FName Name, UMaterialInstance* MI, UC
 
 void UBuildingButtonWidgetBase::OnClickBuildingButton()
 {
-	CallOnBuildableTiles();
-
 	AMainGS* GS = Cast<AMainGS>(UGameplayStatics::GetGameState(GetWorld()));
 	if (GS) {
 		// 선택된 빌딩이 있으면 삭제
@@ -45,6 +43,8 @@ void UBuildingButtonWidgetBase::OnClickBuildingButton()
 			GS->CurrentSelectedBuilding = buildingActor;
 			GS->CurrentUIState = EUIState::Build;
 		}
+
+		CallOnBuildableTiles();
 	}
 }
 
@@ -53,7 +53,7 @@ void UBuildingButtonWidgetBase::CallOnBuildableTiles()
 	AMainGS* GS = Cast<AMainGS>(UGameplayStatics::GetGameState(GetWorld()));
 	if (GS) {
 		ATileManager* TM = GS->GetTileManager();
-		if (TM && TM->BuildableLocations.Num() == 0) {
+		if (TM) {
 			TM->OnBuildableTile();
 		}
 	}
