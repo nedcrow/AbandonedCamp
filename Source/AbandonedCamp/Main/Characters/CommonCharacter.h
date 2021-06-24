@@ -26,16 +26,41 @@ public:
 	// Sets default values for this character's properties
 	ACommonCharacter();
 
-protected:
-	// Called when the game starts or when spawned
-	virtual void BeginPlay() override;
+	UPROPERTY(BlueprintReadOnly, VisibleAnywhere)
+	class UHUDSceneComponent* HUDScene;
+
+	UPROPERTY(BlueprintReadOnly, VisibleAnywhere)
+	class UWidgetComponent* HPBarWidget;
+
+protected:	
+	virtual void GetLifetimeReplicatedProps(TArray<FLifetimeProperty>& OutLifetimeProps) const override;
 
 public:	
-	// Called every frame
-	virtual void Tick(float DeltaTime) override;
 
 	// Called to bind functionality to input
 	virtual void SetupPlayerInputComponent(class UInputComponent* PlayerInputComponent) override;
+
+	// Status
+	UPROPERTY(ReplicatedUsing = "OnRep_CurrentHP", BlueprintReadWrite, EditAnywhere, Category = "Status")
+	float CurrentHP = 100.0f;
+
+	UPROPERTY(BlueprintReadWrite, EditAnywhere, Category = "Status")
+	float MaxHP = 100.0f;
+
+	UPROPERTY(BlueprintReadWrite, EditAnywhere, Category = "Status")
+	float WalkSpeed = 100.0f;
+
+	UPROPERTY(BlueprintReadWrite, EditAnywhere, Category = "Status")
+	float RunSpeed = 200.0f;
+
+	UPROPERTY(BlueprintReadWrite, EditAnywhere, Category = "Status")
+	float WarmthSight = 1000.0f;
+
+	UPROPERTY(BlueprintReadWrite, EditAnywhere, Category = "Status")
+	float AttackPoint = 30.0f;
+
+	UFUNCTION()
+	void OnRep_CurrentHP();
 
 	// AI
 	UPROPERTY(BlueprintReadOnly, EditAnywhere, Category = "AI")
@@ -51,7 +76,7 @@ public:
 	int CountAttackAnim = 3;
 
 	UPROPERTY(BlueprintReadWrite, EditAnywhere, Category = "Anim")
-	int CountHitAnim = 3;
+	int CountHitAnim = 3;	
 
 	UFUNCTION(BlueprintCallable)
 	void SetCurrentState(ECharacterState NewState);

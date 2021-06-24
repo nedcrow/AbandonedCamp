@@ -92,6 +92,8 @@ class ABANDONEDCAMP_API AMainGS : public AGameStateBase
 		UFUNCTION()
 		ABuildingManager* GetBuildingManager();
 
+		UFUNCTION()
+		ASpawnManager* GetSpawnManager();
 
 
 		

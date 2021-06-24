@@ -4,15 +4,11 @@
 #include "CamperCharacter.h"
 #include "CommonCharacter.h"
 #include "../AI/CamperAIController.h"
-#include "../UI/HUDSceneComponent.h"
-#include "../UI/HPBarWidgetBase.h"
 
 #include "Components/CapsuleComponent.h"
 #include "Components/StaticMeshComponent.h"
-#include "Components/WidgetComponent.h"
 #include "GameFramework/CharacterMovementComponent.h"
 #include "Kismet/GameplayStatics.h"
-#include "Net/UnrealNetwork.h"
 #include "Perception/PawnSensingComponent.h"
 
 // Sets default values
@@ -30,23 +26,17 @@ ACamperCharacter::ACamperCharacter()
 	Weapon->SetGenerateOverlapEvents(false);
 	WeaponArr.Add(Weapon);
 
-	HUDScene = CreateDefaultSubobject<UHUDSceneComponent>(TEXT("HUDScene"));
-	HUDScene->SetupAttachment(RootComponent);
-	HUDScene->SetRelativeLocation(FVector(0.f, 0.f, GetCapsuleComponent()->GetUnscaledCapsuleHalfHeight()));
-
-	HPBarWidget = CreateDefaultSubobject<UWidgetComponent>(TEXT("HPBarWidget"));
-	HPBarWidget->SetupAttachment(HUDScene);
-	HPBarWidget->SetRelativeRotation(FRotator(0, 180, 0));
-	HPBarWidget->SetDrawSize(FVector2D(80.0f, 12.0f));
-
 	GetCharacterMovement()->MaxWalkSpeed = WalkSpeed;
 
 	PawnSensing = CreateDefaultSubobject<UPawnSensingComponent>(TEXT("PawnSensing"));
 	PawnSensing->bOnlySensePlayers = false;
 	PawnSensing->bHearNoises = false;
 
-	AutoPossessAI = EAutoPossessAI::PlacedInWorldOrSpawned;
-
+	// Status
+	CurrentHP = MaxHP = 100.0f;
+	AttackPoint = 30.0f;
+	WalkSpeed = 150.0f;
+	RunSpeed = 250.0f;
 	CountAttackAnim = 3;
 	CountHitAnim = 3;
 }
@@ -63,12 +53,6 @@ void ACamperCharacter::BeginPlay()
 	{
 		PawnSensing->OnSeePawn.AddDynamic(this, &ACamperCharacter::ProcessSeenPawn);
 	}
-}
-
-void ACamperCharacter::GetLifetimeReplicatedProps(TArray<FLifetimeProperty>& OutLifetimeProps) const
-{
-	Super::GetLifetimeReplicatedProps(OutLifetimeProps);
-	DOREPLIFETIME(ACamperCharacter, CurrentHP);
 }
 
 // Called to bind functionality to input
@@ -148,14 +132,5 @@ float ACamperCharacter::TakeDamage(float DamageAmount, FDamageEvent const& Damag
 	}
 
 	return 0.0f;
-}
-
-void ACamperCharacter::OnRep_CurrentHP()
-{
-	UHPBarWidgetBase* HPBarWidgetObj = Cast<UHPBarWidgetBase>(HPBarWidget->GetUserWidgetObject());
-	if (HPBarWidgetObj)
-	{
-		HPBarWidgetObj->SetHPBar(CurrentHP / MaxHP);
-	}
 }
 

@@ -2,8 +2,9 @@
 
 
 #include "MainGS.h"
-#include "BuildingManager.h"
 #include "MainPC.h"
+#include "BuildingManager.h"
+#include "SpawnManager.h"
 #include "TileSystem/TileManager.h"
 #include "Net/UnrealNetwork.h"
 #include "Kismet/GameplayStatics.h"
@@ -66,4 +67,9 @@ ATileManager* AMainGS::GetTileManager()
 ABuildingManager* AMainGS::GetBuildingManager()
 {
 	return Cast<ABuildingManager>(UGameplayStatics::GetActorOfClass(GetWorld(), ABuildingManager::StaticClass()));
+}
+
+ASpawnManager* AMainGS::GetSpawnManager()
+{
+	return Cast<ASpawnManager>(UGameplayStatics::GetActorOfClass(GetWorld(), ASpawnManager::StaticClass()));
 }

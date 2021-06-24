@@ -17,12 +17,6 @@ public:
 
 	UPROPERTY(BlueprintReadOnly, VisibleAnywhere)
 	class UStaticMeshComponent* Weapon;
-
-	UPROPERTY(BlueprintReadOnly, VisibleAnywhere)
-	class UHUDSceneComponent* HUDScene;
-
-	UPROPERTY(BlueprintReadOnly, VisibleAnywhere)
-	class UWidgetComponent* HPBarWidget;
 	
 	UPROPERTY(BlueprintReadOnly, VisibleAnywhere)
 	class UPawnSensingComponent* PawnSensing;
@@ -32,31 +26,12 @@ protected:
 	virtual void BeginPlay() override;
 
 public:	
-	// Called every frame
-
-	virtual void GetLifetimeReplicatedProps(TArray<FLifetimeProperty>& OutLifetimeProps) const override;
 
 	// Called to bind functionality to input
 	virtual void SetupPlayerInputComponent(class UInputComponent* PlayerInputComponent) override;
 
 	UFUNCTION()
 	void ProcessSeenPawn(APawn* Pawn);
-
-	// Status
-	UPROPERTY(ReplicatedUsing = "OnRep_CurrentHP", BlueprintReadWrite, EditAnywhere, Category = "Status")
-	float CurrentHP = 100.0f;
-
-	UPROPERTY(BlueprintReadWrite, EditAnywhere, Category = "Status")
-	float MaxHP = 100.0f;
-
-	UPROPERTY(BlueprintReadWrite, EditAnywhere, Category = "Status")
-	float WalkSpeed = 150.0f;
-
-	UPROPERTY(BlueprintReadWrite, EditAnywhere, Category = "Status")
-	float RunSpeed = 240.0f;
-
-	UPROPERTY(BlueprintReadWrite, EditAnywhere, Category = "Status")
-	float AttackPoint = 30.0f;
 
 	// OverlapEvent
 	UFUNCTION()
@@ -70,6 +45,4 @@ public:
 
 	// TakeDamage
 	virtual float TakeDamage(float DamageAmount, struct FDamageEvent const& DamageEvent, class AController* EventInstigator, AActor* DamageCauser) override;
-	UFUNCTION()
-	void OnRep_CurrentHP();
 };

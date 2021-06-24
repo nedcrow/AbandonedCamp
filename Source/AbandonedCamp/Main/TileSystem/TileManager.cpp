@@ -7,7 +7,6 @@
 #include "../MainPC.h"
 #include "../BuildingManager.h"
 
-#include "Components/SceneComponent.h"
 #include "Components/StaticMeshComponent.h"
 #include "Components/BoxComponent.h"
 #include "Components/DecalComponent.h"

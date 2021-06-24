@@ -4,16 +4,12 @@
 #include "StrangerCharacter.h"
 #include "../AI/StrangerAIController.h"
 #include "../MainGS.h"
-#include "../UI/HUDSceneComponent.h"
-#include "../UI/HPBarWidgetBase.h"
 
 #include "Components/CapsuleComponent.h"
 #include "Components/SphereComponent.h"
 #include "Components/StaticMeshComponent.h"
-#include "Components/WidgetComponent.h"
 #include "GameFramework/CharacterMovementComponent.h"
 #include "Kismet/GameplayStatics.h"
-#include "Net/UnrealNetwork.h"
 #include "Perception/PawnSensingComponent.h"
 
 // Sets default values
@@ -37,21 +33,19 @@ AStrangerCharacter::AStrangerCharacter()
 	WeaponB->SetGenerateOverlapEvents(false);
 	WeaponSphereArr.Add(WeaponB);
 
-	HUDScene = CreateDefaultSubobject<UHUDSceneComponent>(TEXT("HUDScene"));
-	HUDScene->SetupAttachment(RootComponent);
-	HUDScene->SetRelativeLocation(FVector(0.f, 0.f, GetCapsuleComponent()->GetUnscaledCapsuleHalfHeight()));
-
-	HPBarWidget = CreateDefaultSubobject<UWidgetComponent>(TEXT("HPBarWidget"));
-	HPBarWidget->SetupAttachment(HUDScene);
-	HPBarWidget->SetRelativeRotation(FRotator(0, 180, 0));
-	HPBarWidget->SetDrawSize(FVector2D(80.0f, 12.0f));
-
 	GetCharacterMovement()->MaxWalkSpeed = WalkSpeed;
 
 	PawnSensing = CreateDefaultSubobject<UPawnSensingComponent>(TEXT("PawnSensing"));
 
+	// Status
+	CurrentHP = MaxHP = 100.0f;
+	AttackPoint = 5.0f;
+	WalkSpeed = 100.0f;
+	RunSpeed = 200.0f;
+
 	CountAttackAnim = 2;
 	CountHitAnim = 2;
+
 	Tags.Add(TEXT("Stranger"));
 }
 
@@ -63,13 +57,14 @@ void AStrangerCharacter::BeginPlay()
 
 	// Event
 	AMainGS* GS = Cast<AMainGS>(UGameplayStatics::GetGameState(GetWorld()));
-	if (GS) GS->F_OnNightEvent.AddUFunction(this, FName("CallDelFunc_OnNightEvent"));
-}
+	if (GS) {
+		GS->F_OnNightEvent.AddUFunction(this, FName("CallDelFunc_OnNightEvent"));
+	}
 
-void AStrangerCharacter::GetLifetimeReplicatedProps(TArray<FLifetimeProperty>& OutLifetimeProps) const
-{
-	Super::GetLifetimeReplicatedProps(OutLifetimeProps);
-	DOREPLIFETIME(AStrangerCharacter, CurrentHP);
+	if (PawnSensing)
+	{
+		PawnSensing->OnSeePawn.AddDynamic(this, &AStrangerCharacter::ProcessSeenPawn);
+	}
 }
 
 // Called to bind functionality to input
@@ -148,14 +143,5 @@ float AStrangerCharacter::TakeDamage(float DamageAmount, FDamageEvent const& Dam
 	}
 
 	return 0.0f;
-}
-
-void AStrangerCharacter::OnRep_CurrentHP()
-{
-	UHPBarWidgetBase* HPBarWidgetObj = Cast<UHPBarWidgetBase>(HPBarWidget->GetUserWidgetObject());
-	if (HPBarWidgetObj)
-	{
-		HPBarWidgetObj->SetHPBar(CurrentHP / MaxHP);
-	}
 }
 

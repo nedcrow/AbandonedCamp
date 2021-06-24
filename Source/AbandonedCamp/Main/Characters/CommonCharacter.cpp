@@ -3,6 +3,12 @@
 
 #include "CommonCharacter.h"
 #include "../AI/CommonAIController.h"
+#include "../UI/HUDSceneComponent.h"
+#include "../UI/HPBarWidgetBase.h"
+
+#include "Components/CapsuleComponent.h"
+#include "Components/WidgetComponent.h"
+#include "Net/UnrealNetwork.h"
 
 // Sets default values
 ACommonCharacter::ACommonCharacter()
@@ -10,20 +16,24 @@ ACommonCharacter::ACommonCharacter()
  	// Set this character to call Tick() every frame.  You can turn this off to improve performance if you don't need it.
 	PrimaryActorTick.bCanEverTick = true;
 
+	// UI
+	HUDScene = CreateDefaultSubobject<UHUDSceneComponent>(TEXT("HUDScene"));
+	HUDScene->SetupAttachment(RootComponent);
+	HUDScene->SetRelativeLocation(FVector(0.f, 0.f, GetCapsuleComponent()->GetUnscaledCapsuleHalfHeight()));
+
+	HPBarWidget = CreateDefaultSubobject<UWidgetComponent>(TEXT("HPBarWidget"));
+	HPBarWidget->SetupAttachment(HUDScene);
+	HPBarWidget->SetRelativeRotation(FRotator(0, 180, 0));
+	HPBarWidget->SetDrawSize(FVector2D(80.0f, 12.0f));
+
+	// AI
+	AutoPossessAI = EAutoPossessAI::PlacedInWorldOrSpawned;
 }
 
-// Called when the game starts or when spawned
-void ACommonCharacter::BeginPlay()
+void ACommonCharacter::GetLifetimeReplicatedProps(TArray<FLifetimeProperty>& OutLifetimeProps) const
 {
-	Super::BeginPlay();
-	
-}
-
-// Called every frame
-void ACommonCharacter::Tick(float DeltaTime)
-{
-	Super::Tick(DeltaTime);
-
+	Super::GetLifetimeReplicatedProps(OutLifetimeProps);
+	DOREPLIFETIME(ACommonCharacter, CurrentHP);
 }
 
 // Called to bind functionality to input
@@ -31,6 +41,15 @@ void ACommonCharacter::SetupPlayerInputComponent(UInputComponent* PlayerInputCom
 {
 	Super::SetupPlayerInputComponent(PlayerInputComponent);
 
+}
+
+void ACommonCharacter::OnRep_CurrentHP()
+{
+	UHPBarWidgetBase* HPBarWidgetObj = Cast<UHPBarWidgetBase>(HPBarWidget->GetUserWidgetObject());
+	if (HPBarWidgetObj)
+	{
+		HPBarWidgetObj->SetHPBar(CurrentHP / MaxHP);
+	}
 }
 
 void ACommonCharacter::SetCurrentState(ECharacterState NewState)
