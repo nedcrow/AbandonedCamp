@@ -32,14 +32,16 @@ DECLARE_MULTICAST_DELEGATE_TwoParams(FTouchDelegate_TwoParams, FName, FVector);
 UCLASS()
 class ABANDONEDCAMP_API AMainGS : public AGameStateBase
 {
-	GENERATED_BODY()
+	GENERATED_BODY() 
 
 	public:
 		AMainGS();
 
 		virtual void BeginPlay() override;
 		virtual void GetLifetimeReplicatedProps(TArray<FLifetimeProperty>& OutLifetimeProps) const override;
-		
+
+	public:
+		// Status
 		UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Tile")
 		int TotalTileCount = 0;
 

@@ -42,8 +42,8 @@ void ATileManager::PostRegisterAllComponents()
 void ATileManager::BeginPlay()
 {
 	Super::BeginPlay();
-	AMainGS* gs = Cast<AMainGS>(UGameplayStatics::GetGameState(GetWorld()));
-	if(gs) gs->F_TileHoveredEvent.AddUFunction(this, FName("CallDelFunc_TileHoveredEvent"));
+	AMainGS* GS = Cast<AMainGS>(UGameplayStatics::GetGameState(GetWorld()));
+	if(GS) GS->F_TileHoveredEvent.AddUFunction(this, FName("CallDelFunc_TileHoveredEvent"));
 	SpawnInstancedTilemap(SizeX, SizeY);
 }
 
@@ -74,15 +74,15 @@ void ATileManager::SpawnInstancedTilemap(int CountX, int CountY)
 				));
 			}
 		}
-		AMainGS* gs = Cast<AMainGS>(UGameplayStatics::GetGameState(GetWorld()));
-		if (gs) gs->TotalTileCount = CountX * CountY;
+		AMainGS* GS = Cast<AMainGS>(UGameplayStatics::GetGameState(GetWorld()));
+		if (GS) GS->TotalTileCount = CountX * CountY;
 	}
 }
 
 void ATileManager::CallDelFunc_TileHoveredEvent(bool isHovered)
 {
-	AMainGS* gs = Cast<AMainGS>(UGameplayStatics::GetGameState(GetWorld()));
-	if (gs) {
+	AMainGS* GS = Cast<AMainGS>(UGameplayStatics::GetGameState(GetWorld()));
+	if (GS) {
 		// 필수 Material 확인
 		if (Border_MI == nullptr) {
 			UE_LOG(LogTemp, Warning, TEXT("!!!- Null : border_MI -!!!"));
@@ -90,7 +90,7 @@ void ATileManager::CallDelFunc_TileHoveredEvent(bool isHovered)
 		}
 
 		// Decal 위치 준비
-		int tileIndex = gs->HoveredTileIndex;
+		int tileIndex = GS->HoveredTileIndex;
 		FTransform tileTransform;
 		DefaultTileISM->GetInstanceTransform(tileIndex, tileTransform, true);
 		FVector tileLocation = CurrentTileLocation = FVector(tileTransform.GetLocation().X, tileTransform.GetLocation().Y, tileTransform.GetLocation().Z + 0);
@@ -108,7 +108,7 @@ void ATileManager::CallDelFunc_TileHoveredEvent(bool isHovered)
 		// Decal 배치
 		if (isHovered == true) {
 			// CursorTileDecal : 노멀 모드에서 활성화
-			if (gs->CurrentUIState == EUIState::Normal) {
+			if (GS->CurrentUIState == EUIState::Normal) {
 				CursorTileDecal->SetRelativeLocation(tileLocation);
 				CursorTileDecal->Activate(true);
 			}
@@ -118,8 +118,8 @@ void ATileManager::CallDelFunc_TileHoveredEvent(bool isHovered)
 			}
 
 			// BuildUnableTileDecal : 빌드모드면서 건설 불가능 지역에서 활성화
-			bool canActive = gs->CurrentUIState == EUIState::Build;
-			for (auto location : gs->GetTileManager()->BuildableLocations) {
+			bool canActive = GS->CurrentUIState == EUIState::Build;
+			for (auto location : GS->GetTileManager()->BuildableLocations) {
 				if (location.X == tileLocation.X && location.Y == tileLocation.Y) {
 					canActive = false;
 					break;
@@ -142,8 +142,8 @@ void ATileManager::CallDelFunc_TileHoveredEvent(bool isHovered)
 		}
 	}
 
-	AMainPC* pc = Cast<AMainPC>(UGameplayStatics::GetPlayerController(GetWorld(), 0));
-	pc->SetCurrentSelectedBuildingLocation(CurrentTileLocation);
+	AMainPC* PC = Cast<AMainPC>(UGameplayStatics::GetPlayerController(GetWorld(), 0));
+	PC->SetCurrentSelectedBuildingLocation(CurrentTileLocation);
 }
 
 void ATileManager::OnBuildableTile()
@@ -155,70 +155,74 @@ void ATileManager::OnBuildableTile()
 
 	// 타일 위치 계산 (8각형)
 	BuildableLocations.Empty();
-	ABuildingManager* buildingM = Cast<ABuildingManager>(UGameplayStatics::GetActorOfClass(GetWorld(), ABuildingManager::StaticClass()));
-	for (auto fire : buildingM->FireBuildingArr) {
-		UBonFireComponent* fireComponent = Cast<UBonFireComponent>(fire->GetComponentByClass(UBonFireComponent::StaticClass()));
-		int loopCountX = fireComponent->FireLightRadius;
-		int loopCountY = fireComponent->FireLightRadius;
-		float oneUnit = 100 * TileScale;
+	AMainGS* GS = Cast<AMainGS>(UGameplayStatics::GetGameState(GetWorld()));
+	if (GS) {
+		ABuildingManager* buildingM = GS->GetBuildingManager();
+		for (auto fire : buildingM->FireBuildingArr) {
+			UBonFireComponent* fireComponent = Cast<UBonFireComponent>(fire->GetComponentByClass(UBonFireComponent::StaticClass()));
+			int loopCountX = fireComponent->FireLightRadius;
+			int loopCountY = fireComponent->FireLightRadius;
+			float oneUnit = 100 * TileScale;
 
-		UBoxComponent* fireBoxComp = Cast<UBoxComponent>(fire->GetComponentByClass(UBoxComponent::StaticClass()));
-		float minusZ = fireBoxComp->GetScaledBoxExtent().Z;
+			UBoxComponent* fireBoxComp = Cast<UBoxComponent>(fire->GetComponentByClass(UBoxComponent::StaticClass()));
+			float minusZ = fireBoxComp->GetScaledBoxExtent().Z;
 
-		// (X,Y)가 (0,0)인 경우를 제외한 4 분면 위치 생성
-		for (int i = 0; i < loopCountX; i++) {
-			for (int j = 0; j < loopCountY; j++) {
-				bool isStartPoint = i == 0 && j == 0;
-				bool isFirstLine = i > 0 && j > 0;
-				if (!isStartPoint) {
-					if (isFirstLine) {
+			// (X,Y)가 (0,0)인 경우를 제외한 4 분면 위치 생성
+			for (int i = 0; i < loopCountX; i++) {
+				for (int j = 0; j < loopCountY; j++) {
+					bool isStartPoint = i == 0 && j == 0;
+					bool isFirstLine = i > 0 && j > 0;
+					if (!isStartPoint) {
+						if (isFirstLine) {
+							BuildableLocations.Add(FVector(
+								fire->GetActorLocation().X + (i * oneUnit),
+								fire->GetActorLocation().Y + (j * oneUnit),
+								fire->GetActorLocation().Z - minusZ
+							));
+							BuildableLocations.Add(FVector(
+								fire->GetActorLocation().X - (i * oneUnit),
+								fire->GetActorLocation().Y - (j * oneUnit),
+								fire->GetActorLocation().Z - minusZ
+							));
+						}
 						BuildableLocations.Add(FVector(
 							fire->GetActorLocation().X + (i * oneUnit),
-							fire->GetActorLocation().Y + (j * oneUnit),
+							fire->GetActorLocation().Y - (j * oneUnit),
 							fire->GetActorLocation().Z - minusZ
 						));
 						BuildableLocations.Add(FVector(
 							fire->GetActorLocation().X - (i * oneUnit),
-							fire->GetActorLocation().Y - (j * oneUnit),
+							fire->GetActorLocation().Y + (j * oneUnit),
 							fire->GetActorLocation().Z - minusZ
 						));
 					}
-					BuildableLocations.Add(FVector(
-						fire->GetActorLocation().X + (i * oneUnit),
-						fire->GetActorLocation().Y - (j * oneUnit),
-						fire->GetActorLocation().Z - minusZ
-					));
-					BuildableLocations.Add(FVector(
-						fire->GetActorLocation().X - (i * oneUnit),
-						fire->GetActorLocation().Y + (j * oneUnit),
-						fire->GetActorLocation().Z - minusZ
-					));
+				}
+				if (i >= FMath::Floor(loopCountX * 0.5f)) loopCountY -= 1;
+			}
+		}
+
+		// 이미 건물이 있는 위치 제거
+		for (int i = 0; i < BuildableLocations.Num(); i++) {
+			for (auto building : buildingM->BuildingArr) {
+				if (building->GetActorLocation().X == BuildableLocations[i].X && building->GetActorLocation().Y == BuildableLocations[i].Y) {
+					BuildableLocations.RemoveAt(i);
+					i--;
 				}
 			}
-			if (i >= FMath::Floor(loopCountX * 0.5f)) loopCountY -= 1;
+		}
+
+		// tile 생성
+		if (!BuildableISM->IsVisible()) BuildableISM->SetVisibility(true);
+		if (BuildableISM->GetInstanceCount() == 0) BuildableISM->ClearInstances();
+		for (auto location : BuildableLocations) {
+			BuildableISM->AddInstance(FTransform(
+				FRotator().ZeroRotator,
+				location,
+				FVector(TileScale)
+			));
 		}
 	}
 
-	// 이미 건물이 있는 위치 제거
-	for (int i = 0; i < BuildableLocations.Num(); i++) {
-		for (auto building : buildingM->BuildingArr) {
-			if (building->GetActorLocation().X == BuildableLocations[i].X && building->GetActorLocation().Y == BuildableLocations[i].Y) {
-				BuildableLocations.RemoveAt(i);
-				i--;
-			}
-		}
-	}
-
-	// tile 생성
-	if (!BuildableISM->IsVisible()) BuildableISM->SetVisibility(true);
-	if (BuildableISM->GetInstanceCount() == 0) BuildableISM->ClearInstances();
-	for (auto location : BuildableLocations) {
-		BuildableISM->AddInstance(FTransform(
-			FRotator().ZeroRotator,
-			location,
-			FVector(TileScale)
-		));
-	}
 }
 
 void ATileManager::OffBuildableTile()

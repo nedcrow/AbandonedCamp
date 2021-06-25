@@ -75,25 +75,25 @@ void ABuildingTile::CallDelFunc_TouchEvent(FName TargetName, FVector TargetLocat
 		bCanInteraction == true;
 
 	if (bCanInteraction) {
-		AMainGS* gs = Cast<AMainGS>(UGameplayStatics::GetGameState(GetWorld()));
-		if (gs) {
+		AMainGS* GS = Cast<AMainGS>(UGameplayStatics::GetGameState(GetWorld()));
+		if (GS) {
 
 			// Effect On/Off
 			if (bIsTouched) {
 				DestroyInteractionEffects();
 				bIsTouched = false;
-				gs->NightState = ENightState::Day;
-				gs->OnRep_ChangedCurrentNight();
+				GS->NightState = ENightState::Day;
+				GS->OnRep_ChangedCurrentNight();
 			}
 			else {
 				SpawnInteractionEffects();
 				bIsTouched = true;
-				gs->NightState = ENightState::Night;
-				gs->OnRep_ChangedCurrentNight();
+				GS->NightState = ENightState::Night;
+				GS->OnRep_ChangedCurrentNight();
 
 				// Plus round status
 				if (bCanStartRound) {
-					gs->CurrentNight++;
+					GS->CurrentNight++;
 				}
 			}
 		}
