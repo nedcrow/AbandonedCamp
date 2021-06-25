@@ -44,7 +44,7 @@ void ABuildingTile::GetLifetimeReplicatedProps(TArray<FLifetimeProperty>& OutLif
 	DOREPLIFETIME(ABuildingTile, CurrentHP);
 }
 
-void ABuildingTile::SpawnEffects()
+void ABuildingTile::SpawnInteractionEffects()
 {
 	if (InteractionEffects.Num() > 0 && InteractionEffectsComponents.Num() == 0) {
 		for (auto effect : InteractionEffects) {
@@ -59,12 +59,12 @@ void ABuildingTile::SpawnEffects()
 	}
 }
 
-void ABuildingTile::DestroyEffects()
+void ABuildingTile::DestroyInteractionEffects()
 {
 	for (auto effectComponent : InteractionEffectsComponents) {
 		effectComponent->DestroyComponent();
 	}
-
+	UGameplayStatics::SpawnEmitterAtLocation(GetWorld(), DeadEffect, GetActorLocation());
 	InteractionEffectsComponents.Empty();
 }
 
@@ -80,13 +80,13 @@ void ABuildingTile::CallDelFunc_TouchEvent(FName TargetName, FVector TargetLocat
 
 			// Effect On/Off
 			if (bIsTouched) {
-				DestroyEffects();
+				DestroyInteractionEffects();
 				bIsTouched = false;
 				gs->NightState = ENightState::Day;
 				gs->OnRep_ChangedCurrentNight();
 			}
 			else {
-				SpawnEffects();
+				SpawnInteractionEffects();
 				bIsTouched = true;
 				gs->NightState = ENightState::Night;
 				gs->OnRep_ChangedCurrentNight();
@@ -121,7 +121,9 @@ float ABuildingTile::TakeDamage(float DamageAmount, FDamageEvent const& DamageEv
 	}
 
 	if (CurrentHP <= 0) {
+		DestroyInteractionEffects();
 		UE_LOG(LogTemp, Warning, TEXT("Destroy Effect"));
+		Destroy();
 	}
 
 	return 0.0f;

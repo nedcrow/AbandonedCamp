@@ -9,8 +9,8 @@
 UENUM(BlueprintType)
 enum class ENightState : uint8
 {
-	Day		UMETA(DisplayName = "Day"),
-	Night	UMETA(DisplayName = "Night"),
+	Day		= 0		UMETA(DisplayName = "Day"),
+	Night	= 1		UMETA(DisplayName = "Night"),
 };
 
 UENUM(BlueprintType)

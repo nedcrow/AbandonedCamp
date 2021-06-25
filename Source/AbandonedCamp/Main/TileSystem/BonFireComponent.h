@@ -52,10 +52,10 @@ public:
 	FCanvasMaterialTransform LastTransform;
 
 	UFUNCTION()
-	void SpawnEffects();
+	void SpawnInteractionEffects();
 
 	UFUNCTION()
-	void DestroyEffects();
+	void DestroyInteractionEffects();
 
 	UFUNCTION()
 	void DeformateToLandscape();

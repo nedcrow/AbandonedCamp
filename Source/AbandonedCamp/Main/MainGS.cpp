@@ -29,7 +29,13 @@ void AMainGS::OnRep_ChangedCurrentNight()
 
 	if (PC->IsLocalController()) {
 		if (F_OnNightEvent.IsBound() == true) {
-			F_OnNightEvent.Broadcast(ENightState::Night);
+			if (NightState == ENightState::Day) {
+				F_OnNightEvent.Broadcast(ENightState::Day);
+			}
+			else if(NightState == ENightState::Night){
+				F_OnNightEvent.Broadcast(ENightState::Night);
+			}
+			
 		}
 	}
 }

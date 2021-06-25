@@ -30,15 +30,15 @@ void UBonFireComponent::PostEditComponentMove(bool bFinished)
 void UBonFireComponent::BeginPlay()
 {
 	Super::BeginPlay();
-	DestroyEffects();
-	SpawnEffects();
+	DestroyInteractionEffects();
+	SpawnInteractionEffects();
 }
 
-void UBonFireComponent::SpawnEffects() {
+void UBonFireComponent::SpawnInteractionEffects() {
 	DeformateToLandscape();
 }
 
-void UBonFireComponent::DestroyEffects()
+void UBonFireComponent::DestroyInteractionEffects()
 {
 	ALandscape* land = Cast<ALandscape>(UGameplayStatics::GetActorOfClass(GetWorld(), ALandscape::StaticClass()));
 	if (land) {

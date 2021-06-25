@@ -62,6 +62,9 @@ public:
 	TArray<UParticleSystem*> InteractionEffects;
 	TArray<UParticleSystemComponent*> InteractionEffectsComponents;
 
-	void SpawnEffects();
-	void DestroyEffects();
+	UPROPERTY(BlueprintReadWrite, EditAnywhere, Category = "Effects")
+	UParticleSystem* DeadEffect;
+
+	void SpawnInteractionEffects();
+	void DestroyInteractionEffects();
 };
