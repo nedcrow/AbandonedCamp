@@ -81,6 +81,7 @@ public:
 	// Buildable tile
 	void OnBuildableTile();
 	void OffBuildableTile();
+	FVector GetBuildableLocation(FVector BaseLocation, int AddX, int AddY, int AddZ);
 
 #pragma endregion	
 };

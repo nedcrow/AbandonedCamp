@@ -162,7 +162,6 @@ void ATileManager::OnBuildableTile()
 			UBonFireComponent* fireComponent = Cast<UBonFireComponent>(fire->GetComponentByClass(UBonFireComponent::StaticClass()));
 			int loopCountX = fireComponent->FireLightRadius;
 			int loopCountY = fireComponent->FireLightRadius;
-			float oneUnit = 100 * TileScale;
 
 			UBoxComponent* fireBoxComp = Cast<UBoxComponent>(fire->GetComponentByClass(UBoxComponent::StaticClass()));
 			float minusZ = fireBoxComp->GetScaledBoxExtent().Z;
@@ -174,27 +173,12 @@ void ATileManager::OnBuildableTile()
 					bool isFirstLine = i > 0 && j > 0;
 					if (!isStartPoint) {
 						if (isFirstLine) {
-							BuildableLocations.Add(FVector(
-								fire->GetActorLocation().X + (i * oneUnit),
-								fire->GetActorLocation().Y + (j * oneUnit),
-								fire->GetActorLocation().Z - minusZ
-							));
-							BuildableLocations.Add(FVector(
-								fire->GetActorLocation().X - (i * oneUnit),
-								fire->GetActorLocation().Y - (j * oneUnit),
-								fire->GetActorLocation().Z - minusZ
-							));
-						}
-						BuildableLocations.Add(FVector(
-							fire->GetActorLocation().X + (i * oneUnit),
-							fire->GetActorLocation().Y - (j * oneUnit),
-							fire->GetActorLocation().Z - minusZ
-						));
-						BuildableLocations.Add(FVector(
-							fire->GetActorLocation().X - (i * oneUnit),
-							fire->GetActorLocation().Y + (j * oneUnit),
-							fire->GetActorLocation().Z - minusZ
-						));
+							BuildableLocations.Add(GetBuildableLocation(fire->GetActorLocation(), i, j, -minusZ)); // 1사분면
+							BuildableLocations.Add(GetBuildableLocation(fire->GetActorLocation(), -i, -j, -minusZ )); // 3사분면
+						}// 위치 중복을 피하기 위해 첫줄은 생략
+
+						BuildableLocations.Add(GetBuildableLocation(fire->GetActorLocation(), i, -j, -minusZ)); // 2사분면
+						BuildableLocations.Add(GetBuildableLocation(fire->GetActorLocation(), -i, j, -minusZ)); // 4사분면
 					}
 				}
 				if (i >= FMath::Floor(loopCountX * 0.5f)) loopCountY -= 1;
@@ -230,4 +214,14 @@ void ATileManager::OffBuildableTile()
 	BuildableISM->ClearInstances();
 }
 
+FVector ATileManager::GetBuildableLocation(FVector BaseLocation, int AddX, int AddY, int AddZ)
+{
+	float oneUnit = 100 * TileScale;
+	return FVector(
+		BaseLocation.X + (AddX * oneUnit),
+		BaseLocation.Y + (AddY * oneUnit),
+		BaseLocation.Z + AddZ
+	);
+
+}
 
