@@ -50,8 +50,8 @@ void AMainPC::DeformateToLandscapeFrom(AActor* TargetActor)
 		if (TargetActor) {
 			UBonFireComponent* fireComp = Cast<UBonFireComponent>(TargetActor->GetComponentByClass(UBonFireComponent::StaticClass()));
 			if (fireComp) {
-				fireComp->DestroyInteractionEffects();
-				fireComp->SpawnInteractionEffects();
+				fireComp->DestroyDeformated();
+				fireComp->DeformateToLandscape();
 			}
 		}
 	}

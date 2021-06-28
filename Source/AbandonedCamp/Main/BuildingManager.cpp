@@ -31,6 +31,9 @@ void ABuildingManager::Tick(float DeltaTime)
 
 void ABuildingManager::UpdateManager()
 {
+	BuildingArr.Empty();
+	FireBuildingArr.Empty();
+
 	UGameplayStatics::GetAllActorsWithTag(GetWorld(), TEXT("Building"), BuildingArr);
 
 	for (auto building : BuildingArr) {

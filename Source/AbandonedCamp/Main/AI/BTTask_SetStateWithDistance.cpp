@@ -13,6 +13,7 @@ EBTNodeResult::Type UBTTask_SetStateWithDistance::ExecuteTask(UBehaviorTreeCompo
 	if(AIC){
 		ACommonCharacter* character = AIC->GetPawn<ACommonCharacter>();
 		FVector targetLocation = AIC->BBComponent->GetValueAsVector(TEXT("TargetLocation"));
+		AActor* targetActor = Cast<AActor>(AIC->BBComponent->GetValueAsObject(TEXT("TargetActor")));
 
 		if (character)
 		{
@@ -44,6 +45,9 @@ EBTNodeResult::Type UBTTask_SetStateWithDistance::ExecuteTask(UBehaviorTreeCompo
 					break;
 				}				
 			}
+
+			// 목표가 없으면 Idle로 변경
+			if(!targetActor) character->SetCurrentState(ECharacterState::Idle);
 		}
 	}
 	return EBTNodeResult::Succeeded;

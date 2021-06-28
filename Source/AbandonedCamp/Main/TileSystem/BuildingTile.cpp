@@ -2,6 +2,8 @@
 
 
 #include "BuildingTile.h"
+#include "BonFireComponent.h"
+#include "../BuildingManager.h"
 #include "../MainGS.h"
 #include "../UI/HUDSceneComponent.h"
 #include "../UI/HPBarWidgetBase.h"
@@ -121,7 +123,28 @@ float ABuildingTile::TakeDamage(float DamageAmount, FDamageEvent const& DamageEv
 	}
 
 	if (CurrentHP <= 0) {
+		// particle
 		DestroyInteractionEffects();
+
+		// fireComp
+		UBonFireComponent* myFireComp = Cast<UBonFireComponent>(GetComponentByClass(UBonFireComponent::StaticClass()));
+		if(myFireComp && myFireComp->RenderTarget) myFireComp->ClearRenderTarget();
+
+		// BuildingManager
+		AMainGS* GS = Cast<AMainGS>(UGameplayStatics::GetGameState(GetWorld()));
+		if (GS) {
+			ABuildingManager* BM = GS->GetBuildingManager();
+			if (BM) {
+				BM->BuildingArr.Remove(this);
+				BM->FireBuildingArr.Remove(this);
+
+				for (auto fireBuilding : BM->FireBuildingArr) {
+					UBonFireComponent* fireComp = Cast<UBonFireComponent>(fireBuilding->GetComponentByClass(UBonFireComponent::StaticClass()));
+					fireComp->DeformateToLandscape();
+				}
+			}
+		}
+
 		UE_LOG(LogTemp, Warning, TEXT("Destroy Effect"));
 		Destroy();
 	}

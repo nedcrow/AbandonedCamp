@@ -30,15 +30,12 @@ void UBonFireComponent::PostEditComponentMove(bool bFinished)
 void UBonFireComponent::BeginPlay()
 {
 	Super::BeginPlay();
-	DestroyInteractionEffects();
-	SpawnInteractionEffects();
-}
-
-void UBonFireComponent::SpawnInteractionEffects() {
+	DestroyDeformated();
 	DeformateToLandscape();
 }
 
-void UBonFireComponent::DestroyInteractionEffects()
+
+void UBonFireComponent::DestroyDeformated()
 {
 	ALandscape* land = Cast<ALandscape>(UGameplayStatics::GetActorOfClass(GetWorld(), ALandscape::StaticClass()));
 	if (land) {
@@ -52,9 +49,13 @@ void UBonFireComponent::DestroyInteractionEffects()
 		FDrawToRenderTargetContext targetContext;
 
 		UKismetRenderingLibrary::BeginDrawCanvasToRenderTarget(GetWorld(), RenderTarget, canvas, screenSize, targetContext);
-		canvas->K2_DrawMaterial(EraseMaterial, LastTransform.Position, LastTransform.Size, FVector2D(0, 0));
+		if(EraseMaterial) canvas->K2_DrawMaterial(EraseMaterial, LastTransform.Position, LastTransform.Size, FVector2D(0, 0));
 		UKismetRenderingLibrary::EndDrawCanvasToRenderTarget(GetWorld(), targetContext);
 	}
+}
+
+void UBonFireComponent::ClearRenderTarget() {
+	UKismetRenderingLibrary::ClearRenderTarget2D(GetWorld(), RenderTarget);
 }
 
 void UBonFireComponent::DeformateToLandscape()
