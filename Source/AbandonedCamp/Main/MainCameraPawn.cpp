@@ -216,7 +216,7 @@ void AMainCameraPawn::Build()
 				}
 
 				// BM 업데이트
-				ABuildingManager* BM = GS->GetBuildingManager();
+				ABuildingManager* BM = ABuildingManager::GetInstance();
 				BM->UpdateManager();
 
 				// TM, GS 초기화

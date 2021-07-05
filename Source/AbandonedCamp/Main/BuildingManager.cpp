@@ -6,6 +6,27 @@
 #include "TileSystem/StartPointTile.h"
 #include "Kismet/GameplayStatics.h"
 
+ABuildingManager* ABuildingManager::Instance_;
+
+ABuildingManager* ABuildingManager::GetInstance()
+{
+	ABuildingManager* BM;
+	if (Instance_) {
+		BM = Instance_;
+	}
+	else {
+		UWorld* world = GEngine->GameViewport->GetWorld();
+		BM = Cast<ABuildingManager>(UGameplayStatics::GetActorOfClass(world, ABuildingManager::StaticClass()));
+		if (!BM) {
+			BM = world->SpawnActor<ABuildingManager>();
+			#if WITH_EDITOR
+				BM->SetFolderPath(TEXT("/Managers"));
+			#endif // WITH_EDITOR
+		}	
+	}
+	return BM;
+}
+
 ABuildingManager::ABuildingManager()
 {
 	PrimaryActorTick.bCanEverTick = true;

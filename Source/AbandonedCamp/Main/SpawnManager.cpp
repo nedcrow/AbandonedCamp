@@ -11,19 +11,36 @@
 #include "Kismet/GameplayStatics.h"
 #include "UObject/ConstructorHelpers.h"
 
-// Sets default values
+ASpawnManager* ASpawnManager::Instance_;
+
+ASpawnManager* ASpawnManager::GetInstance()
+{
+	ASpawnManager* SM;
+	if (Instance_) {
+		SM = Instance_;
+	}
+	else {
+		UWorld* world = GEngine->GameViewport->GetWorld();
+		SM = Cast<ASpawnManager>(UGameplayStatics::GetActorOfClass(world, ASpawnManager::StaticClass()));
+		if (!SM) {
+			SM = world->SpawnActor<ASpawnManager>();
+			#if WITH_EDITOR
+				SM->SetFolderPath(TEXT("/Managers"));
+			#endif // WITH_EDITOR
+		}
+	}
+	return SM;
+}
+
 ASpawnManager::ASpawnManager()
 {
- 	// Set this actor to call Tick() every frame.  You can turn this off to improve performance if you don't need it.
 	PrimaryActorTick.bCanEverTick = true;	
 	static ConstructorHelpers::FClassFinder<ACamperCharacter> BP_Camper(TEXT("Blueprint'/Game/BluePrints/Main/Characters/BP_CamperCharacter'"));
 	CamperActor = BP_Camper.Class;
 	static ConstructorHelpers::FClassFinder<AStrangerCharacter> BP_Stranger(TEXT("Blueprint'/Game/BluePrints/Main/Characters/BP_StrangerCharacter'"));
 	StrangerActor = BP_Stranger.Class;
-
 }
 
-// Called when the game starts or when spawned
 void ASpawnManager::BeginPlay()
 {
 	Super::BeginPlay();

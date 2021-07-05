@@ -11,6 +11,10 @@ class ABANDONEDCAMP_API ABuildingManager : public AActor
 {
 	GENERATED_BODY()
 
+protected:
+	static ABuildingManager* Instance_;
+public:
+	static ABuildingManager* GetInstance();
 public:
 	ABuildingManager();
 

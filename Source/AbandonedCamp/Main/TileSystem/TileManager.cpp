@@ -157,7 +157,7 @@ void ATileManager::OnBuildableTile()
 	BuildableLocations.Empty();
 	AMainGS* GS = Cast<AMainGS>(UGameplayStatics::GetGameState(GetWorld()));
 	if (GS) {
-		ABuildingManager* buildingM = GS->GetBuildingManager();
+		ABuildingManager* buildingM = ABuildingManager::GetInstance();
 		for (auto fire : buildingM->FireBuildingArr) {
 			UBonFireComponent* fireComponent = Cast<UBonFireComponent>(fire->GetComponentByClass(UBonFireComponent::StaticClass()));
 			int loopCountX = fireComponent->FireLightRadius;

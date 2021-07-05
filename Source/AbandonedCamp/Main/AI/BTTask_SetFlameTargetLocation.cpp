@@ -13,8 +13,8 @@ EBTNodeResult::Type UBTTask_SetFlameTargetLocation::ExecuteTask(UBehaviorTreeCom
 	AStrangerAIController* AIC = Cast<AStrangerAIController>(OwnerComp.GetAIOwner());
 	if (AIC) {
 		APawn* pawn = AIC->GetPawn();
-		ABuildingManager* buildingM = Cast<ABuildingManager>(UGameplayStatics::GetActorOfClass(GetWorld(), ABuildingManager::StaticClass()));
-		bool isAble = pawn && buildingM && buildingM->FireBuildingArr.Num() > 0;
+		ABuildingManager* buildingM = ABuildingManager::GetInstance();
+		bool isAble = pawn && buildingM->FireBuildingArr.Num() > 0;
 
 		if (isAble) {
 			if (!bUseAvoidance) {

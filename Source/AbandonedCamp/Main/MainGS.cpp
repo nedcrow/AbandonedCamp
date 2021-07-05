@@ -18,8 +18,8 @@ AMainGS::AMainGS() {
 
 void AMainGS::PostInitializeComponents() {
 	Super::PostInitializeComponents();
-	SpawnManager = GetSpawnManager();
-	BuildingManager = GetBuildingManager();
+	ABuildingManager::GetInstance();
+	ASpawnManager::GetInstance();
 }
 
 void AMainGS::BeginPlay() {
@@ -77,34 +77,4 @@ void AMainGS::OnRep_ChangedCurrentActorName()
 ATileManager* AMainGS::GetTileManager()
 {
 	return Cast<ATileManager>(UGameplayStatics::GetActorOfClass(GetWorld(), ATileManager::StaticClass()));
-}
-
-ABuildingManager* AMainGS::GetBuildingManager()
-{
-	ABuildingManager* instance = Cast<ABuildingManager>(UGameplayStatics::GetActorOfClass(GetWorld(), ABuildingManager::StaticClass()));
-	if (instance) {
-		return instance;
-	}
-	else {
-		instance = GetWorld()->SpawnActor<ABuildingManager>();
-		#if WITH_EDITOR
-			instance->SetFolderPath(TEXT("/Managers"));
-		#endif // WITH_EDITOR
-		return instance;
-	}
-}
-
-ASpawnManager* AMainGS::GetSpawnManager()
-{
-	ASpawnManager* instance = Cast<ASpawnManager>(UGameplayStatics::GetActorOfClass(GetWorld(), ASpawnManager::StaticClass()));
-	if (instance) {
-		return instance;
-	}
-	else {
-		instance = GetWorld()->SpawnActor<ASpawnManager>();
-		#if WITH_EDITOR
-				instance->SetFolderPath(TEXT("/Managers"));
-		#endif // WITH_EDITOR
-		return instance;
-	}
 }

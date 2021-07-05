@@ -16,8 +16,8 @@ EBTNodeResult::Type UBTTask_SetPatrolTargetLocation::ExecuteTask(UBehaviorTreeCo
 		if (camper) {
 			if (!bUseAvoidance) {
 				// 타겟 주변 Nm 안으로 순찰 위치 변경
-				ABuildingManager* buildingM = Cast<ABuildingManager>(UGameplayStatics::GetActorOfClass(GetWorld(), ABuildingManager::StaticClass()));
-				if (buildingM && buildingM->FireBuildingArr.Num() > 0) {
+				ABuildingManager* buildingM = ABuildingManager::GetInstance();
+				if (buildingM->FireBuildingArr.Num() > 0) {
 					int max = buildingM->FireBuildingArr.Num() - 1;
 					int index = FMath::RandRange(0, max);
 					FVector targetLocation = buildingM->FireBuildingArr[index]->GetActorLocation();

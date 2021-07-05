@@ -80,22 +80,7 @@ class ABANDONEDCAMP_API AMainGS : public AGameStateBase
 		void OnRep_ChangedCurrentActorName();
 		FTouchDelegate_TwoParams F_TouchEvent;
 
-		// Managers
-		UPROPERTY(BlueprintReadOnly, VisibleAnywhere)
-		class ABuildingManager* BuildingManager;
-
-		UPROPERTY(BlueprintReadOnly, VisibleAnywhere)
-		class ASpawnManager* SpawnManager;
-
+		// ETC
 		UFUNCTION()
 		ATileManager* GetTileManager();
-
-		UFUNCTION()
-		ABuildingManager* GetBuildingManager();
-
-		UFUNCTION()
-		ASpawnManager* GetSpawnManager();
-
-
-		
 };

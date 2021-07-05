@@ -133,7 +133,7 @@ float ABuildingTile::TakeDamage(float DamageAmount, FDamageEvent const& DamageEv
 		// BuildingManager °»½Å
 		AMainGS* GS = Cast<AMainGS>(UGameplayStatics::GetGameState(GetWorld()));
 		if (GS) {
-			ABuildingManager* BM = GS->GetBuildingManager();
+			ABuildingManager* BM = ABuildingManager::GetInstance();
 			BM->BuildingArr.Remove(this);
 			BM->FireBuildingArr.Remove(this);
 

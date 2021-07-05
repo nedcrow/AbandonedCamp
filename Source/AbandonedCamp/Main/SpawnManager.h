@@ -21,8 +21,11 @@ class ABANDONEDCAMP_API ASpawnManager : public AActor
 {
 	GENERATED_BODY()
 	
+protected:
+	static ASpawnManager* Instance_;
+public:
+	static ASpawnManager* GetInstance();
 public:	
-	// Sets default values for this actor's properties
 	ASpawnManager();
 
 protected:
