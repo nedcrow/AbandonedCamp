@@ -217,9 +217,7 @@ void AMainCameraPawn::Build()
 
 				// BM 업데이트
 				ABuildingManager* BM = GS->GetBuildingManager();
-				if (BM) {
-					BM->UpdateManager();
-				}
+				BM->UpdateManager();
 
 				// TM, GS 초기화
 				TM->OffBuildableTile();

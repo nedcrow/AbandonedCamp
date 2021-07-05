@@ -130,18 +130,16 @@ float ABuildingTile::TakeDamage(float DamageAmount, FDamageEvent const& DamageEv
 		UBonFireComponent* myFireComp = Cast<UBonFireComponent>(GetComponentByClass(UBonFireComponent::StaticClass()));
 		if(myFireComp && myFireComp->RenderTarget) myFireComp->ClearRenderTarget();
 
-		// BuildingManager
+		// BuildingManager °»½Å
 		AMainGS* GS = Cast<AMainGS>(UGameplayStatics::GetGameState(GetWorld()));
 		if (GS) {
 			ABuildingManager* BM = GS->GetBuildingManager();
-			if (BM) {
-				BM->BuildingArr.Remove(this);
-				BM->FireBuildingArr.Remove(this);
+			BM->BuildingArr.Remove(this);
+			BM->FireBuildingArr.Remove(this);
 
-				for (auto fireBuilding : BM->FireBuildingArr) {
-					UBonFireComponent* fireComp = Cast<UBonFireComponent>(fireBuilding->GetComponentByClass(UBonFireComponent::StaticClass()));
-					fireComp->DeformateToLandscape();
-				}
+			for (auto fireBuilding : BM->FireBuildingArr) {
+				UBonFireComponent* fireComp = Cast<UBonFireComponent>(fireBuilding->GetComponentByClass(UBonFireComponent::StaticClass()));
+				fireComp->DeformateToLandscape();
 			}
 		}
 

@@ -9,12 +9,17 @@
 #include "MainGS.h"
 #include "MainGS.h"
 #include "Kismet/GameplayStatics.h"
+#include "UObject/ConstructorHelpers.h"
 
 // Sets default values
 ASpawnManager::ASpawnManager()
 {
  	// Set this actor to call Tick() every frame.  You can turn this off to improve performance if you don't need it.
-	PrimaryActorTick.bCanEverTick = true;
+	PrimaryActorTick.bCanEverTick = true;	
+	static ConstructorHelpers::FClassFinder<ACamperCharacter> BP_Camper(TEXT("Blueprint'/Game/BluePrints/Main/Characters/BP_CamperCharacter'"));
+	CamperActor = BP_Camper.Class;
+	static ConstructorHelpers::FClassFinder<AStrangerCharacter> BP_Stranger(TEXT("Blueprint'/Game/BluePrints/Main/Characters/BP_StrangerCharacter'"));
+	StrangerActor = BP_Stranger.Class;
 
 }
 

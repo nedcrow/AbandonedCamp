@@ -14,5 +14,4 @@ class ABANDONEDCAMP_API UBTTask_UpdateTargetLocation : public UBTTask_Blackboard
 {
 	GENERATED_BODY()
 	virtual EBTNodeResult::Type ExecuteTask(UBehaviorTreeComponent& OwnerComp, uint8* NodeMemory) override;
-public:
 };

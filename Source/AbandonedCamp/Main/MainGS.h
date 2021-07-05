@@ -37,6 +37,7 @@ class ABANDONEDCAMP_API AMainGS : public AGameStateBase
 	public:
 		AMainGS();
 
+		virtual void PostInitializeComponents() override;
 		virtual void BeginPlay() override;
 		virtual void GetLifetimeReplicatedProps(TArray<FLifetimeProperty>& OutLifetimeProps) const override;
 
@@ -59,14 +60,6 @@ class ABANDONEDCAMP_API AMainGS : public AGameStateBase
 		void OnRep_ChangedCurrentNight();
 		FTileStateDelegate_OneParam F_OnNightEvent;
 
-		// ChangeUIModeEvent
-		//UPROPERTY(ReplicatedUsing = OnRep_ChangedUIMode, VisibleAnywhere, BlueprintReadOnly, Category = "Tile")
-		//EUIState UIState = EUIState::Normal;
-
-		//UFUNCTION()
-		//void OnRep_ChangedUIMode();
-		//FUIStateDelegate_OneParam F_ChangedUIModeEvent;
-
 		// Build
 		AActor* CurrentSelectedBuilding;
 
@@ -87,7 +80,13 @@ class ABANDONEDCAMP_API AMainGS : public AGameStateBase
 		void OnRep_ChangedCurrentActorName();
 		FTouchDelegate_TwoParams F_TouchEvent;
 
-		// ETC
+		// Managers
+		UPROPERTY(BlueprintReadOnly, VisibleAnywhere)
+		class ABuildingManager* BuildingManager;
+
+		UPROPERTY(BlueprintReadOnly, VisibleAnywhere)
+		class ASpawnManager* SpawnManager;
+
 		UFUNCTION()
 		ATileManager* GetTileManager();
 

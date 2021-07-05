@@ -7,12 +7,6 @@
 #include "../Characters/CommonCharacter.h"
 #include "CommonAIController.generated.h"
 
-UENUM(BlueprintType)
-enum class EMoveState : uint8 {
-	ToTarget = 0	UMETA(Display = "ToTarget"),
-	ToAvoidance = 1	UMETA(Display = "ToAvoidance"),
-};
-
 /**
  * 
  */
@@ -24,20 +18,29 @@ class ABANDONEDCAMP_API ACommonAIController : public AAIController
 public:
 	ACommonAIController();
 
+public:
+	virtual void OnPossess(APawn* InPawn) override;
+
+	virtual void OnUnPossess() override;
+
+// Property
+public:
 	UPROPERTY(BlueprintReadWrite, EditAnywhere)
 	class UBehaviorTreeComponent* BTComponent;
 
 	UPROPERTY(BlueprintReadWrite, EditAnywhere)
 	class UBlackboardComponent* BBComponent;
 
+// Temp data
+public:
+	UPROPERTY(BlueprintReadOnly, VisibleAnywhere)
 	class AActor* CurrentEnermy;
 
+	UPROPERTY(BlueprintReadOnly, VisibleAnywhere)
 	float WalkSpeed;
 
-	virtual void OnPossess(APawn* InPawn) override;
-
-	virtual void OnUnPossess() override;
-
+// Set blackboard
+public:
 	void SetCurrentState(ECharacterState EState);
 
 	void SetTargetActor(AActor* Target);

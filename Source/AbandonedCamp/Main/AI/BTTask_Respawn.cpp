@@ -16,11 +16,9 @@ EBTNodeResult::Type UBTTask_Respawn::ExecuteTask(UBehaviorTreeComponent& OwnerCo
 		AMainGS* GS = Cast< AMainGS>(UGameplayStatics::GetGameState(GetWorld()));
 		if (GS) {
 			ASpawnManager* SM = GS->GetSpawnManager();
-			if (SM) {
-				if (character->ActorHasTag(TEXT("Camp"))) { SM->SpawnActorThat(ESpawnableType::Camper, character); }
-				else if(character->ActorHasTag(TEXT("Stranger"))) { SM->SpawnActorThat(ESpawnableType::Stranger, character); }
-				else {UE_LOG(LogTemp, Warning, TEXT("Error: This actor has no tag(Camp or Stranger).")); }
-			}
+			if (character->ActorHasTag(TEXT("Camp"))) { SM->SpawnActorThat(ESpawnableType::Camper, character); }
+			else if(character->ActorHasTag(TEXT("Stranger"))) { SM->SpawnActorThat(ESpawnableType::Stranger, character); }
+			else {UE_LOG(LogTemp, Warning, TEXT("Error: This actor has no tag(Camp or Stranger).")); }
 		}
 	}
 	return EBTNodeResult::Succeeded;

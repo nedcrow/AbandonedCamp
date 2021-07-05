@@ -6,11 +6,20 @@
 #include "BuildingManager.h"
 #include "SpawnManager.h"
 #include "TileSystem/TileManager.h"
-#include "Net/UnrealNetwork.h"
+
 #include "Kismet/GameplayStatics.h"
+#include "Net/UnrealNetwork.h"
+#include "UObject/ConstructorHelpers.h"
+
 
 AMainGS::AMainGS() {
 	bReplicates = true;
+}
+
+void AMainGS::PostInitializeComponents() {
+	Super::PostInitializeComponents();
+	SpawnManager = GetSpawnManager();
+	BuildingManager = GetBuildingManager();
 }
 
 void AMainGS::BeginPlay() {
@@ -72,10 +81,30 @@ ATileManager* AMainGS::GetTileManager()
 
 ABuildingManager* AMainGS::GetBuildingManager()
 {
-	return Cast<ABuildingManager>(UGameplayStatics::GetActorOfClass(GetWorld(), ABuildingManager::StaticClass()));
+	ABuildingManager* instance = Cast<ABuildingManager>(UGameplayStatics::GetActorOfClass(GetWorld(), ABuildingManager::StaticClass()));
+	if (instance) {
+		return instance;
+	}
+	else {
+		instance = GetWorld()->SpawnActor<ABuildingManager>();
+		#if WITH_EDITOR
+			instance->SetFolderPath(TEXT("/Managers"));
+		#endif // WITH_EDITOR
+		return instance;
+	}
 }
 
 ASpawnManager* AMainGS::GetSpawnManager()
 {
-	return Cast<ASpawnManager>(UGameplayStatics::GetActorOfClass(GetWorld(), ASpawnManager::StaticClass()));
+	ASpawnManager* instance = Cast<ASpawnManager>(UGameplayStatics::GetActorOfClass(GetWorld(), ASpawnManager::StaticClass()));
+	if (instance) {
+		return instance;
+	}
+	else {
+		instance = GetWorld()->SpawnActor<ASpawnManager>();
+		#if WITH_EDITOR
+				instance->SetFolderPath(TEXT("/Managers"));
+		#endif // WITH_EDITOR
+		return instance;
+	}
 }

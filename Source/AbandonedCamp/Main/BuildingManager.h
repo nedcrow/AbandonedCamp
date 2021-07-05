@@ -10,24 +10,22 @@ UCLASS()
 class ABANDONEDCAMP_API ABuildingManager : public AActor
 {
 	GENERATED_BODY()
-	
-public:	
-	// Sets default values for this actor's properties
+
+public:
 	ABuildingManager();
 
 protected:
-	// Called when the game starts or when spawned
 	virtual void BeginPlay() override;
 
 public:	
-	// Called every frame
-	virtual void Tick(float DeltaTime) override;
-
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Data")
 	TArray<AActor*> BuildingArr;
 
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Data")
 	TArray<AActor*> FireBuildingArr;
+
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Data")
+	TArray<AActor*> StrangerStartPointArr;
 
 	void UpdateManager();
 
