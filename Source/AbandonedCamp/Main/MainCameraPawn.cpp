@@ -41,14 +41,12 @@ AMainCameraPawn::AMainCameraPawn()
 
 }
 
-// Called when the game starts or when spawned
 void AMainCameraPawn::BeginPlay()
 {
 	Super::BeginPlay();
 	TransportToStartPoint();
 }
 
-// Called every frame
 void AMainCameraPawn::Tick(float DeltaTime)
 {
 	Super::Tick(DeltaTime);
@@ -121,16 +119,12 @@ void AMainCameraPawn::TurnRight(float Value)
 
 void AMainCameraPawn::CheckCurrentTile(){
 	TArray<FHitResult> outHits = TraceCursor();
-	HoverActorWithTag(outHits, FName("Tile"));
-}
 
-void AMainCameraPawn::HoverActorWithTag(TArray<FHitResult> OutHits, FName Tag)
-{
-	/* 맞은 타일 확인 및 인덱스 번호 갱신 */
+	/* 맞은 타일 확인 및 GS->HoveredTileIndex 갱신 */
 	AMainGS* GS = Cast<AMainGS>(UGameplayStatics::GetGameState(GetWorld()));
 	bool isFound = false;
-	for (auto hit : OutHits) {
-		if (hit.GetActor() && hit.GetActor()->GetComponentsByTag(UInstancedStaticMeshComponent::StaticClass(), Tag).Num() > 0) {
+	for (auto hit : outHits) {
+		if (hit.GetActor() && hit.GetActor()->GetComponentsByTag(UInstancedStaticMeshComponent::StaticClass(), FName("Tile")).Num() > 0) {
 			UInstancedStaticMeshComponent* TileISM = Cast<UInstancedStaticMeshComponent>(hit.GetActor()->GetComponentsByTag(UInstancedStaticMeshComponent::StaticClass(), FName("Tile"))[0]);
 
 			float closestValue = -1;

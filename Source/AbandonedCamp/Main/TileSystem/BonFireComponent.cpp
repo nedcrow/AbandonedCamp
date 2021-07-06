@@ -23,8 +23,8 @@ UBonFireComponent::UBonFireComponent()
 void UBonFireComponent::PostEditComponentMove(bool bFinished)
 {
 	Super::PostEditComponentMove(bFinished);
-	/*DestroyEffects();
-	SpawnEffects();*/
+	DestroyDeformated();
+	DeformateToLandscape();
 }
 
 void UBonFireComponent::BeginPlay()

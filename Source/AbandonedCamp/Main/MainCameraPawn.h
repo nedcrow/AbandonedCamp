@@ -1,11 +1,12 @@
-// Fill out your copyright notice in the Description page of Project Settings.
-
 #pragma once
 
 #include "CoreMinimal.h"
 #include "GameFramework/Pawn.h"
 #include "MainCameraPawn.generated.h"
 
+/*
+*  유저 카메라 및 커서 인터렉션 담당.
+*/
 UCLASS()
 class ABANDONEDCAMP_API AMainCameraPawn : public APawn
 {
@@ -44,6 +45,7 @@ public:
 
 	void TransportToStartPoint();
 
+
 	// Translate
 	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category="Pawn")
 	float TurnSpeed = 0.1f;
@@ -53,8 +55,8 @@ public:
 
 
 	// CurrentTile checking
+	/* 매 tick 마다 확인하며, GameState 프로퍼티 갱신 */
 	void CheckCurrentTile();
-	void HoverActorWithTag(TArray<FHitResult> OutHits, FName Tag);
 
 
 	// Touch interaction

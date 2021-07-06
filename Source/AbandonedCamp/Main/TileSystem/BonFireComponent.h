@@ -44,11 +44,6 @@ public:
 	UPROPERTY(BlueprintReadWrite, EditAnywhere, Category = "Data")
 	UMaterialInstance* EraseMaterial;
 
-	UPROPERTY(BlueprintReadWrite, EditAnywhere, Category = "Data")
-	UParticleSystem* LightBoundaryEffects;
-
-	TArray<UParticleSystemComponent*> InteractionEffectsComponents;
-
 	FCanvasMaterialTransform LastTransform;
 
 	UFUNCTION()
@@ -60,6 +55,7 @@ public:
 	UFUNCTION()
 	void DeformateToLandscape();
 
+private:
 	UFUNCTION()
 	FCanvasMaterialTransform GetCanvasMaterialTransform(FVector2D Position, FVector2D Size, float Scale);
 	

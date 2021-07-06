@@ -21,7 +21,7 @@ class ABANDONEDCAMP_API ASpawnManager : public AActor
 {
 	GENERATED_BODY()
 	
-protected:
+private:
 	static ASpawnManager* Instance_;
 public:
 	static ASpawnManager* GetInstance();
@@ -29,7 +29,6 @@ public:
 	ASpawnManager();
 
 protected:
-	// Called when the game starts or when spawned
 	virtual void BeginPlay() override;
 
 public:	
@@ -46,5 +45,10 @@ public:
 	UFUNCTION()
 	void UpdateSpawnedActors();
 
+	/* 
+	* 액터 생성 및 스폰 된 액터 배열 갱신.
+	* Type: 해당 타입의 액터 생성.
+	* TargetActor: 기본값이 nullptr 경우 새로 생성.
+	*/
 	void SpawnActorThat(ESpawnableType Type, ACommonCharacter* TargetActor);
 };

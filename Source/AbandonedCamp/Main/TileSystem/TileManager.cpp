@@ -44,7 +44,10 @@ void ATileManager::BeginPlay()
 	Super::BeginPlay();
 	AMainGS* GS = Cast<AMainGS>(UGameplayStatics::GetGameState(GetWorld()));
 	if(GS) GS->F_TileHoveredEvent.AddUFunction(this, FName("CallDelFunc_TileHoveredEvent"));
+#if WITH_EDITOR
+#else
 	SpawnInstancedTilemap(SizeX, SizeY);
+#endif // WITH_EDITOR
 }
 
 FVector ATileManager::GetCurrentTileLocation()

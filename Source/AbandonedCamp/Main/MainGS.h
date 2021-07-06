@@ -22,7 +22,6 @@ enum class EUIState : uint8
 };
 
 DECLARE_MULTICAST_DELEGATE_OneParam(FTileStateDelegate_OneParam, ENightState);
-//DECLARE_MULTICAST_DELEGATE_OneParam(FUIStateDelegate_OneParam, EUIState);
 DECLARE_MULTICAST_DELEGATE_OneParam(FTileHoveredDelegate_OneParam, bool);
 DECLARE_MULTICAST_DELEGATE_TwoParams(FTouchDelegate_TwoParams, FName, FVector);
 
@@ -52,6 +51,9 @@ class ABANDONEDCAMP_API AMainGS : public AGameStateBase
 		UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Status")
 		EUIState CurrentUIState;
 
+		UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Build")
+		AActor* CurrentSelectedBuilding;
+
 		// OnOffNightEvent
 		UPROPERTY(ReplicatedUsing = OnRep_ChangedCurrentNight, VisibleAnywhere, BlueprintReadOnly, Category = "Status")
 		ENightState NightState;
@@ -60,8 +62,6 @@ class ABANDONEDCAMP_API AMainGS : public AGameStateBase
 		void OnRep_ChangedCurrentNight();
 		FTileStateDelegate_OneParam F_OnNightEvent;
 
-		// Build
-		AActor* CurrentSelectedBuilding;
 
 		// HoveredTileEvent
 		UPROPERTY(ReplicatedUsing = OnRep_ChangedTileIndex, VisibleAnywhere, BlueprintReadOnly, Category = "Tile")
@@ -71,6 +71,7 @@ class ABANDONEDCAMP_API AMainGS : public AGameStateBase
 		void OnRep_ChangedTileIndex();
 		FTileHoveredDelegate_OneParam F_TileHoveredEvent;
 
+
 		// TouchedActorEvent
 		UPROPERTY(ReplicatedUsing = OnRep_ChangedTileIndex, VisibleAnywhere, BlueprintReadOnly, Category = "Tile")
 		FName CurrentActorName;
@@ -79,6 +80,7 @@ class ABANDONEDCAMP_API AMainGS : public AGameStateBase
 		UFUNCTION()
 		void OnRep_ChangedCurrentActorName();
 		FTouchDelegate_TwoParams F_TouchEvent;
+
 
 		// ETC
 		UFUNCTION()

@@ -60,7 +60,7 @@ void ASpawnManager::UpdateSpawnedActors()
 
 void ASpawnManager::SpawnActorThat(ESpawnableType Type, ACommonCharacter* TargetActor = nullptr)
 {
-	TArray<AActor*> outActors;
+	TArray<AActor*> startPointActors;
 	FName startPointTag;
 
 	switch (Type)
@@ -90,14 +90,14 @@ void ASpawnManager::SpawnActorThat(ESpawnableType Type, ACommonCharacter* Target
 	}
 
 	if (TargetActor != nullptr) {
-		UGameplayStatics::GetAllActorsOfClassWithTag(GetWorld(), AStartPointTile::StaticClass(), startPointTag, outActors);
-		if (outActors.Num() > 0) {
+		UGameplayStatics::GetAllActorsOfClassWithTag(GetWorld(), AStartPointTile::StaticClass(), startPointTag, startPointActors);
+		if (startPointActors.Num() > 0) {
 			int randX = FMath::RandRange(60, 200);
 			int randY = FMath::RandRange(60, 200);
 			FVector startPointLocation = FVector(
-				outActors[0]->GetActorLocation().X + ((FMath::RandRange(0, 1) == 0 ? 1 : -1) * randX),
-				outActors[0]->GetActorLocation().Y + ((FMath::RandRange(0, 1) == 0 ? 1 : -1) * randY),
-				outActors[0]->GetActorLocation().Z
+				startPointActors[0]->GetActorLocation().X + ((FMath::RandRange(0, 1) == 0 ? 1 : -1) * randX),
+				startPointActors[0]->GetActorLocation().Y + ((FMath::RandRange(0, 1) == 0 ? 1 : -1) * randY),
+				startPointActors[0]->GetActorLocation().Z
 			);
 			TargetActor->SetActorLocation(startPointLocation);
 			TargetActor->CurrentHP = TargetActor->MaxHP;

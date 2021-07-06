@@ -31,5 +31,9 @@ protected:
 	virtual void PostEditComponentMove(bool bFinished) override;
 
 public:
+	/*
+	* 스냅 대상 : 이 컴포넌트를 가진 Actor
+	* 스냅 위치 : TileManager 매트릭스 중 가장 가까운 Actor
+	*/
 	void SnapToTileManager(bool bFinished);
 };
