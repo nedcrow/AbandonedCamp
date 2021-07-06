@@ -17,6 +17,7 @@ public:
 	UPROPERTY(BlueprintReadWrite, EditAnywhere, Category = "Widget")
 		class UProgressBar* HPBar;
 
+public:
 	virtual void NativeConstruct()override;
 
 	void SetHPBar(float Percent);

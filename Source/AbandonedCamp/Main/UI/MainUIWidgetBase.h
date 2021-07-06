@@ -13,5 +13,16 @@ UCLASS()
 class ABANDONEDCAMP_API UMainUIWidgetBase : public UUserWidget
 {
 	GENERATED_BODY()
-	
+
+public:
+	UPROPERTY(BlueprintReadWrite, EditAnywhere, Category = "Widget")
+	class UProgressBar* DayStateBar;
+
+	UPROPERTY(BlueprintReadWrite, EditAnywhere, Category = "Widget")
+	class UTextBlock* DayTextBlock;
+
+public:
+	virtual void NativeConstruct()override;
+
+	void SetDayStateBar(float Percent);
 };

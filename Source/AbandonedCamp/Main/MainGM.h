@@ -15,4 +15,16 @@ class ABANDONEDCAMP_API AMainGM : public AGameModeBase
 	GENERATED_BODY()
 	public:
 		AMainGM();
+
+	public:
+		virtual void Tick(float DeltaTime) override;
+
+	// Day
+	public:
+		UPROPERTY(BlueprintReadWrite, EditAnywhere, Category = "Day")
+		float CurrentTime;
+
+		UPROPERTY(BlueprintReadWrite, EditAnywhere, Category = "Day")
+		int SecondPerDay = 30;
+
 };

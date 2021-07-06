@@ -48,10 +48,10 @@ void UBuildUIWidgetBase::OnClickBuildingTabButton()
 {
 	if (bIsActive == true) {
 		bIsActive = false;
-		UWidgetBlueprintGeneratedClass* WidgetAnim = Cast<UWidgetBlueprintGeneratedClass>(GetClass());
-		for (UWidgetAnimation* Anim : WidgetAnim->Animations) {
-			if (Anim->GetName() == TEXT("SlideIn_INST")) {
-				PlayAnimation(Anim);
+		UWidgetBlueprintGeneratedClass* widgetAnim = Cast<UWidgetBlueprintGeneratedClass>(GetClass());
+		for (UWidgetAnimation* anim : widgetAnim->Animations) {
+			if (anim->GetName() == TEXT("SlideIn_INST")) {
+				PlayAnimation(anim);
 				CallOffBuildableTiles();
 				break;
 			}
@@ -59,10 +59,10 @@ void UBuildUIWidgetBase::OnClickBuildingTabButton()
 	}
 	else {
 		bIsActive = true;
-		UWidgetBlueprintGeneratedClass* WidgetAnim = Cast<UWidgetBlueprintGeneratedClass>(GetClass());
-		for (UWidgetAnimation* Anim : WidgetAnim->Animations) {
-			if (Anim->GetName() == TEXT("SlideOut_INST")) {
-				PlayAnimation(Anim);
+		UWidgetBlueprintGeneratedClass* widgetAnim = Cast<UWidgetBlueprintGeneratedClass>(GetClass());
+		for (UWidgetAnimation* anim : widgetAnim->Animations) {
+			if (anim->GetName() == TEXT("SlideOut_INST")) {
+				PlayAnimation(anim);
 				break;
 			}
 		}
