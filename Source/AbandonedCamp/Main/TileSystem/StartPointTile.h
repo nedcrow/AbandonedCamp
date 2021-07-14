@@ -17,4 +17,10 @@ public:
 protected:
 	virtual void BeginPlay() override;
 
+public:
+	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Data")
+	bool bUseablePoint = true;
+
+	UFUNCTION()
+	void CallDelFunc_BuildingEvent();
 };

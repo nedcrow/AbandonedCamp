@@ -19,6 +19,14 @@ class ABANDONEDCAMP_API AMainGM : public AGameModeBase
 	public:
 		virtual void Tick(float DeltaTime) override;
 
+	// Level
+	public:
+		UPROPERTY(BlueprintReadWrite, EditAnywhere, Category = "Level")
+		int CamperCount = 1;
+
+		UPROPERTY(BlueprintReadWrite, EditAnywhere, Category = "Level")
+		int StrangerCount = 1;
+
 	// Day
 	public:
 		UPROPERTY(BlueprintReadWrite, EditAnywhere, Category = "Day")

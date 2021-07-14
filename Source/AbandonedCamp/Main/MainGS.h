@@ -24,6 +24,7 @@ enum class EUIState : uint8
 DECLARE_MULTICAST_DELEGATE_OneParam(FTileStateDelegate_OneParam, ENightState);
 DECLARE_MULTICAST_DELEGATE_OneParam(FTileHoveredDelegate_OneParam, bool);
 DECLARE_MULTICAST_DELEGATE_TwoParams(FTouchDelegate_TwoParams, FName, FVector);
+DECLARE_MULTICAST_DELEGATE(FBuildingDelegate);
 
 /**
  * 
@@ -81,6 +82,12 @@ class ABANDONEDCAMP_API AMainGS : public AGameStateBase
 		void OnRep_ChangedCurrentActorName();
 		FTouchDelegate_TwoParams F_TouchEvent;
 
+
+		// BuildEvent
+		UFUNCTION()
+		/* 호출 시점: true(건설 후), false(제거 후) */
+		void CallBuildingEvent();
+		FBuildingDelegate F_BuildingEvent;
 
 		// ETC
 		UFUNCTION()

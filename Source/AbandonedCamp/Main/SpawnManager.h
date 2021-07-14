@@ -50,5 +50,5 @@ public:
 	* Type: 해당 타입의 액터 생성.
 	* TargetActor: 기본값이 nullptr 경우 새로 생성.
 	*/
-	void SpawnActorThat(ESpawnableType Type, ACommonCharacter* TargetActor);
+	void SpawnActorThat(ESpawnableType Type, ACommonCharacter* TargetActor = nullptr);
 };

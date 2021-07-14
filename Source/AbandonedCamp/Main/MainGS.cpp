@@ -74,6 +74,15 @@ void AMainGS::OnRep_ChangedCurrentActorName()
 	}
 }
 
+void AMainGS::CallBuildingEvent()
+{
+	AMainPC* PC = Cast<AMainPC>(UGameplayStatics::GetPlayerController(GetWorld(), 0));
+
+	if (PC->IsLocalController()) {
+		F_BuildingEvent.Broadcast();
+	}
+}
+
 ATileManager* AMainGS::GetTileManager()
 {
 	return Cast<ATileManager>(UGameplayStatics::GetActorOfClass(GetWorld(), ATileManager::StaticClass()));

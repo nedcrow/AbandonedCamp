@@ -6,7 +6,7 @@
 #include "Characters/CamperCharacter.h"
 #include "Characters/StrangerCharacter.h"
 #include "TileSystem/StartPointTile.h"
-#include "MainGS.h"
+#include "MainGM.h"
 #include "MainGS.h"
 #include "Kismet/GameplayStatics.h"
 #include "UObject/ConstructorHelpers.h"
@@ -44,12 +44,25 @@ ASpawnManager::ASpawnManager()
 void ASpawnManager::BeginPlay()
 {
 	Super::BeginPlay();
+	// 새 액터 생성 및 분할 업데이트
+	AMainGM* GM = Cast<AMainGM>(UGameplayStatics::GetGameMode(GetWorld()));
+	int countOfCamper = FMath::Abs(GM->CamperCount - SpawnedCamperActors.Num());
+	int countOfStranger = FMath::Abs(GM->StrangerCount - SpawnedStrangerActors.Num());
+	for (int i = 0; i < countOfCamper; i++) {
+		SpawnActorThat(ESpawnableType::Camper);
+	}
+	for (int i = 0; i < countOfStranger; i++) {
+		SpawnActorThat(ESpawnableType::Stranger);
+	}
 }
 
 void ASpawnManager::UpdateSpawnedActors()
 {
+	// 초기화
 	SpawnedCamperActors.Empty();
 	SpawnedStrangerActors.Empty();
+
+	// 기존 액터 분할 업데이트
 	TArray<AActor*> outActors;
 	UGameplayStatics::GetAllActorsOfClass(GetWorld(), ACharacter::StaticClass(), outActors);
 	for (auto character : outActors) {
@@ -58,7 +71,7 @@ void ASpawnManager::UpdateSpawnedActors()
 	}
 }
 
-void ASpawnManager::SpawnActorThat(ESpawnableType Type, ACommonCharacter* TargetActor = nullptr)
+void ASpawnManager::SpawnActorThat(ESpawnableType Type, ACommonCharacter* TargetActor)
 {
 	TArray<AActor*> startPointActors;
 	FName startPointTag;
@@ -89,16 +102,24 @@ void ASpawnManager::SpawnActorThat(ESpawnableType Type, ACommonCharacter* Target
 		break;
 	}
 
+	// 사용 가능한 startPointActor 위치만 참고하여 배치
 	if (TargetActor != nullptr) {
 		UGameplayStatics::GetAllActorsOfClassWithTag(GetWorld(), AStartPointTile::StaticClass(), startPointTag, startPointActors);
 		if (startPointActors.Num() > 0) {
 			int randX = FMath::RandRange(60, 200);
 			int randY = FMath::RandRange(60, 200);
-			FVector startPointLocation = FVector(
-				startPointActors[0]->GetActorLocation().X + ((FMath::RandRange(0, 1) == 0 ? 1 : -1) * randX),
-				startPointActors[0]->GetActorLocation().Y + ((FMath::RandRange(0, 1) == 0 ? 1 : -1) * randY),
-				startPointActors[0]->GetActorLocation().Z
-			);
+			TArray<FVector> tempLocationArr;
+			for (auto actor : startPointActors) {
+				AStartPointTile* startPoint = Cast<AStartPointTile>(actor);
+				if (startPoint->bUseablePoint == true) {
+					tempLocationArr.Add(FVector(
+						startPoint->GetActorLocation().X + ((FMath::RandRange(0, 1) == 0 ? 1 : -1) * randX),
+						startPoint->GetActorLocation().Y + ((FMath::RandRange(0, 1) == 0 ? 1 : -1) * randY),
+						startPoint->GetActorLocation().Z)
+						);
+				}
+			}
+			FVector startPointLocation = startPointActors.Num() > 0 ? tempLocationArr[FMath::RandRange(0, tempLocationArr.Num()-1)] : FVector::ZeroVector;
 			TargetActor->SetActorLocation(startPointLocation);
 			TargetActor->CurrentHP = TargetActor->MaxHP;
 			TargetActor->OnRep_CurrentHP();

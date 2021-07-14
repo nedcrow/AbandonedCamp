@@ -131,16 +131,19 @@ float ABuildingTile::TakeDamage(float DamageAmount, FDamageEvent const& DamageEv
 		if(myFireComp && myFireComp->RenderTarget) myFireComp->ClearRenderTarget();
 
 		// BuildingManager 갱신
+		ABuildingManager* BM = ABuildingManager::GetInstance();
+		BM->BuildingArr.Remove(this);
+		BM->FireBuildingArr.Remove(this);
+
+		for (auto fireBuilding : BM->FireBuildingArr) {
+			UBonFireComponent* fireComp = Cast<UBonFireComponent>(fireBuilding->GetComponentByClass(UBonFireComponent::StaticClass()));
+			fireComp->DeformateToLandscape();
+		}
+
+		// Building 파괴 알림
 		AMainGS* GS = Cast<AMainGS>(UGameplayStatics::GetGameState(GetWorld()));
 		if (GS) {
-			ABuildingManager* BM = ABuildingManager::GetInstance();
-			BM->BuildingArr.Remove(this);
-			BM->FireBuildingArr.Remove(this);
-
-			for (auto fireBuilding : BM->FireBuildingArr) {
-				UBonFireComponent* fireComp = Cast<UBonFireComponent>(fireBuilding->GetComponentByClass(UBonFireComponent::StaticClass()));
-				fireComp->DeformateToLandscape();
-			}
+			GS->CallBuildingEvent();
 		}
 
 		UE_LOG(LogTemp, Warning, TEXT("Destroy Effect"));

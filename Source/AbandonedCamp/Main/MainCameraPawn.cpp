@@ -217,6 +217,9 @@ void AMainCameraPawn::Build()
 				TM->OffBuildableTile();
 				GS->CurrentSelectedBuilding = nullptr;
 				GS->CurrentUIState = EUIState::Normal;
+
+				// Build ¾Ë¸²
+				GS->CallBuildingEvent();
 			}
 		}
 	}
