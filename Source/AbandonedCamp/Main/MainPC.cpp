@@ -6,6 +6,7 @@
 #include "TileSystem/TileSnapComponent.h"
 #include "TileSystem/BonFireComponent.h"
 #include "UI/MainUIWidgetBase.h"
+#include "UI/CamperListWidgetBase.h"
 #include "Kismet/GameplayStatics.h"
 
 
@@ -22,6 +23,8 @@ void AMainPC::BeginPlay() {
 
 		bShowMouseCursor = true;
 		SetInputMode(FInputModeGameAndUI());
+
+		MainUIWidgetObject->CamperListWidget->UpdateList();
 	}
 }
 

@@ -39,6 +39,8 @@ ACamperCharacter::ACamperCharacter()
 	RunSpeed = 250.0f;
 	CountAttackAnim = 3;
 	CountHitAnim = 3;
+
+	Tags.Add(TEXT("Camper"));
 }
 
 // Called when the game starts or when spawned

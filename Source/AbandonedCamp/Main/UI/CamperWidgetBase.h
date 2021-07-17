@@ -4,28 +4,31 @@
 
 #include "CoreMinimal.h"
 #include "Blueprint/UserWidget.h"
-#include "MainUIWidgetBase.generated.h"
+#include "CamperWidgetBase.generated.h"
 
 /**
  * 
  */
 UCLASS()
-class ABANDONEDCAMP_API UMainUIWidgetBase : public UUserWidget
+class ABANDONEDCAMP_API UCamperWidgetBase : public UUserWidget
 {
 	GENERATED_BODY()
 
 public:
 	UPROPERTY(BlueprintReadWrite, EditAnywhere, Category = "Widget")
-	class UProgressBar* DayStateBar;
+		class UImage* CamperImage;
 
 	UPROPERTY(BlueprintReadWrite, EditAnywhere, Category = "Widget")
-	class UTextBlock* DayTextBlock;
+		class UHPBarWidgetBase* CamperHPWidget;
 
 	UPROPERTY(BlueprintReadWrite, EditAnywhere, Category = "Widget")
-	class UCamperListWidgetBase* CamperListWidget;
+		class UTextBlock* NameTextBlock;
 
-public:
-	virtual void NativeConstruct()override;
+	virtual void NativeConstruct() override;
 
-	void SetDayStateBar(float Percent);
+	void SetCamperImage(UMaterialInstance* MI);
+
+	void UpdateHPBar(float Percentage);
+
+	void SetCamperName(FName Name);
 };

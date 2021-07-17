@@ -39,7 +39,9 @@ public:
 	UPROPERTY(BlueprintReadWrite, EditAnywhere)
 	TSubclassOf<class AStrangerCharacter> StrangerActor;
 
+	UPROPERTY(BlueprintReadOnly, VisibleAnywhere)
 	TArray<AActor*> SpawnedCamperActors;
+	UPROPERTY(BlueprintReadOnly, VisibleAnywhere)
 	TArray<AActor*> SpawnedStrangerActors;
 
 	UFUNCTION()

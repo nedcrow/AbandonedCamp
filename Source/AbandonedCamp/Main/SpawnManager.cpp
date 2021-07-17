@@ -8,6 +8,10 @@
 #include "TileSystem/StartPointTile.h"
 #include "MainGM.h"
 #include "MainGS.h"
+#include "MainPC.h"
+#include "UI/MainUIWidgetBase.h"
+#include "UI/CamperListWidgetBase.h"
+
 #include "Kismet/GameplayStatics.h"
 #include "UObject/ConstructorHelpers.h"
 
@@ -44,13 +48,24 @@ ASpawnManager::ASpawnManager()
 void ASpawnManager::BeginPlay()
 {
 	Super::BeginPlay();
+
 	// 새 액터 생성 및 분할 업데이트
 	AMainGM* GM = Cast<AMainGM>(UGameplayStatics::GetGameMode(GetWorld()));
+
+	// Camper
 	int countOfCamper = FMath::Abs(GM->CamperCount - SpawnedCamperActors.Num());
-	int countOfStranger = FMath::Abs(GM->StrangerCount - SpawnedStrangerActors.Num());
 	for (int i = 0; i < countOfCamper; i++) {
 		SpawnActorThat(ESpawnableType::Camper);
 	}
+	for (int i = 0; i < SpawnedCamperActors.Num(); i++) {
+		FString tempName = "Camper_" + FString::FromInt(i);
+		Cast<ACamperCharacter>(SpawnedCamperActors[i])->CamperName = FName(*tempName);
+	}
+	AMainPC* PC = Cast<AMainPC>(UGameplayStatics::GetPlayerController(GetWorld(), 0));
+	if (PC->MainUIWidgetObject) PC->MainUIWidgetObject->CamperListWidget->UpdateList();
+
+	// Stranger
+	int countOfStranger = FMath::Abs(GM->StrangerCount - SpawnedStrangerActors.Num());
 	for (int i = 0; i < countOfStranger; i++) {
 		SpawnActorThat(ESpawnableType::Stranger);
 	}

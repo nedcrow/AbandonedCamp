@@ -2,6 +2,7 @@
 
 
 #include "MainUIWidgetBase.h"
+#include "CamperListWidgetBase.h"
 #include "Components/ProgressBar.h"
 #include "Components/TextBlock.h"
 
@@ -9,6 +10,7 @@ void UMainUIWidgetBase::NativeConstruct()
 {
 	DayStateBar = Cast<UProgressBar>(GetWidgetFromName(TEXT("DayStateBar")));
 	DayTextBlock = Cast<UTextBlock>(GetWidgetFromName(TEXT("DayTextBlock")));
+	CamperListWidget = Cast<UCamperListWidgetBase>(GetWidgetFromName(TEXT("CamperListWidget")));
 }
 
 void UMainUIWidgetBase::SetDayStateBar(float Percent)

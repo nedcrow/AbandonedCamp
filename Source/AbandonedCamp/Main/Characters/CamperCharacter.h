@@ -45,4 +45,11 @@ public:
 
 	// TakeDamage
 	virtual float TakeDamage(float DamageAmount, struct FDamageEvent const& DamageEvent, class AController* EventInstigator, AActor* DamageCauser) override;
+
+	// UI Info
+	UPROPERTY(BlueprintReadOnly, VisibleAnywhere, Category = "UI")
+	FName CamperName;
+
+	UPROPERTY(BlueprintReadWrite, EditAnywhere, Category = "UI")
+	UMaterialInstance* Thumbnail;
 };
