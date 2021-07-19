@@ -21,4 +21,5 @@ public:
 	virtual void NativeConstruct()override;
 
 	void SetHPBar(float Percent);
+	void SetHPBarColor(FLinearColor Color, FLinearColor BGColor = FLinearColor::Black);
 };

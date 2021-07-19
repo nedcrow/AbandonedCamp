@@ -21,3 +21,11 @@ void UHPBarWidgetBase::SetHPBar(float Percent)
 		SetVisibility(ESlateVisibility::Visible);
 	}
 }
+
+void UHPBarWidgetBase::SetHPBarColor(FLinearColor Color, FLinearColor BGColor)
+{
+	FProgressBarStyle style = FProgressBarStyle();
+	style.FillImage.TintColor = FSlateColor(Color);
+	style.BackgroundImage.TintColor = FSlateColor(BGColor);
+	HPBar->WidgetStyle = style;
+}

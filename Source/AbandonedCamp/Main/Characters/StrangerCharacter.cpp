@@ -4,10 +4,12 @@
 #include "StrangerCharacter.h"
 #include "../AI/StrangerAIController.h"
 #include "../MainGS.h"
+#include "../UI/HPBarWidgetBase.h"
 
 #include "Components/CapsuleComponent.h"
 #include "Components/SphereComponent.h"
 #include "Components/StaticMeshComponent.h"
+#include "Components/WidgetComponent.h"
 #include "GameFramework/CharacterMovementComponent.h"
 #include "Kismet/GameplayStatics.h"
 #include "Perception/PawnSensingComponent.h"
@@ -47,15 +49,23 @@ AStrangerCharacter::AStrangerCharacter()
 	CountHitAnim = 2;
 
 	Tags.Add(TEXT("Stranger"));
+
 }
 
 // Called when the game starts or when spawned
 void AStrangerCharacter::BeginPlay()
 {
 	Super::BeginPlay();
-	OnRep_CurrentHP();
 
-	// Event
+	// HP
+	OnRep_CurrentHP();
+	if(HPBarWidget) {
+		UHPBarWidgetBase* HPBarWidgetObj = Cast<UHPBarWidgetBase>(HPBarWidget->GetUserWidgetObject());
+		HPBarWidgetObj->SetHPBarColor(FLinearColor(1.f, 0.f, 0.f, 1.f));
+	}
+
+
+	// Bind events
 	AMainGS* GS = Cast<AMainGS>(UGameplayStatics::GetGameState(GetWorld()));
 	if (GS) {
 		GS->F_OnNightEvent.AddUFunction(this, FName("CallDelFunc_OnNightEvent"));
