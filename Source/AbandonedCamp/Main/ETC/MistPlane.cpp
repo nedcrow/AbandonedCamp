@@ -2,7 +2,11 @@
 
 
 #include "MistPlane.h"
+#include "../BuildingManager.h"
+#include "../SpawnManager.h"
+#include "../TileSystem/BonFireComponent.h"
 #include "Components/StaticMeshComponent.h"
+#include "Kismet/GameplayStatics.h"
 #include "Kismet/KismetRenderingLibrary.h"
 
 // Sets default values
@@ -16,4 +20,44 @@ void AMistPlane::PostInitializeComponents()
 {
 	Super::PostInitializeComponents();
 	UKismetRenderingLibrary::ClearRenderTarget2D(GetWorld(), RenderTarget);
+}
+
+void AMistPlane::Tick(float DeltaTime)
+{
+	Super::Tick(DeltaTime);
+	if (CurrentTime < 1) {
+		CurrentTime += GetWorld()->GetDeltaSeconds() / SecondPerOneHit;
+	}
+	else {
+		CurrentTime = 0.f;
+		DamageOverTime();
+	}
+}
+
+void AMistPlane::DamageOverTime()
+{
+	ASpawnManager* SM = ASpawnManager::GetInstance();
+	ABuildingManager* BM = ABuildingManager::GetInstance();
+	for (auto camper : SM->SpawnedCamperActors) {
+		if (BM->FireBuildingArr.Num() == 0) {
+			if (GetWorld()->IsServer()) {
+				UGameplayStatics::ApplyPointDamage(camper, AttackPoint, FVector(), FHitResult(), GetController(), this, UDamageType::StaticClass());
+			}
+		}
+		else {
+			for (auto building : BM->FireBuildingArr) {
+				float dist = FVector::Distance(
+					FVector(camper->GetActorLocation().X, camper->GetActorLocation().Y, 0.f),
+					FVector(building->GetActorLocation().X, building->GetActorLocation().Y, 0.f)
+				);
+				UBonFireComponent* fireComponent = Cast<UBonFireComponent>(building->GetComponentByClass(UBonFireComponent::StaticClass()));
+				bool isOutOfLight = fireComponent && dist > (fireComponent->FireLightRadius + 1) * 100;
+				if (isOutOfLight) {
+					if (GetWorld()->IsServer()) {
+						UGameplayStatics::ApplyPointDamage(camper, AttackPoint, FVector(), FHitResult(), GetController(), this, UDamageType::StaticClass());
+					}
+				}
+			}
+		}		
+	}
 }

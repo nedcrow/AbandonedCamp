@@ -3,7 +3,10 @@
 
 #include "CamperCharacter.h"
 #include "CommonCharacter.h"
+#include "../MainPC.h"
 #include "../AI/CamperAIController.h"
+#include "../UI/MainUIWidgetBase.h"
+#include "../UI/CamperListWidgetBase.h"
 
 #include "Components/CapsuleComponent.h"
 #include "Components/StaticMeshComponent.h"
@@ -126,6 +129,10 @@ float ACamperCharacter::TakeDamage(float DamageAmount, FDamageEvent const& Damag
 	{
 		CurrentHP = tempHP;
 		OnRep_CurrentHP();
+		AMainPC* PC = Cast<AMainPC>(UGameplayStatics::GetPlayerController(GetWorld(), 0));
+		if (PC) {
+			PC->MainUIWidgetObject->CamperListWidget->UpdateList();
+		}
 	}
 
 	if (CurrentHP <= 0) {
