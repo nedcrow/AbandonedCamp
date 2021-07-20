@@ -33,6 +33,8 @@ public:
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Data")
 	TArray<AActor*> FireBuildingArr;
 
+	int MaxFireBuildingCount;
+
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Data")
 	TArray<AActor*> StrangerStartPointArr;
 

@@ -7,6 +7,7 @@
 #include "../AI/CamperAIController.h"
 #include "../UI/MainUIWidgetBase.h"
 #include "../UI/CamperListWidgetBase.h"
+#include "../UI/GameResultWidget.h"
 
 #include "Components/CapsuleComponent.h"
 #include "Components/StaticMeshComponent.h"
@@ -122,23 +123,24 @@ float ACamperCharacter::TakeDamage(float DamageAmount, FDamageEvent const& Damag
 		return 0.f;
 	}
 
-	float tempHP = CurrentHP;
-	tempHP -= DamageAmount;
+	AMainPC* PC = Cast<AMainPC>(UGameplayStatics::GetPlayerController(GetWorld(), 0));
+	if (PC) {
+		float tempHP = CurrentHP;
+		tempHP -= DamageAmount;
 
-	if (CurrentHP != tempHP)
-	{
-		CurrentHP = tempHP;
-		OnRep_CurrentHP();
-		AMainPC* PC = Cast<AMainPC>(UGameplayStatics::GetPlayerController(GetWorld(), 0));
-		if (PC) {
+		if (CurrentHP != tempHP)
+		{
+			CurrentHP = tempHP;
+			OnRep_CurrentHP();
 			PC->MainUIWidgetObject->CamperListWidget->UpdateList();
 		}
-	}
 
-	if (CurrentHP <= 0) {
-		ACamperAIController* AIC = GetController<ACamperAIController>();
-		if (AIC) AIC->SetCurrentState(ECharacterState::Dead);
-	}
+		if (CurrentHP <= 0) {
+			ACamperAIController* AIC = GetController<ACamperAIController>();
+			SetCurrentState(ECharacterState::Dead);
+			PC->MainUIWidgetObject->GameResultWidget->UpdateGameResult();
+		}
+	}	
 
 	return 0.0f;
 }

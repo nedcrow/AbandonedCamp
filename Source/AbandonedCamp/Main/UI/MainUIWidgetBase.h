@@ -24,6 +24,9 @@ public:
 	UPROPERTY(BlueprintReadWrite, EditAnywhere, Category = "Widget")
 	class UCamperListWidgetBase* CamperListWidget;
 
+	UPROPERTY(BlueprintReadWrite, EditAnywhere, Category = "Widget")
+	class UGameResultWidget* GameResultWidget;
+
 public:
 	virtual void NativeConstruct()override;
 

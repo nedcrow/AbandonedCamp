@@ -46,12 +46,16 @@ void ABuildingManager::UpdateManager()
 	UGameplayStatics::GetAllActorsWithTag(GetWorld(), TEXT("Building"), BuildingArr);
 
 	// UpdateFireBuildingArr
+	MaxFireBuildingCount = FireBuildingArr.Num();
 	FireBuildingArr.Empty();
 	for (auto building : BuildingArr) {
 		UBonFireComponent* tempFireComp = Cast<UBonFireComponent>(building->GetComponentByClass(UBonFireComponent::StaticClass()));
 		if (tempFireComp) {
 			FireBuildingArr.Add(building);
 		}
+	}
+	if (MaxFireBuildingCount < FireBuildingArr.Num()) {
+		MaxFireBuildingCount = FireBuildingArr.Num();
 	}
 
 	// Update StrangerStartPointArr

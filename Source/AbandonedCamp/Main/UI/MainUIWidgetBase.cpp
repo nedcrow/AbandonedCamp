@@ -3,6 +3,8 @@
 
 #include "MainUIWidgetBase.h"
 #include "CamperListWidgetBase.h"
+#include "GameResultWidget.h"
+
 #include "Components/ProgressBar.h"
 #include "Components/TextBlock.h"
 
@@ -11,6 +13,8 @@ void UMainUIWidgetBase::NativeConstruct()
 	DayStateBar = Cast<UProgressBar>(GetWidgetFromName(TEXT("DayStateBar")));
 	DayTextBlock = Cast<UTextBlock>(GetWidgetFromName(TEXT("DayTextBlock")));
 	CamperListWidget = Cast<UCamperListWidgetBase>(GetWidgetFromName(TEXT("CamperListWidget")));
+	GameResultWidget = Cast<UGameResultWidget>(GetWidgetFromName(TEXT("GameResultWidget")));
+	GameResultWidget->SetVisibility(ESlateVisibility::Collapsed);
 }
 
 void UMainUIWidgetBase::SetDayStateBar(float Percent)

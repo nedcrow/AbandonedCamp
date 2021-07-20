@@ -25,7 +25,12 @@ public:
 		class UTextBlock* SurvivingTextBlock;
 
 	UPROPERTY(BlueprintReadWrite, EditAnywhere, Category = "Widget")
-		class UButton* TrayAgainButton;
+		class UButton* TryAgainButton;
 
 	virtual void NativeConstruct() override;
+
+	void UpdateGameResult();
+
+	UFUNCTION()
+	void TryAgain();
 };
