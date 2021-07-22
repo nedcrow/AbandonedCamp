@@ -20,12 +20,14 @@ UBonFireComponent::UBonFireComponent()
 
 
 // Called when the game starts
+#if WITH_EDITOR
 void UBonFireComponent::PostEditComponentMove(bool bFinished)
 {
 	Super::PostEditComponentMove(bFinished);
 	DestroyDeformated();
 	DeformateToLandscape();
 }
+#endif
 
 void UBonFireComponent::BeginPlay()
 {

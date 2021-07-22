@@ -45,17 +45,24 @@ void AMistPlane::DamageOverTime()
 			}
 		}
 		else {
+			// 여러 캠프빌딩 중 하나라도 벗어나지 않으면 false
+			bool isOutOfLight = true;
 			for (auto building : BM->FireBuildingArr) {
 				float dist = FVector::Distance(
 					FVector(camper->GetActorLocation().X, camper->GetActorLocation().Y, 0.f),
 					FVector(building->GetActorLocation().X, building->GetActorLocation().Y, 0.f)
 				);
 				UBonFireComponent* fireComponent = Cast<UBonFireComponent>(building->GetComponentByClass(UBonFireComponent::StaticClass()));
-				bool isOutOfLight = fireComponent && dist > (fireComponent->FireLightRadius + 1) * 100;
-				if (isOutOfLight) {
-					if (GetWorld()->IsServer()) {
-						UGameplayStatics::ApplyPointDamage(camper, AttackPoint, FVector(), FHitResult(), GetController(), this, UDamageType::StaticClass());
-					}
+				bool isInOfLight = fireComponent && dist <= (fireComponent->FireLightRadius + 1.f) * 100;
+				if (isInOfLight) {
+					isOutOfLight = false;
+					goto EndOutOfLightChecking;
+				}
+			}
+			EndOutOfLightChecking:
+			if (isOutOfLight) {
+				if (GetWorld()->IsServer()) {
+					UGameplayStatics::ApplyPointDamage(camper, AttackPoint, FVector(), FHitResult(), GetController(), this, UDamageType::StaticClass());
 				}
 			}
 		}		

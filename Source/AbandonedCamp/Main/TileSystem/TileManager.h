@@ -25,7 +25,9 @@ public:
 	class UInstancedStaticMeshComponent* BuildableISM;
 
 protected:
+#if WITH_EDITOR
 	virtual void PostRegisterAllComponents() override;
+#endif
 	virtual void BeginPlay() override;
 
 	UPROPERTY(BlueprintReadOnly, VisibleAnywhere, Category = "Tile")

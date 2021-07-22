@@ -38,6 +38,10 @@ public:
 	UFUNCTION(BlueprintCallable)
 		void CallDelFunc_OnNightEvent(ENightState NightState);
 
+	// Attack target option
+	UPROPERTY(BlueprintReadWrite, EditAnywhere)
+		TArray<FName> AttackTargetTags;
+
 	// OverlapEvent
 	UFUNCTION()
 		void OnBeginOverlap(

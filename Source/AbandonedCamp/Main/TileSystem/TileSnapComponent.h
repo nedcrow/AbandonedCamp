@@ -27,8 +27,9 @@ public:
 	UTileSnapComponent();
 
 protected:
-	
+#if WITH_EDITOR
 	virtual void PostEditComponentMove(bool bFinished) override;
+#endif
 
 public:
 	/*

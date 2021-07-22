@@ -26,7 +26,9 @@ public:
 	UBonFireComponent();
 
 public:
+#if WITH_EDITOR
 	virtual void PostEditComponentMove(bool bFinished) override;
+#endif
 	virtual void BeginPlay() override;
 
 public:	

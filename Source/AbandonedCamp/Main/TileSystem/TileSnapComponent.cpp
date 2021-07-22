@@ -14,11 +14,13 @@ UTileSnapComponent::UTileSnapComponent()
 	PrimaryComponentTick.bCanEverTick = true;
 }
 
+#if WITH_EDITOR
 void UTileSnapComponent::PostEditComponentMove(bool bFinished)
 {
 	Super::PostEditComponentMove(bFinished);
 	SnapToTileManager(bFinished);
 }
+#endif
 
 void UTileSnapComponent::SnapToTileManager(bool bFinished)
 {

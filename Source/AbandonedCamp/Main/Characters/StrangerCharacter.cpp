@@ -113,7 +113,11 @@ void AStrangerCharacter::CallDelFunc_OnNightEvent(ENightState NightState)
 void AStrangerCharacter::OnBeginOverlap(UPrimitiveComponent* OverlappedComponent, AActor* OtherActor, UPrimitiveComponent* OtherComp, int32 OtherBodyIndex, bool bFromSweep, const FHitResult& SweepResult)
 {
 	AStrangerAIController* AIC = GetController<AStrangerAIController>();
-	bool isSuccess = OtherActor->ActorHasTag(TEXT("Camper")) || OtherActor->ActorHasTag(TEXT("Building"));
+	bool isSuccess = false;
+	for (auto tag : AttackTargetTags) {
+		isSuccess = OtherActor->ActorHasTag(tag);
+		if(isSuccess) break;
+	}
 	isSuccess = isSuccess && AIC && AIC->CurrentEnermy;
 
 	if (isSuccess) {

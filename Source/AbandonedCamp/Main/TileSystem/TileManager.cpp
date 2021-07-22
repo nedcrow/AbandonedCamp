@@ -31,13 +31,13 @@ ATileManager::ATileManager()
 	bReplicates = true;
 }
 
+#if WITH_EDITOR
 void ATileManager::PostRegisterAllComponents()
 {
 	Super::PostRegisterAllComponents();
-#if WITH_EDITOR
 	SpawnInstancedTilemap(SizeX, SizeY);
-#endif // WITH_EDITOR
 }
+#endif // WITH_EDITOR
 
 void ATileManager::BeginPlay()
 {
