@@ -147,6 +147,9 @@ void AMainCameraPawn::CheckCurrentTile(){
 			}
 			isFound = true;
 			break;
+
+			/*ATileManager* TM = GS->GetTileManager();
+			TM->SpawnHoveredDecal(hit.Location);*/
 		}
 	}
 

@@ -58,7 +58,7 @@ FVector ATileManager::GetCurrentTileLocation()
 // 타일 인스턴스들로 기본 타일맵 생성
 void ATileManager::SpawnInstancedTilemap(int CountX, int CountY)
 {
-	float oneUnit = 100 * TileScale;
+	float oneUnit = TileUnit * TileScale;
 	float startPointX = -(CountX * oneUnit * 0.5f) + (oneUnit * 0.5f); // 전체 타일 길이의 반 + 한 타일의 반
 	float startPointY = -(CountY * oneUnit * 0.5f) + (oneUnit * 0.5f); // 전체 타일 길이의 반 + 한 타일의 반
 	float startPointZ = GetActorLocation().Z;
@@ -147,6 +147,61 @@ void ATileManager::CallDelFunc_TileHoveredEvent(bool isHovered)
 
 	AMainPC* PC = Cast<AMainPC>(UGameplayStatics::GetPlayerController(GetWorld(), 0));
 	PC->SetCurrentSelectedBuildingLocation(CurrentTileLocation);
+}
+
+void ATileManager::SpawnHoveredDecal(FVector Location)
+{
+	float targetX;
+	float targetY;
+	float halfTileMapSizeX = SizeX * TileUnit * 0.5f;
+	float halfTileMapSizeY = SizeY * TileUnit * 0.5f;
+	float halfTileUnit = TileUnit * 0.5f;
+	TArray<float> TileLocationArrX;
+	TArray<float> TileLocationArrY;
+	for (int i = 0; i < halfTileMapSizeX; i++) { TileLocationArrX.Add(-halfTileMapSizeX + halfTileUnit + (TileUnit * i)); }
+	for (int i = 0; i < halfTileMapSizeY; i++) { TileLocationArrY.Add(-halfTileMapSizeY + halfTileUnit + (TileUnit * i)); }
+
+	bool isInTileMap = Location.X < halfTileMapSizeX&& Location.X > -halfTileMapSizeX &&
+		Location.Y < halfTileMapSizeY&& Location.Y > -halfTileMapSizeY;
+	if (isInTileMap) {
+		float lastDistX = halfTileMapSizeX * 2;
+		for (float locationX : TileLocationArrX) {
+			if (lastDistX > FMath::Abs(locationX - Location.X)) {
+				lastDistX = FMath::Abs(locationX - Location.X);
+				targetX = locationX;
+			}
+		}
+		float lastDistY = halfTileMapSizeX * 2;
+		for (float locationY : TileLocationArrY) {
+			if (lastDistY > FMath::Abs(locationY - Location.Y)) {
+				lastDistY = FMath::Abs(locationY - Location.Y);
+				targetY = locationY;
+			}
+		}
+	}
+
+	// 필수 Material 확인
+	if (Border_MI == nullptr) {
+		UE_LOG(LogTemp, Warning, TEXT("!!!- Null : border_MI -!!!"));
+		return;
+	}
+
+	// 커서 위치 확인 용 Decal 없으면 생성
+	if (CursorTileDecal == nullptr) {
+		CursorTileDecal = UGameplayStatics::SpawnDecalAtLocation(GetWorld(), Border_MI, FVector(50.0f, 50.0f, TileUnit), DefaultTileISM->GetRelativeLocation(), FRotator().ZeroRotator, 0.0f);
+	}
+
+	//// 빌드 모드에 사용 할 Decal 없으면 생성
+	//if (BuildUnableTileDecal == nullptr) {
+	//	BuildUnableTileDecal = UGameplayStatics::SpawnDecalAtLocation(GetWorld(), Unable_Build_MI, FVector(50.0f, 50.0f, TileUnit), DefaultTileISM->GetRelativeLocation(), FRotator().ZeroRotator, 0.0f);
+	//}
+
+	// Decal 배치
+	if (CursorTileDecal->GetRelativeLocation().X != targetX || CursorTileDecal->GetRelativeLocation().Y != targetY) {
+		UE_LOG(LogTemp, Warning, TEXT("test: X: %f, Y: %f"), targetX, targetY);
+		//CursorTileDecal->Activate(true);
+		CursorTileDecal->SetRelativeLocation(FVector(targetX, targetY, DefaultTileISM->GetRelativeLocation().Z));
+	}
 }
 
 void ATileManager::OnBuildableTile()

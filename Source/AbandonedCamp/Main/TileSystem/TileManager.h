@@ -41,6 +41,10 @@ public:
 	UPROPERTY(BlueprintReadWrite, EditAnywhere, Category = "TileMap")
 	TArray<FVector> BuildableLocations;
 
+	/* Centimeter */
+	UPROPERTY(BlueprintReadWrite, EditAnywhere, Category = "TileMap")
+	int TileUnit = 100;
+
 	/* X축 타일 갯수 */
 	UPROPERTY(BlueprintReadWrite, EditAnywhere, Category = "TileMap")
 	int SizeX = 3;
@@ -78,6 +82,8 @@ public:
 	// Hovered tile
 	UFUNCTION()
 	void CallDelFunc_TileHoveredEvent(bool isHovered);
+
+	void SpawnHoveredDecal(FVector Location);
 
 
 	// Buildable tile
